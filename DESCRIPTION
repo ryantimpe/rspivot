@@ -1,0 +1,17 @@
+Package: rspivot
+Type: Package
+Title: rspivot
+Imports: 
+    dplyr, 
+    tidyr
+Version: 0.0.0.900
+Author: Ryan Timpe <ryan.timpe at gmail.com>
+Authors@R: c(
+    person("Ryan", "Timpe", email = "ryan.timpe@gmail.com", role = c("aut", "cre")),
+    person("International Planning & Research Corp", email = "ryan.timpe@iprcorp.com", role = "cph")
+    )
+Description: RStudio add-in to review data.frame as a pivot table.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
