@@ -1,6 +1,6 @@
 Package: rspivot
 Type: Package
-Title: rspivot
+Title: View data frames as Shiny pivot tables.
 Imports: 
     tidyverse,
     lazyeval,

@@ -1,10 +1,27 @@
-library(shiny)
-library(miniUI)
-library(DT)
-library(tidyverse)
-library(lazyeval)
+
 
 rspivot <- function(df=.Last.value, valueName = "value") {
+
+  library(shiny)
+  library(miniUI)
+  library(DT)
+  library(tidyverse)
+  library(lazyeval)
+
+
+  ################ ----
+  # Non-Reactive functions
+  ################
+
+  if(length(valueName) > 1){
+    df0 <- df %>%
+      gather(ValueNames, value, valueName)
+  } else{
+    df0 <- df
+  }
+
+  dim_names <- names(df0)[!(names(df0) %in% c("value"))]
+  all.elements <- "Show All"
 
   ################ ----
   # UI
@@ -78,12 +95,6 @@ rspivot <- function(df=.Last.value, valueName = "value") {
       )
   )
 
-  ################ ----
-  # Non-Reactive functions
-  ################
-
-  dim_names <- names(df)[!(names(df) %in% c("value"))]
-  all.elements <- "Show All"
 
   ################ ----
   # Server
@@ -91,18 +102,22 @@ rspivot <- function(df=.Last.value, valueName = "value") {
 
   server <- function(input, output, session) {
 
-    if(!is.data.frame(df)){
+    ####
+    # Initialize ----
+    ####
+    if(!is.data.frame(df0)){
       message("Supplied object is not a data frame.")
       output$need.data.frame <- renderText({
         return("Supplied object is not a data frame.")
       })
     } else{
       dat0 <- reactive({
-        dat <- df
+        dat <- df0
         names(dat)[names(dat) == valueName] <- "value"
         return(dat)
       })
     }
+
 
     ###
     #Create UI menus ----
@@ -301,6 +316,12 @@ rspivot <- function(df=.Last.value, valueName = "value") {
         group_by_(.dots = as.list(names(.)[names(.) %in% c(sel_col, sel_row, sel_nest)])) %>%
         summarize(value = sum(value)) %>%
         ungroup() %>%
+        mutate_at(vars(sel_row), as.character()) %>%
+        do(
+          if(sel_nest != "None"){
+            mutate_at(., vars(sel_nest), as.character())
+          } else {.}
+        ) %>%
         spread(sel_col, value) %>%
         rowwise() %>%
         mutate_if(is.character, funs(ifelse(nchar(.) > 12, substr(., 1, 12), .))) %>%
@@ -347,9 +368,9 @@ rspivot <- function(df=.Last.value, valueName = "value") {
                       ) %>%
         formatRound(columns = if(input$dataMetric == "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{1},
                     digits = input$decValues) %>%
-        formatPercentage(columns = if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{1},
+        formatPercentage(columns = if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{-1},
                     digits = input$decMetric) %>%
-        formatRound(columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{1},
+        formatRound(columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{-1},
                     digits = input$decMetric) %>%
         formatStyle(
           columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{1},
@@ -375,7 +396,12 @@ rspivot <- function(df=.Last.value, valueName = "value") {
   runGadget(ui, server, viewer = viewer)
 
 }
+
+# GVAIndustry2 <- GVAIndustry %>%
+#   spread(Econ, value)
 #
 # df<- GVAIndustry
 # # Run it
 # rspivot()
+#
+# rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
