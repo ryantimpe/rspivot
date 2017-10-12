@@ -68,8 +68,6 @@ rspivot <- function(df=.Last.value, valueName = "value") {
                               min = 0, max = 5, step = 1),
                  numericInput("decMetric", label = "Growth/Share metric", value = 1,
                               min = 0, max = 5, step = 1),
-                 numericInput("decNested", label = "Nested metric", value = 3,
-                              min = 0, max = 8, step = 1),
                  hr(),
                  selectInput("oomValues", label = "Value Order of Magnitude",
                              choices = c("Units" = 1, "Thousands" = 10^-3, "Millions" = 10^-6, "Billions" = 10^-9),
@@ -271,7 +269,9 @@ rspivot <- function(df=.Last.value, valueName = "value") {
 
         dat <- dat %>%
           group_by_(.dots = names(.)[!(names(.) %in% c(sel_metric, "value"))]) %>%
-          mutate(Growth = (value / lag(value, 1) - 1)) %>%
+          mutate(Growth = (value / lag(value, 1) - 1) *
+                   (if(sel_nest =="Metric_calc"){100}else{1})
+                    ) %>%
           ungroup() %>%
           rename(Values = value) %>%
           gather(Metric_calc, value, Values, Growth)
@@ -282,7 +282,9 @@ rspivot <- function(df=.Last.value, valueName = "value") {
 
         dat <- dat %>%
           group_by_(.dots = names(.)[!(names(.) %in% c(sel_metric, "value"))]) %>%
-          mutate(Shares = (value / sum(value))) %>%
+          mutate(Shares = (value / sum(value)) *
+                   (if(sel_nest =="Metric_calc"){100}else{1})
+                 ) %>%
           ungroup() %>%
           rename(Values = value) %>%
           gather(Metric_calc, value, Values, Shares)
@@ -349,7 +351,7 @@ rspivot <- function(df=.Last.value, valueName = "value") {
         formatPercentage(columns = if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{1},
                     digits = input$decMetric) %>%
         formatRound(columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{1},
-                    digits = input$decNested) %>%
+                    digits = input$decMetric) %>%
         formatStyle(
           columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{1},
           valueColumns = if(input$PivRowNest == "Metric_calc"){"Metric_calc"}else{1},
