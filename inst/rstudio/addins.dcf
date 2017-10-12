@@ -1,0 +1,4 @@
+Name: RS Pivot
+Description: View recent data frame as pivot table.
+Binding: rspivot
+Interactive: true

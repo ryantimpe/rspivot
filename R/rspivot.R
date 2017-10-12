@@ -189,8 +189,7 @@ rspivot <- function(df=.Last.value, valueName = "value") {
 
     #1 - Filter
     dat1 <- reactive({
-      req(input$PivCols, input$PivRows, input$PivRowNest,
-          dat0())
+      req(dat0())
 
       dat <- dat0()
       datF <- dat
@@ -376,11 +375,7 @@ rspivot <- function(df=.Last.value, valueName = "value") {
   runGadget(ui, server, viewer = viewer)
 
 }
-
-df<- GVAIndustry
-# Run it
-rspivot()
-
-# Now all that's left is sharing this addin -- put this function
-# in an R package, provide the registration metadata at
-# 'inst/rstudio/addins.dcf', and you're ready to go!
+#
+# df<- GVAIndustry
+# # Run it
+# rspivot()
