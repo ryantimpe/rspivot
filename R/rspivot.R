@@ -80,6 +80,14 @@ rspivot <- function(df=.Last.value) {
                         choices = dim_names, selected = input$PivCols)
     })
 
+    #Allow nested metric if metric turned on
+    observe({
+      if(input$dataMetric != "Values"){
+        updateSelectInput(session, "PivRowNest",
+                          choices = c("None", "*Metric*" = "Metric_calc", dim_names), selected = "None")
+      }
+    })
+
 
     ###
     # Edit table
@@ -101,7 +109,7 @@ rspivot <- function(df=.Last.value) {
 
       sel_col <- input$PivCols
       sel_row <- input$PivRows
-      sel_nest <- if(input$PivRowNest == "None"){NULL}else{input$PivRowNest}
+      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc")){NULL}else{input$PivRowNest}
       sel_metric <- if(input$dataMetric == "Values"){NULL}else{input$dataMetricSeries}
 
       dat <- dat2() %>%
@@ -121,21 +129,34 @@ rspivot <- function(df=.Last.value) {
 
       sel_col <- input$PivCols
       sel_row <- input$PivRows
-      sel_nest <- if(input$PivRowNest == "None"){NULL}else{input$PivRowNest}
+      sel_nest <- input$PivRowNest
       sel_metric <- input$dataMetricSeries
+
+      if(input$dataMetric == "Values"){
+        dat <- dat %>%
+          mutate(Metric_calc = "Values")
+      }
 
       if(input$dataMetric == "Growth"){
 
         dat <- dat %>%
           group_by_(.dots = names(.)[!(names(.) %in% c(sel_metric, "value"))]) %>%
-          mutate(value = (value / lag(value, 1) - 1)) %>%
-          ungroup()
+          mutate(Growth = (value / lag(value, 1) - 1)) %>%
+          ungroup() %>%
+          rename(Values = value) %>%
+          gather(Metric_calc, value, Values, Growth)
 
       }
 
       datZ <- dat %>%
+        do(
+          if(sel_nest == "Metric_calc"){.}else{
+            filter(., Metric_calc == input$dataMetric) %>%
+              select(-Metric_calc)
+          }
+        ) %>%
         #This time, sum over the metric'd dimension
-        group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest))) %>%
+        group_by_(.dots = as.list(names(.)[names(.) %in% c(sel_col, sel_row, sel_nest)])) %>%
         summarize(value = sum(value)) %>%
         ungroup() %>%
         spread(sel_col, value) %>%
@@ -180,11 +201,18 @@ rspivot <- function(df=.Last.value) {
                         fixedColumns = list(leftColumns = ifelse(input$PivRowNest == "None", 2, 3))
                       )
                       ) %>%
-        # formatRound(columns = cols_numeric(), 0) %>%
-        formatRound(columns = if(input$dataMetric == "Values"){cols_numeric()}else{1},
+        formatRound(columns = if(input$dataMetric == "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{1},
                     digits = 0) %>%
-        formatPercentage(columns = if(input$dataMetric != "Values"){cols_numeric()}else{1},
-                    digits = 1)
+        formatPercentage(columns = if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{1},
+                    digits = 1) %>%
+        formatRound(columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{1},
+                    digits = 2) %>%
+        formatStyle(
+          columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{1},
+          valueColumns = if(input$PivRowNest == "Metric_calc"){"Metric_calc"}else{1},
+          target = 'row',
+          color = styleEqual(c("Growth"), c('#992020'))
+        )
 
 
 
