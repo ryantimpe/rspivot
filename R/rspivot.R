@@ -4,7 +4,7 @@ library(DT)
 library(tidyverse)
 library(lazyeval)
 
-rspivot <- function(df=.Last.value) {
+rspivot <- function(df=.Last.value, valueName = "value") {
 
   ################ ----
   # UI
@@ -17,21 +17,34 @@ rspivot <- function(df=.Last.value) {
         icon = icon("table"),
         miniContentPanel(
           scrollable = TRUE,
-          fillRow(
-            flex = c(1, 4),
-            list(
-              selectInput("PivCols", label = "Columns",
-                          choices = NULL , selected = NULL),
-              selectInput("PivRows", label = "Rows",
-                          choices = NULL , selected = NULL),
-              selectInput("PivRowNest", label = "Nested Rows",
-                          choices = NULL , selected = NULL),
-              hr(),
+            fluidRow(
+              column(width = 3),
+              column(width = 3,
+                selectInput("PivCols", label = "Columns",
+                          choices = NULL , selected = NULL)),
+              column(width = 3,
+                selectInput("PivRows", label = "Rows",
+                          choices = NULL , selected = NULL)),
+              column(width = 3,
+                selectInput("PivRowNest", label = "Nested Rows",
+                          choices = NULL , selected = NULL)
+              )
+          ),
+          fluidRow(
+            column(
+              width = 3,
               uiOutput("selects")
             ),
-            list(
-              DT::dataTableOutput("df_table")
+            column(
+              width = 9,
+              list(
+                span(
+                  textOutput("need.data.frame"),
+                  style = "color:red; font-size:20pt"),
+                DT::dataTableOutput("df_table")
+              )
             )
+
           ) #End Row
 
         )
@@ -80,7 +93,18 @@ rspivot <- function(df=.Last.value) {
 
   server <- function(input, output, session) {
 
-    dat0 <- reactive({df})
+    if(!is.data.frame(df)){
+      message("Supplied object is not a data frame.")
+      output$need.data.frame <- renderText({
+        return("Supplied object is not a data frame.")
+      })
+    } else{
+      dat0 <- reactive({
+        dat <- df
+        names(dat)[names(dat) == valueName] <- "value"
+        return(dat)
+      })
+    }
 
     ###
     #Create UI menus ----
