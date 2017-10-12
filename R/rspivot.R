@@ -1,4 +1,21 @@
-
+#' View data frames as Shiny pivot tables
+#'
+#' View data frames as Shiny pivot tables. This is an alternative to \code{View()} to view data frames as summarized data.
+#'
+#' @param df A data frame flat file to be converted to pivot format. Data should be in "long" format, with a single column of values named \code{value}.
+#' The function defaults to showing the most recent object made in R.
+#' @param valueName Name of series in \code{df} containing data values. Defaults to "value".
+#' Can also accept an array of strings containing the names of multiple value columns in the data frame.
+#' @return An RStudio dialog box will pop-up with a Shiny pivot table of the data.
+#' @examples
+#' rspivot(GVAIndustry)
+#'
+#'
+#' GVAIndustry2 <- GVAIndustry %>%
+#'      spread(Econ, value)
+#'
+#' rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
+#' @export
 
 rspivot <- function(df=.Last.value, valueName = "value") {
 
