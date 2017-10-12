@@ -2,38 +2,39 @@ library(shiny)
 library(miniUI)
 library(DT)
 library(tidyverse)
+library(lazyeval)
 
-# We'll wrap our Shiny Gadget in an addin.
-# Let's call it 'rspivot()'.
 rspivot <- function(df=.Last.value) {
 
-  # Our ui will be a simple gadget page, which
-  # simply displays the time in a 'UI' output.
+  ################ ----
+  # UI
+  ################
   ui <- miniPage(
     gadgetTitleBar("RS Pivot"),
     miniTabstripPanel(
       miniTabPanel(
         title = "Pivot",
         icon = icon("table"),
-        fillRow(
-          padding = 5,
-          flex = c(1, 4),
-          list(
-            selectInput("PivCols", label = "Columns",
-                        choices = NULL , selected = NULL),
-            selectInput("PivRows", label = "Rows",
-                        choices = NULL , selected = NULL),
-            selectInput("PivRowNest", label = "Nested Rows",
-                        choices = NULL , selected = NULL),
-            hr(),
-            selectInput("Dim1", label = "First Dim",
-                        choices = letters[1:11], selected = 1)
-          ),
-          list(
-            textOutput("test"),
-            DT::dataTableOutput("df_table")
-          )
-        ) #End Row
+        miniContentPanel(
+          scrollable = TRUE,
+          fillRow(
+            flex = c(1, 4),
+            list(
+              selectInput("PivCols", label = "Columns",
+                          choices = NULL , selected = NULL),
+              selectInput("PivRows", label = "Rows",
+                          choices = NULL , selected = NULL),
+              selectInput("PivRowNest", label = "Nested Rows",
+                          choices = NULL , selected = NULL),
+              hr(),
+              uiOutput("selects")
+            ),
+            list(
+              DT::dataTableOutput("df_table")
+            )
+          ) #End Row
+
+        )
       ), #End Pivot Tab
       miniTabPanel(
         title = "Data Options",
@@ -47,15 +48,39 @@ rspivot <- function(df=.Last.value) {
                    selectInput("dataMetricSeries", label = "Metric over",
                                choices = NULL , selected = NULL)
                  )
+                 ),
+          column(width = 3,
+                 strong("Decimals"),
+                 numericInput("decValues", label = "Value metric", value = 0,
+                              min = 0, max = 5, step = 1),
+                 numericInput("decMetric", label = "Growth/Share metric", value = 1,
+                              min = 0, max = 5, step = 1),
+                 numericInput("decNested", label = "Nested metric", value = 3,
+                              min = 0, max = 8, step = 1),
+                 hr(),
+                 selectInput("oomValues", label = "Value Order of Magnitude",
+                             choices = c("Units" = 1, "Thousands" = 10^-3, "Millions" = 10^-6, "Billions" = 10^-9),
+                             selected = 1)
                  )
         )
       )
       )
   )
 
+  ################ ----
+  # Non-Reactive functions
+  ################
+
   dim_names <- names(df)[!(names(df) %in% c("value"))]
+  all.elements <- "Show All"
+
+  ################ ----
+  # Server
+  ################
 
   server <- function(input, output, session) {
+
+    dat0 <- reactive({df})
 
     ###
     #Create UI menus ----
@@ -72,6 +97,52 @@ rspivot <- function(df=.Last.value) {
                       choices = c("None", dim_names), selected = "None")
 
     #Series filtering
+    output$selects <- renderUI({
+      #Loop through each dimension to build a filter
+      lapply(seq_along(dim_names), function(i){
+        dat <- dat0()
+
+        #Treat all series the same... time, nonagg, etc...
+        choice.list <- c(all.elements, unique(dat0()[, dim_names[i]]))
+        #Choose that total
+        choice.selected <- choice.list[1]
+        #Multiple allowed
+        choice.mult <- TRUE
+        #Is a numeric input?
+        series.num <- names(dat)[sapply(dat[, dim_names], is.numeric)]
+
+        #Number input
+        if(dim_names[i] %in% series.num){
+          slide.min <- min(dat[, dim_names[i]])
+          slide.max <- max(dat[, dim_names[i]])
+        }
+
+        # Build the Menu for each dimension
+        list(
+           #Filter for numeric dimension
+           if(dim_names[i] %in% series.num){
+             sliderInput(
+               inputId = paste0("Sel", i),
+               label = paste0(dim_names[i]),
+               min = slide.min,
+               max = slide.max,
+               value = c(slide.min, slide.max),
+               sep=""
+             )
+           } else {
+             selectInput(
+               inputId = paste0("Sel", i),
+               label = paste0(dim_names[i]),
+               choices = choice.list,
+               selected = choice.selected,
+               multiple = choice.mult
+             )
+           }
+        ) #End List
+
+      })
+    })
+
 
     #Data edits
     observe({
@@ -92,12 +163,46 @@ rspivot <- function(df=.Last.value) {
     ###
     # Edit table
     ###
-    dat0 <- reactive({df})
+
 
     #1 - Filter
     dat1 <- reactive({
-      return(dat0())
-      })
+      req(input$PivCols, input$PivRows, input$PivRowNest,
+          dat0())
+
+      dat <- dat0()
+      datF <- dat
+
+      for(i in seq_along(dim_names)){
+        # print(dim_names[i])
+        get_input <- eval(parse(text=paste0("input$Sel", i))) #Which filter to check
+        # print(get_input)
+
+        #Is a numeric input?
+        series.num <- names(dat)[sapply(dat[, dim_names], is.numeric)]
+
+        #If no items are selected or the Select All is selected, show ALL items
+        if(length(get_input) == 0 || all.elements %in% get_input){
+          get_series <- unique(dat[, dim_names[i]]) %>% pull()
+        }
+        #For Numeric series
+        else if(dim_names[i] %in% series.num){
+          get_series <- as.numeric(get_input[1]:get_input[2])
+        } else {
+          get_series <- as.character(get_input)
+        }
+        # print(get_series)
+
+        filter_criteria_T <- interp( ~ which_column %in% get_series, which_column = as.name(dim_names[i])) #If a Filter is selected....
+
+        #.... Do this
+        datF <- datF %>%
+          filter_(filter_criteria_T)
+
+      } #End for
+
+      return(as.data.frame(datF))
+    })
     #2 - ???
     dat2 <- reactive({
       return(dat1())
@@ -125,7 +230,8 @@ rspivot <- function(df=.Last.value) {
           input$dataMetricSeries,
           dat3())
 
-      dat <- dat3()
+      dat <- dat3() %>%
+        mutate(value = value * as.numeric(input$oomValues))
 
       sel_col <- input$PivCols
       sel_row <- input$PivRows
@@ -159,7 +265,6 @@ rspivot <- function(df=.Last.value) {
 
       }
 
-
       datZ <- dat %>%
         do(
           if(sel_nest == "Metric_calc"){.}else{
@@ -180,8 +285,10 @@ rspivot <- function(df=.Last.value) {
       return(datZ)
     })
 
+    # dat4 <- reactive({dat1()})
+
     ###
-    # Prepare Data Table
+    # Prepare Data Table ----
     ###
 
     cols_numeric <- reactive({
@@ -214,15 +321,16 @@ rspivot <- function(df=.Last.value) {
                       )
                       ) %>%
         formatRound(columns = if(input$dataMetric == "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{1},
-                    digits = 0) %>%
+                    digits = input$decValues) %>%
         formatPercentage(columns = if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{1},
-                    digits = 1) %>%
+                    digits = input$decMetric) %>%
         formatRound(columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{1},
-                    digits = 2) %>%
+                    digits = input$decNested) %>%
         formatStyle(
           columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{1},
           valueColumns = if(input$PivRowNest == "Metric_calc"){"Metric_calc"}else{1},
           target = 'row',
+          backgroundColor = styleEqual(c(input$dataMetric), c('#ffffcc')),
           color = styleEqual(c(input$dataMetric), c('#992020'))
         )
 
@@ -238,7 +346,7 @@ rspivot <- function(df=.Last.value) {
 
   }
 
-  viewer <- dialogViewer(paste("RSPivot -", deparse(substitute(df))), width = 1400, height= 1400)
+  viewer <- dialogViewer(paste("RSPivot -", deparse(substitute(df))), width = 1400, height= 2000)
   runGadget(ui, server, viewer = viewer)
 
 }
