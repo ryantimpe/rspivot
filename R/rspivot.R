@@ -148,6 +148,18 @@ rspivot <- function(df=.Last.value) {
 
       }
 
+      if(input$dataMetric == "Shares"){
+
+        dat <- dat %>%
+          group_by_(.dots = names(.)[!(names(.) %in% c(sel_metric, "value"))]) %>%
+          mutate(Shares = (value / sum(value))) %>%
+          ungroup() %>%
+          rename(Values = value) %>%
+          gather(Metric_calc, value, Values, Shares)
+
+      }
+
+
       datZ <- dat %>%
         do(
           if(sel_nest == "Metric_calc"){.}else{
@@ -211,10 +223,8 @@ rspivot <- function(df=.Last.value) {
           columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{1},
           valueColumns = if(input$PivRowNest == "Metric_calc"){"Metric_calc"}else{1},
           target = 'row',
-          color = styleEqual(c("Growth"), c('#992020'))
+          color = styleEqual(c(input$dataMetric), c('#992020'))
         )
-
-
 
       return(dt)
       }
