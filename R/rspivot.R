@@ -54,15 +54,14 @@ rspivot <- function(df=.Last.value, valueName = "value") {
             fluidRow(
               column(width = 3),
               column(width = 3,
-                selectInput("PivCols", label = "Columns",
-                          choices = NULL , selected = NULL)),
-              column(width = 3,
                 selectInput("PivRows", label = "Rows",
                           choices = NULL , selected = NULL)),
               column(width = 3,
                 selectInput("PivRowNest", label = "Nested Rows",
-                          choices = NULL , selected = NULL)
-              )
+                          choices = NULL , selected = NULL)),
+              column(width = 3,
+                selectInput("PivCols", label = "Columns",
+                          choices = NULL , selected = NULL))
           ),
           fluidRow(
             column(
@@ -83,6 +82,22 @@ rspivot <- function(df=.Last.value, valueName = "value") {
 
         )
       ), #End Pivot Tab
+      miniTabPanel(
+        title = "Plot",
+        icon = icon("bar-chart"),
+        fluidRow(
+          column(width = 3,
+                 radioButtons("PlotToggle", label = "Chart Type",
+                              choices = c("Line" = "line", "Column" = "column"),
+                              selected = "line")
+                 )
+        ),
+        fluidRow(
+          column(width = 12,
+                 plotOutput("df_plot")
+                 )
+        )
+      ), #End plot
       miniTabPanel(
         title = "Data Options",
         icon = icon("edit"),
@@ -398,8 +413,63 @@ rspivot <- function(df=.Last.value, valueName = "value") {
         )
 
       return(dt)
+    })
+
+    ###
+    # Graph pivot
+    ###
+
+    output$df_plot <- renderPlot({
+
+      sel_col <- input$PivCols
+      sel_row <- input$PivRows
+      sel_nest <- input$PivRowNest
+
+      sel_type <- input$PlotToggle
+
+      dat0 <- dat4()
+
+      if(sel_nest == "None"){
+        dat <- as.data.frame(dat0) %>%
+          gather(dim_x, value, 2:ncol(.))
+      } else {
+        dat <- as.data.frame(dat0) %>%
+          gather(dim_x, value, 3:ncol(.))
+
+        names(dat)[names(dat) == sel_nest] <- "dim_z"
       }
-    )
+
+      names(dat)[names(dat) == sel_row] <- "dim_y"
+
+      gg <- ggplot(data = dat, aes(x = dim_x, y = value, group = dim_y))
+
+      #How to display data
+      if(sel_type == "line"){
+        gg <- gg + geom_line(aes(color = dim_y), size = 1.1)
+      } else {
+        gg <- gg + geom_col(aes(fill = dim_y), color = "black")
+      }
+
+      #Nested?
+      if(sel_nest != "None"){
+        gg <- gg + facet_wrap(~dim_z, scales = "free_y")
+      }
+
+      gg <- gg +
+        ggtitle(sel_row) +
+        xlab(sel_col) +
+        theme_bw() +
+        theme(
+          axis.text.x = element_text(size = 11, angle = 90, hjust = 1),
+          strip.background = element_rect(fill = "#00436b"),
+          strip.text = element_text(color = "white", face = "bold", size = 12),
+          plot.title = element_text(color = "#00436b", face = "bold", size = 16),
+          plot.subtitle = element_text(color = "#00436b", size = 14),
+          plot.caption = element_text(size = 11)
+        )
+
+      return(gg)
+    })
 
     # Listen for 'done' events. When we're finished, we'll
     observeEvent(input$done, {
@@ -407,7 +477,7 @@ rspivot <- function(df=.Last.value, valueName = "value") {
       stopApp()
     })
 
-  }
+  } #End Server
 
   viewer <- dialogViewer(paste("RSPivot -", deparse(substitute(df))), width = 1400, height= 2000)
   runGadget(ui, server, viewer = viewer)
