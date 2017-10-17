@@ -32,13 +32,21 @@ rspivot <- function(df=.Last.value, valueName = "value") {
 
   if(length(valueName) > 1){
     df0 <- df %>%
-      gather(ValueNames, value, valueName)
+      gather(ValueNames, value, valueName) %>%
+      mutate_if(is.factor, as.character)
   } else{
-    df0 <- df
+    df0 <- df %>%
+      mutate_if(is.factor, as.character)
+
+    names(df0)[names(df0) == valueName] <- "value"
   }
 
   dim_names <- names(df0)[!(names(df0) %in% c("value"))]
   all.elements <- "Show All"
+
+  #Move value to end
+  df0a <- df0[, dim_names] %>%
+    bind_cols(data.frame(value = df0$value, stringsAsFactors = FALSE))
 
   ################ ----
   # UI
@@ -137,15 +145,14 @@ rspivot <- function(df=.Last.value, valueName = "value") {
     ####
     # Initialize ----
     ####
-    if(!is.data.frame(df0)){
+    if(!is.data.frame(df0a)){
       message("Supplied object is not a data frame.")
       output$need.data.frame <- renderText({
         return("Supplied object is not a data frame.")
       })
     } else{
       dat0 <- reactive({
-        dat <- df0
-        names(dat)[names(dat) == valueName] <- "value"
+        dat <- df0a
         return(dat)
       })
     }
@@ -193,9 +200,9 @@ rspivot <- function(df=.Last.value, valueName = "value") {
              sliderInput(
                inputId = paste0("Sel", i),
                label = paste0(dim_names[i]),
-               min = slide.min,
-               max = slide.max,
-               value = c(slide.min, slide.max),
+               min = floor(slide.min), max = ceiling(slide.max),
+               step = 1,
+               value = c(floor(slide.min), ceiling(slide.max)),
                sep=""
              )
            } else {
@@ -242,27 +249,28 @@ rspivot <- function(df=.Last.value, valueName = "value") {
       datF <- dat
 
       for(i in seq_along(dim_names)){
-        # print(dim_names[i])
         get_input <- eval(parse(text=paste0("input$Sel", i))) #Which filter to check
-        # print(get_input)
 
         #Is a numeric input?
         series.num <- names(dat)[sapply(dat[, dim_names], is.numeric)]
 
         #If no items are selected or the Select All is selected, show ALL items
         if(length(get_input) == 0 || all.elements %in% get_input){
-          get_series <- unique(dat[, dim_names[i]]) %>% pull()
+          get_series <- as.tibble(dat[, dim_names[i]]) %>% distinct() %>% pull()
+
+          filter_criteria_T <- interp( ~ which_column %in% get_series, which_column = as.name(dim_names[i])) #If a Filter is selected....
         }
         #For Numeric series
         else if(dim_names[i] %in% series.num){
-          get_series <- as.numeric(get_input[1]:get_input[2])
+          get_series <- as.numeric(get_input)
+          filter_criteria_T <- interp( ~ (which_column >= get_series[1]) & (which_column <= get_series[2]),
+                                       which_column = as.name(dim_names[i])) #If a Filter is selected....
         } else {
           get_series <- as.character(get_input)
+          filter_criteria_T <- interp( ~ which_column %in% get_series, which_column = as.name(dim_names[i])) #If a Filter is selected....
         }
-        # print(get_series)
 
-        filter_criteria_T <- interp( ~ which_column %in% get_series, which_column = as.name(dim_names[i])) #If a Filter is selected....
-
+        print(get_series)
         #.... Do this
         datF <- datF %>%
           filter_(filter_criteria_T)
@@ -354,6 +362,7 @@ rspivot <- function(df=.Last.value, valueName = "value") {
             mutate_at(., vars(sel_nest), as.character())
           } else {.}
         ) %>%
+        mutate_at(vars(sel_col), as.character()) %>%  #If its numeric, needs to be char before spreading
         spread(sel_col, value) %>%
         rowwise() %>%
         mutate_if(is.character, funs(ifelse(nchar(.) > 12, substr(., 1, 12), .))) %>%
@@ -398,9 +407,9 @@ rspivot <- function(df=.Last.value, valueName = "value") {
                         fixedColumns = list(leftColumns = ifelse(input$PivRowNest == "None", 2, 3))
                       )
                       ) %>%
-        formatRound(columns = if(input$dataMetric == "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{1},
+        formatRound(columns = if(input$dataMetric == "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{99},
                     digits = input$decValues) %>%
-        formatPercentage(columns = if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{-1},
+        formatPercentage(columns = if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{99},
                     digits = input$decMetric) %>%
         formatRound(columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{-1},
                     digits = input$decMetric) %>%
@@ -489,6 +498,7 @@ rspivot <- function(df=.Last.value, valueName = "value") {
 #
 # df<- GVAIndustry
 # # Run it
-# rspivot()
+#rspivot(GVAIndustry)
 #
 # rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
+

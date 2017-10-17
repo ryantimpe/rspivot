@@ -17,7 +17,7 @@ This package requires RStudio is built using the [tidyverse](https://github.com/
 
 ``` r
 install.packages(devtools)
-devtools::install_github("ryantimpe", "rspivot")
+devtools::install_github("ryantimpe/rspivot")
 ```
 ## Built With
 
