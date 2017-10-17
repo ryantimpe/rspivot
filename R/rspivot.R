@@ -6,6 +6,9 @@
 #' The function defaults to showing the most recent object made in R.
 #' @param valueName Name of series in \code{df} containing data values. Defaults to "value".
 #' Can also accept an array of strings containing the names of multiple value columns in the data frame.
+#' @param initCols Specify the series to be displayed as columns. If blank, defaults to the right-most series in the data frame.
+#' @param initRows Specify the series to be displayed as rows. If blank, defaults to the 2nd right-most series in the data frame.
+#' @param initNest Specify the series to be displayed as nested rows. If blank, no nested rows are displayed.
 #' @return An RStudio dialog box will pop-up with a Shiny pivot table of the data.
 #' @examples
 #' rspivot(GVAIndustry)
@@ -17,7 +20,8 @@
 #' rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
 #' @export
 
-rspivot <- function(df=.Last.value, valueName = "value") {
+rspivot <- function(df=.Last.value, valueName = "value",
+                    initCols = "", initRows = "", initNest = "") {
 
   library(shiny)
   library(miniUI)
@@ -164,13 +168,15 @@ rspivot <- function(df=.Last.value, valueName = "value") {
 
     #Col/Row selection
     updateSelectInput(session, "PivCols",
-                      choices = dim_names, selected = tail(dim_names, 1)[1])
+                      choices = dim_names, selected = (if(initCols == ""){tail(dim_names, 1)[1]}else{initCols})
+                      )
 
     updateSelectInput(session, "PivRows",
-                      choices = dim_names, selected = tail(dim_names, 2)[1])
+                      choices = dim_names, selected = (if(initRows == ""){tail(dim_names, 2)[1]}else{initRows})
+                      )
 
     updateSelectInput(session, "PivRowNest",
-                      choices = c("None", dim_names), selected = "None")
+                      choices = c("None", dim_names), selected = (if(initNest == ""){"None"}else{initNest}))
 
     #Series filtering
     output$selects <- renderUI({
@@ -406,12 +412,12 @@ rspivot <- function(df=.Last.value, valueName = "value") {
                         fixedColumns = list(leftColumns = ifelse(input$PivRowNest == "None", 2, 3))
                       )
                       ) %>%
-        formatRound(columns = if(input$dataMetric == "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{99},
-                    digits = input$decValues) %>%
+        formatCurrency(columns = if(input$dataMetric == "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{99},
+                    currency = "", digits = input$decValues) %>%
         formatPercentage(columns = if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{99},
                     digits = input$decMetric) %>%
-        formatRound(columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{-1},
-                    digits = input$decMetric) %>%
+        formatCurrency(columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{-1},
+                       currency = "", digits = input$decMetric) %>%
         formatStyle(
           columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{1},
           valueColumns = if(input$PivRowNest == "Metric_calc"){"Metric_calc"}else{1},
@@ -497,7 +503,10 @@ rspivot <- function(df=.Last.value, valueName = "value") {
 #
 # df<- GVAIndustry
 # # Run it
-#rspivot(GVAIndustry)
+# rspivot(GVAIndustry, initRows = "Country", initNest = "Industry")
 #
 # rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
+
+# load("Z:/Shared/P-Drive/Huawei/2016 H2 (Phase 1)/03 WORK (ANALYSIS)/Centralized Integration/_Model Output/3_IntegrateFile_Start")
+# rspivot(IntegrateFile.Start, valueName="value")
 
