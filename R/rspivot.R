@@ -270,7 +270,6 @@ rspivot <- function(df=.Last.value, valueName = "value") {
           filter_criteria_T <- interp( ~ which_column %in% get_series, which_column = as.name(dim_names[i])) #If a Filter is selected....
         }
 
-        print(get_series)
         #.... Do this
         datF <- datF %>%
           filter_(filter_criteria_T)
