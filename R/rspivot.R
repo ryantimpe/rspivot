@@ -67,13 +67,19 @@ rspivot <- function(df=.Last.value, valueName = "value",
               column(width = 3),
               column(width = 3,
                 selectInput("PivRows", label = "Rows",
-                          choices = NULL , selected = NULL)),
+                          choices = NULL , selected = NULL)#,
+                #checkboxInput("PivRows_tot", label = "Show Row Totals", value=TRUE)
+                ),
               column(width = 3,
                 selectInput("PivRowNest", label = "Nested Rows",
-                          choices = NULL , selected = NULL)),
+                          choices = NULL , selected = NULL)#,
+                #checkboxInput("PivRowNest_tot", label = "Show Nest Totals", value=FALSE)
+                ),
               column(width = 3,
                 selectInput("PivCols", label = "Columns",
-                          choices = NULL , selected = NULL))
+                          choices = NULL , selected = NULL),
+                checkboxInput("PivCols_tot", label = "Show Column Totals", value=TRUE)
+                )
           ),
           fluidRow(
             column(
@@ -303,6 +309,35 @@ rspivot <- function(df=.Last.value, valueName = "value",
         summarize(value = sum(value, na.rm=TRUE)) %>%
         ungroup()
 
+      #Col / Row sums
+      if(input$PivCols_tot){
+        dat <- dat %>%
+          bind_rows(
+            group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_row, sel_nest)])) %>%
+              summarize(value = sum(value)) %>%
+              ungroup()
+          ) %>%
+          mutate_at(vars(sel_col), funs(ifelse(is.na(.), "*Total*", .)))
+      }
+      # if(input$PivRows_tot){
+      #   dat <- dat %>%
+      #     bind_rows(
+      #       group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_col, sel_nest)])) %>%
+      #         summarize(value = sum(value)) %>%
+      #         ungroup()
+      #     ) %>%
+      #     mutate_at(vars(sel_row), funs(ifelse(is.na(.), "*Total*", .)))
+      # }
+      # if(input$PivRowNest_tot & !(sel_nest %in% c("None", "Metric_calc"))){
+      #   dat <- dat %>%
+      #     bind_rows(
+      #       group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_col, sel_row)])) %>%
+      #         summarize(value = sum(value)) %>%
+      #         ungroup()
+      #     ) %>%
+      #     mutate_at(vars(sel_nest), funs(ifelse(is.na(.), "*Total*", .)))
+      # }
+
       return(dat)
     })
     #4 - Modes ----
@@ -374,6 +409,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
         ungroup() %>%
         as.data.frame()
 
+      #Move Total to end
+      datZ <- datZ[, names(datZ)[names(datZ) != "*Total*"]] %>%
+        bind_cols(tibble(`*Total*` = datZ$`*Total*`))
+
       return(datZ)
     })
 
@@ -386,13 +425,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
     cols_numeric <- reactive({
       req(dat4(), input$PivCols)
       dat <- as.data.frame(dat0())
-      return(as.character(names(dat4())[names(dat4()) %in% unique(dat[, input$PivCols])]))
-    })
-    cols_text <- reactive({
-      req(dat4(), input$PivRows, input$PivRowNest)
-      nms <- c(input$PivRows, input$PivRowNest)
-      nms <- nms[nms != "None"]
-      return(nms)
+      return(as.character(names(dat4())[names(dat4()) %in% c(unique(dat[, input$PivCols]), "*Total*")]))
     })
 
     ###
@@ -400,8 +433,11 @@ rspivot <- function(df=.Last.value, valueName = "value",
     ###
     # output$test <- renderText(cols_numeric())
     output$df_table <- DT::renderDataTable({
-      dt <- datatable(as.data.frame(dat4()),
+      dat <- dat4()
+
+      dt <- datatable(as.data.frame(dat),
                       extensions = c('FixedColumns', 'Scroller'),
+                      # extensions = c('FixedColumns', 'Scroller', 'ColReorder', 'RowReorder'),
                       options = list(
                         #dom = 't',
                         scrollX = TRUE,
@@ -409,21 +445,30 @@ rspivot <- function(df=.Last.value, valueName = "value",
                         scroller = TRUE, deferRender = TRUE,
                         rownames = FALSE,
                         fixedHeader = TRUE,
-                        fixedColumns = list(leftColumns = ifelse(input$PivRowNest == "None", 2, 3))
+                        fixedColumns = list(leftColumns = ifelse(input$PivRowNest == "None", 2, 3))#,
+                        #colReorder = list(realtime = FALSE),
+                        #rowReorder = TRUE
                       )
                       ) %>%
         formatCurrency(columns = if(input$dataMetric == "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{99},
                     currency = "", digits = input$decValues) %>%
         formatPercentage(columns = if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{99},
                     digits = input$decMetric) %>%
-        formatCurrency(columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{-1},
-                       currency = "", digits = input$decMetric) %>%
+        formatCurrency(columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{99},
+                       currency = "", digits = input$decMetric)%>%
         formatStyle(
-          columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{1},
-          valueColumns = if(input$PivRowNest == "Metric_calc"){"Metric_calc"}else{1},
+          columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{-1},
+          valueColumns = if(input$PivRowNest == "Metric_calc"){"Metric_calc"}else{-1},
           target = 'row',
           backgroundColor = styleEqual(c(input$dataMetric), c('#ffffcc')),
           color = styleEqual(c(input$dataMetric), c('#992020'))
+        ) %>%
+        formatStyle(
+          columns = cols_numeric(),
+          valueColumns = input$PivRows,
+          target = 'row',
+          backgroundColor = styleEqual(c("*Total*"), c('#ccffff')),
+          color = styleEqual(c(input$dataMetric), c('black'))
         )
 
       return(dt)
@@ -503,8 +548,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 #
 # df<- GVAIndustry
 # # Run it
-# rspivot(GVAIndustry, initRows = "Country", initNest = "Industry")
-#
+# rspivot(GVAIndustry, initRows = "Country")
 # rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
 
 # load("Z:/Shared/P-Drive/Huawei/2016 H2 (Phase 1)/03 WORK (ANALYSIS)/Centralized Integration/_Model Output/3_IntegrateFile_Start")
