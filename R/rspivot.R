@@ -552,5 +552,5 @@ rspivot <- function(df=.Last.value, valueName = "value",
 # rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
 
 # load("Z:/Shared/P-Drive/Huawei/2016 H2 (Phase 1)/03 WORK (ANALYSIS)/Centralized Integration/_Model Output/3_IntegrateFile_Start")
-# rspivot(IntegrateFile.Start, valueName="value")
+# rspivot(IntegrateFile.Start, valueName="value", initCols = "Year", initRows = "Region")
 
