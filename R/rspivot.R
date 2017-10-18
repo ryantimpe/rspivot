@@ -107,8 +107,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
         fluidRow(
           column(width = 3,
                  radioButtons("PlotToggle", label = "Chart Type",
-                              choices = c("Line" = "line", "Column" = "column"),
-                              selected = "line")
+                              choices = c("Line" = "line", "Stacked Column" = "stacked", "Grouped Column" = "grouped"),
+                              selected = "line", inline = TRUE)
                  )
         ),
         fluidRow(
@@ -498,10 +498,12 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       if(sel_nest == "None"){
         dat <- as.data.frame(dat0) %>%
-          gather(dim_x, value, 2:ncol(.))
+          gather(dim_x, value, 2:ncol(.)) %>%
+          filter(dim_x != "*Total*")
       } else {
         dat <- as.data.frame(dat0) %>%
-          gather(dim_x, value, 3:ncol(.))
+          gather(dim_x, value, 3:ncol(.)) %>%
+          filter(dim_x != "*Total*")
 
         names(dat)[names(dat) == sel_nest] <- "dim_z"
       }
@@ -513,13 +515,15 @@ rspivot <- function(df=.Last.value, valueName = "value",
       #How to display data
       if(sel_type == "line"){
         gg <- gg + geom_line(aes(color = dim_y), size = 1.1)
-      } else {
+      } else if(sel_type == "stacked") {
         gg <- gg + geom_col(aes(fill = dim_y), color = "black")
+      } else {
+        gg <- gg + geom_col(aes(fill = dim_y), color = "black", position = "dodge")
       }
 
       #Nested?
       if(sel_nest != "None"){
-        gg <- gg + facet_wrap(~dim_z, scales = "free_y")
+        gg <- gg + facet_wrap(~dim_z, scales = "free")
       }
 
       gg <- gg +
