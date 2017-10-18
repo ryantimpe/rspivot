@@ -13,11 +13,12 @@
 #' @examples
 #' rspivot(GVAIndustry)
 #'
-#'
 #' GVAIndustry2 <- GVAIndustry %>%
 #'      spread(Econ, value)
-#'
 #' rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
+#'
+#' rspivot(GVAIndustry, initRows = "Country", initNest = "Industry")
+#'
 #' @export
 
 rspivot <- function(df=.Last.value, valueName = "value",
