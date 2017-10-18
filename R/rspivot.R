@@ -410,8 +410,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
         as.data.frame()
 
       #Move Total to end
-      datZ <- datZ[, names(datZ)[names(datZ) != "*Total*"]] %>%
-        bind_cols(tibble(`*Total*` = datZ$`*Total*`))
+      if(input$PivCols_tot == TRUE){
+        datZ <- datZ[, names(datZ)[names(datZ) != "*Total*"]] %>%
+          bind_cols(tibble(`*Total*` = datZ$`*Total*`))
+      }
 
       return(datZ)
     })
@@ -464,12 +466,17 @@ rspivot <- function(df=.Last.value, valueName = "value",
           color = styleEqual(c(input$dataMetric), c('#992020'))
         ) %>%
         formatStyle(
-          columns = cols_numeric(),
-          valueColumns = input$PivRows,
-          target = 'row',
-          backgroundColor = styleEqual(c("*Total*"), c('#ccffff')),
-          color = styleEqual(c(input$dataMetric), c('black'))
+          columns = if(input$PivCols_tot == TRUE){"*Total*"}else{999},
+          target = 'cell',
+          backgroundColor = "#ffcccc"
         )
+        # formatStyle(
+        #   columns = cols_numeric(),
+        #   valueColumns = input$PivRows,
+        #   target = 'row',
+        #   backgroundColor = styleEqual(c("*Total*"), c('#ccffff')),
+        #   color = styleEqual(c(input$dataMetric), c('black'))
+        # )
 
       return(dt)
     })
