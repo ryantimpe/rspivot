@@ -46,6 +46,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
     names(df0)[names(df0) == valueName] <- "value"
   }
 
+  names(df0) <- make.names(names(df0))
   dim_names <- names(df0)[!(names(df0) %in% c("value"))]
   all.elements <- "Show All"
 
@@ -175,15 +176,22 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
     #Col/Row selection
     updateSelectInput(session, "PivCols",
-                      choices = dim_names, selected = (if(initCols == ""){tail(dim_names, 1)[1]}else{initCols})
+                      choices = dim_names,
+                      # selected = (if(initCols == ""){tail(dim_names, 1)[1]}else{initCols})
+                      selected = (if(initCols == ""){tail(dim_names, 1)[1]}else{make.names(initCols)})
                       )
 
     updateSelectInput(session, "PivRows",
-                      choices = dim_names, selected = (if(initRows == ""){tail(dim_names, 2)[1]}else{initRows})
+                      choices = dim_names,
+                      # selected = (if(initRows == ""){tail(dim_names, 2)[1]}else{initRows})
+                      selected = (if(initRows == ""){tail(dim_names, 2)[1]}else{make.names(initRows)})
                       )
 
     updateSelectInput(session, "PivRowNest",
-                      choices = c("None", dim_names), selected = (if(initNest == ""){"None"}else{initNest}))
+                      choices = c("None", dim_names),
+                      # selected = (if(initNest == ""){"None"}else{initNest})
+                      selected = (if(initNest == ""){"None"}else{make.names(initNest)})
+                      )
 
     #Series filtering
     output$selects <- renderUI({
@@ -258,6 +266,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
     dat1 <- reactive({
       req(dat0())
 
+      sel_col <- input$PivCols
+      sel_row <- input$PivRows
+      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc")){NULL}else{input$PivRowNest}
+
       dat <- dat0()
       datF <- dat
 
@@ -288,6 +300,11 @@ rspivot <- function(df=.Last.value, valueName = "value",
           filter_(filter_criteria_T)
 
       } #End for
+
+      #After filtering, add leading space to each element...
+      # This helps to push all calculated fields to the bottom
+      datF2 <- datF %>%
+        mutate_at(vars(c(sel_row, sel_col, sel_nest)), funs(paste0(" ", .)))
 
       return(as.data.frame(datF))
     })
@@ -329,6 +346,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       #     ) %>%
       #     mutate_at(vars(sel_row), funs(ifelse(is.na(.), "*Total*", .)))
       # }
+
       # if(input$PivRowNest_tot & !(sel_nest %in% c("None", "Metric_calc"))){
       #   dat <- dat %>%
       #     bind_rows(
@@ -411,6 +429,14 @@ rspivot <- function(df=.Last.value, valueName = "value",
         as.data.frame()
 
       #Move Total to end
+      # if(input$PivRows_tot == TRUE){
+      #   filter_criteria_F <- interp( ~ which_column != "*Total*", which_column = as.name(sel_row))
+      #   filter_criteria_T <- interp( ~ which_column == "*Total*", which_column = as.name(sel_row))
+      #
+      #   datZ <- datZ %>%
+      #     filter_(filter_criteria_F) %>%
+      #     bind_rows(datZ %>% filter_(filter_criteria_T))
+      # }
       if(input$PivCols_tot == TRUE){
         datZ <- datZ[, names(datZ)[names(datZ) != "*Total*"]] %>%
           bind_cols(tibble(`*Total*` = datZ$`*Total*`))
@@ -560,6 +586,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
 #
 # df<- GVAIndustry
 # # Run it
+# GV2 <- GVAIndustry %>%
+#   rename(`Country (15)` = Country)
+# rspivot(GV2, initRows = "Country (15)")
 # rspivot(GVAIndustry, initRows = "Country")
 # rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
 
