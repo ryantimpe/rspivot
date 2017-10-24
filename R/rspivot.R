@@ -177,19 +177,16 @@ rspivot <- function(df=.Last.value, valueName = "value",
     #Col/Row selection
     updateSelectInput(session, "PivCols",
                       choices = dim_names,
-                      # selected = (if(initCols == ""){tail(dim_names, 1)[1]}else{initCols})
                       selected = (if(initCols == ""){tail(dim_names, 1)[1]}else{make.names(initCols)})
                       )
 
     updateSelectInput(session, "PivRows",
                       choices = dim_names,
-                      # selected = (if(initRows == ""){tail(dim_names, 2)[1]}else{initRows})
                       selected = (if(initRows == ""){tail(dim_names, 2)[1]}else{make.names(initRows)})
                       )
 
     updateSelectInput(session, "PivRowNest",
                       choices = c("None", dim_names),
-                      # selected = (if(initNest == ""){"None"}else{initNest})
                       selected = (if(initNest == ""){"None"}else{make.names(initNest)})
                       )
 
@@ -329,9 +326,12 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       #Col / Row sums
       if(input$PivCols_tot){
+        sel_row2 <- if(sel_row == sel_col){NULL}else{sel_row}
+        sel_nest2 <- if(!is.null(sel_nest)){if(sel_nest == sel_col){NULL}else{sel_nest}}
+
         dat <- dat %>%
           bind_rows(
-            group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_row, sel_nest)])) %>%
+            group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_row2, sel_nest2)])) %>%
               summarize(value = sum(value)) %>%
               ungroup()
           ) %>%
@@ -595,3 +595,13 @@ rspivot <- function(df=.Last.value, valueName = "value",
 # load("Z:/Shared/P-Drive/Huawei/2016 H2 (Phase 1)/03 WORK (ANALYSIS)/Centralized Integration/_Model Output/3_IntegrateFile_Start")
 # rspivot(IntegrateFile.Start, valueName="value", initCols = "Year", initRows = "Region")
 
+#Brent Error
+# load("Z:/Shared/P-Drive/Huawei/2016 H2 (Phase 1)/03 WORK (ANALYSIS)/Centralized Integration/_Model Output/3_IntegrateFile_Start")
+# brent <- IntegrateFile.Start %>%
+#   filter(Metric == "End-User Spending") %>%
+#   group_by(Year, Product_Level1) %>%
+#   summarize(sum = sum(value)) %>%
+#   ungroup() %>%
+#   mutate(Year=factor(Year))
+#
+# rspivot(brent, value="sum")
