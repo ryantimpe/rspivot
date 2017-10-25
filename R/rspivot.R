@@ -66,7 +66,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
         miniContentPanel(
           scrollable = TRUE,
             fluidRow(
-              column(width = 3),
+              column(width = 3,
+                     uiOutput("ui_update_data"),
+                     p("Click here to update the data in the pivot table after filter changes.")
+                     ),
               column(width = 3,
                 selectInput("PivRows", label = "Rows",
                           choices = NULL , selected = NULL)#,
@@ -93,7 +96,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
               list(
                 span(
                   textOutput("need.data.frame"),
-                  style = "color:red; font-size:20pt"),
+                  style = "color:red; font-size:18pt"),
+                span(
+                   textOutput("ui_update_warning"),
+                  style = "color:#40FFFF; font-size:18pt"),
                 DT::dataTableOutput("df_table")
               )
             )
@@ -253,14 +259,26 @@ rspivot <- function(df=.Last.value, valueName = "value",
       }
     })
 
+    ###
+    # Action Button
+    ###
+    #Want to build the action button AFTER the menus are initialized
+    output$ui_update_data <- renderUI({
+      actionButton("update_data", label = "Refresh Data", icon = shiny::icon("refresh"),
+                   style = "background-color:#00A8BA; color:#ffffff;")
+    })
+    output$ui_update_warning <- renderText({
+      if(is.null(input$update_data)){return("Begin by specifying filter options, then click 'Refresh Data'")}else{NULL}
+    })
+
 
     ###
     # Edit table
     ###
 
-
     #1 - Filter
-    dat1 <- reactive({
+    # Only update filters when clicked
+    dat1 <- eventReactive(input$update_data, {
       req(dat0())
 
       sel_col <- input$PivCols
@@ -589,7 +607,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 # GV2 <- GVAIndustry %>%
 #   rename(`Country (15)` = Country)
 # rspivot(GV2, initRows = "Country (15)")
-# rspivot(GVAIndustry, initRows = "Country")
+rspivot(GVAIndustry, initRows = "Country")
 # rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
 
 # load("Z:/Shared/P-Drive/Huawei/2016 H2 (Phase 1)/03 WORK (ANALYSIS)/Centralized Integration/_Model Output/3_IntegrateFile_Start")
@@ -605,3 +623,12 @@ rspivot <- function(df=.Last.value, valueName = "value",
 #   mutate(Year=factor(Year))
 #
 # rspivot(brent, value="sum")
+
+econ <- read_delim("F:/Intel/Intel MA/2017-10 October/DATA/Econ 17Q3 - Full Comp File - PASS 4 - IFW_Recast of E17Q3P1.txt",
+                                                                    "\t", escape_double = FALSE, trim_ws = TRUE)
+econ2 <- econ %>%
+  gather(Year, value, 6:ncol(.)) %>%
+  mutate(Year = as.numeric(Year)) %>%
+  filter(Year %in% 2010:2020)
+
+rspivot(econ2, initRows = "SCENARIO")
