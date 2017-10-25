@@ -99,7 +99,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                   style = "color:red; font-size:18pt"),
                 span(
                    textOutput("ui_update_warning"),
-                  style = "color:#40FFFF; font-size:18pt"),
+                  style = "color:#4040FF; font-size:18pt"),
                 DT::dataTableOutput("df_table")
               )
             )
@@ -147,7 +147,11 @@ rspivot <- function(df=.Last.value, valueName = "value",
                  selectInput("oomValues", label = "Value Order of Magnitude",
                              choices = c("Units" = 1, "Thousands" = 10^-3, "Millions" = 10^-6, "Billions" = 10^-9),
                              selected = 1)
-                 )
+                 ),
+          column(width = 3,
+                 strong("Text"),
+                 numericInput("textTruncate", label = "Truncate long labels", value = 15,
+                               min = 5, max = 50, step = 5))
         )
       )
       )
@@ -265,10 +269,14 @@ rspivot <- function(df=.Last.value, valueName = "value",
     #Want to build the action button AFTER the menus are initialized
     output$ui_update_data <- renderUI({
       actionButton("update_data", label = "Refresh Data", icon = shiny::icon("refresh"),
-                   style = "background-color:#00A8BA; color:#ffffff;")
+                   style = "background-color:#4040FF; color:#ffffff;")
     })
     output$ui_update_warning <- renderText({
-      if(is.null(input$update_data)){return("Begin by specifying filter options, then click 'Refresh Data'")}else{NULL}
+      if(is.null(input$update_data)){
+        return("Begin by specifying filter options, then click 'Refresh Data'")
+      }else{
+        if(input$update_data == 0){return("Begin by specifying filter options, then click 'Refresh Data'")} else {NULL}
+      }
     })
 
 
@@ -391,6 +399,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
       sel_nest <- input$PivRowNest
       sel_metric <- input$dataMetricSeries
 
+      sel_truncate <- input$textTruncate
+
       if(input$dataMetric == "Values"){
         dat <- dat %>%
           mutate(Metric_calc = "Values")
@@ -441,8 +451,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
         ) %>%
         mutate_at(vars(sel_col), as.character()) %>%  #If its numeric, needs to be char before spreading
         spread(sel_col, value) %>%
+        #Truncate Text
         rowwise() %>%
-        mutate_if(is.character, funs(ifelse(nchar(.) > 12, substr(., 1, 12), .))) %>%
+        mutate_if(is.character, funs(ifelse(nchar(.) > sel_truncate, substr(., 1, sel_truncate), .))) %>%
         ungroup() %>%
         as.data.frame()
 
@@ -607,7 +618,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 # GV2 <- GVAIndustry %>%
 #   rename(`Country (15)` = Country)
 # rspivot(GV2, initRows = "Country (15)")
-rspivot(GVAIndustry, initRows = "Country")
+# rspivot(GVAIndustry, initRows = "Country")
 # rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
 
 # load("Z:/Shared/P-Drive/Huawei/2016 H2 (Phase 1)/03 WORK (ANALYSIS)/Centralized Integration/_Model Output/3_IntegrateFile_Start")
@@ -624,11 +635,11 @@ rspivot(GVAIndustry, initRows = "Country")
 #
 # rspivot(brent, value="sum")
 
-econ <- read_delim("F:/Intel/Intel MA/2017-10 October/DATA/Econ 17Q3 - Full Comp File - PASS 4 - IFW_Recast of E17Q3P1.txt",
-                                                                    "\t", escape_double = FALSE, trim_ws = TRUE)
-econ2 <- econ %>%
-  gather(Year, value, 6:ncol(.)) %>%
-  mutate(Year = as.numeric(Year)) %>%
-  filter(Year %in% 2010:2020)
-
-rspivot(econ2, initRows = "SCENARIO")
+# econ <- read_delim("F:/Intel/Intel MA/2017-10 October/DATA/Econ 17Q3 - Full Comp File - PASS 4 - IFW_Recast of E17Q3P1.txt",
+#                                                                     "\t", escape_double = FALSE, trim_ws = TRUE)
+# econ2 <- econ %>%
+#   gather(Year, value, 6:ncol(.)) %>%
+#   mutate(Year = as.numeric(Year)) %>%
+#   filter(Year %in% 2010:2020)
+#
+# rspivot(econ2, initRows = "SCENARIO")
