@@ -9,8 +9,10 @@
 #' @param initCols Specify the series to be displayed as columns. If blank, defaults to the right-most series in the data frame.
 #' @param initRows Specify the series to be displayed as rows. If blank, defaults to the 2nd right-most series in the data frame.
 #' @param initNest Specify the series to be displayed as nested rows. If blank, no nested rows are displayed.
+#' @param initFilters Optional list of initial filter selections. Leave a series blank or use "Show All" to select all. Pass series names to \code{make.names()} to ensure correct use.
 #' @return An RStudio dialog box will pop-up with a Shiny pivot table of the data.
 #' @examples
+#' \dontrun{
 #' rspivot(GVAIndustry)
 #'
 #' GVAIndustry2 <- GVAIndustry %>%
@@ -18,18 +20,18 @@
 #' rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
 #'
 #' rspivot(GVAIndustry, initRows = "Country", initNest = "Industry")
-#'
+#'}
 #' @export
 
 rspivot <- function(df=.Last.value, valueName = "value",
-                    initCols = "", initRows = "", initNest = "") {
+                    initCols = "", initRows = "", initNest = "",
+                    initFilters = list()) {
 
   library(shiny)
   library(miniUI)
   library(DT)
   library(tidyverse)
   library(lazyeval)
-
 
   ################ ----
   # Non-Reactive functions
@@ -49,6 +51,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
   names(df0) <- make.names(names(df0))
   dim_names <- names(df0)[!(names(df0) %in% c("value"))]
   all.elements <- "Show All"
+  df.name <- deparse(substitute(df))
 
   #Move value to end
   df0a <- df0[, dim_names] %>%
@@ -100,7 +103,12 @@ rspivot <- function(df=.Last.value, valueName = "value",
                 span(
                    textOutput("ui_update_warning"),
                   style = "color:#4040FF; font-size:18pt"),
-                DT::dataTableOutput("df_table")
+                DT::dataTableOutput("df_table"),
+                hr(),
+                strong("Save function call"),
+                helpText("Running this function next time will resume the pivot in its current state."),
+                verbatimTextOutput("stateSave"),
+                actionButton("stateClipboard", label = "Copy to Clipboard", icon = icon("clipboard"))
               )
             )
 
@@ -215,10 +223,29 @@ rspivot <- function(df=.Last.value, valueName = "value",
         #Is a numeric input?
         series.num <- names(dat)[sapply(dat[, dim_names], is.numeric)]
 
+        #Is an initial input supplied
+        if(!is.null(initFilters[[dim_names[i]]])){
+          #Drop inputs that are wrong
+          choice.input <- initFilters[[dim_names[i]]]
+          # choice.input <- choice.input[choice.input == all.elements | (choice.input %in% choice.list[2])]
+          choice.selected <- choice.input
+        }
+
         #Number input
         if(dim_names[i] %in% series.num){
-          slide.min <- min(dat[, dim_names[i]])
-          slide.max <- max(dat[, dim_names[i]])
+          slide.min <- floor(min(dat[, dim_names[i]]))
+          slide.max <- ceiling(max(dat[, dim_names[i]]))
+
+          #Numeric with input
+          if(!is.null(initFilters[[dim_names[i]]])){
+            choice.min <- min(as.numeric(initFilters[[dim_names[i]]]))
+            choice.max <- max(as.numeric(initFilters[[dim_names[i]]]))
+          }
+          #Numeric without input
+          else {
+            choice.min <- slide.min
+            choice.max <- slide.max
+          }
         }
 
         # Build the Menu for each dimension
@@ -228,9 +255,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
              sliderInput(
                inputId = paste0("Sel", i),
                label = paste0(dim_names[i]),
-               min = floor(slide.min), max = ceiling(slide.max),
+               min = slide.min, max = slide.max,
                step = 1,
-               value = c(floor(slide.min), ceiling(slide.max)),
+               value = c(choice.min, choice.max),
                sep=""
              )
            } else {
@@ -331,6 +358,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       return(as.data.frame(datF))
     })
+
     #2 - ???
     dat2 <- reactive({
       return(dat1())
@@ -593,8 +621,79 @@ rspivot <- function(df=.Last.value, valueName = "value",
           plot.subtitle = element_text(color = "#00436b", size = 14),
           plot.caption = element_text(size = 11)
         )
-
       return(gg)
+    })
+
+
+
+    #Also save each filter state
+    stateSave_Text <- reactive({
+      # req(dat0())
+
+      sel_col <- input$PivCols
+      sel_row <- input$PivRows
+      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc")){"None"}else{input$PivRowNest}
+
+      dat <- dat0()
+
+      ##
+      # Row/Cols
+      ##
+      state_rowcol <- paste(paste0('initCols = "', sel_col, '"'),
+                            paste0('initRows = "', sel_row, '"'),
+                            paste0('initNest = "', sel_nest, '"'),
+                            sep = ', ')
+
+      ##
+      # Filters
+      ##
+      filterList <- c()
+
+      for(i in seq_along(dim_names)){
+        get_input <- eval(parse(text=paste0("input$Sel", i))) #Which filter to check
+
+        #Is a numeric input?
+        series.num <- names(dat)[sapply(dat[, dim_names], is.numeric)]
+
+        #If no items are selected or the Select All is selected, show ALL items
+        if(length(get_input) == 0 || all.elements %in% get_input){
+          get_series <- all.elements
+        }
+        #For Numeric series
+        else if(dim_names[i] %in% series.num){
+          get_series <- as.numeric(get_input)
+        } else {
+          get_series <- as.character(get_input)
+        }
+
+        if(dim_names[i] %in% series.num){ #Don't include single quotes for numeric
+          filterList <- c(filterList,
+                          paste0(dim_names[i], ' = c(', paste(get_series, collapse = ', '), ')'))
+        } else {
+          filterList <- c(filterList,
+                          paste0(dim_names[i], ' = c("', paste(get_series, collapse = '", "'), '")'))
+        }
+
+      } #End for
+
+      state_filter <- paste0("initFilters = list(", paste(filterList, collapse = ", "), ")")
+
+      ##
+      #Combine
+      ##
+
+      state_all <- paste0("rspivot(", df.name, ", ",
+                          state_rowcol, ", ",
+                          state_filter,
+                          ")")
+
+      # writeClipboard(state_all)
+      return(state_all)
+
+    })
+    output$stateSave <- renderText(stateSave_Text())
+    observeEvent(input$stateClipboard, {
+      writeClipboard(stateSave_Text())
     })
 
     # Listen for 'done' events. When we're finished, we'll
@@ -624,16 +723,6 @@ rspivot <- function(df=.Last.value, valueName = "value",
 # load("Z:/Shared/P-Drive/Huawei/2016 H2 (Phase 1)/03 WORK (ANALYSIS)/Centralized Integration/_Model Output/3_IntegrateFile_Start")
 # rspivot(IntegrateFile.Start, valueName="value", initCols = "Year", initRows = "Region")
 
-#Brent Error
-# load("Z:/Shared/P-Drive/Huawei/2016 H2 (Phase 1)/03 WORK (ANALYSIS)/Centralized Integration/_Model Output/3_IntegrateFile_Start")
-# brent <- IntegrateFile.Start %>%
-#   filter(Metric == "End-User Spending") %>%
-#   group_by(Year, Product_Level1) %>%
-#   summarize(sum = sum(value)) %>%
-#   ungroup() %>%
-#   mutate(Year=factor(Year))
-#
-# rspivot(brent, value="sum")
 
 # econ <- read_delim("F:/Intel/Intel MA/2017-10 October/DATA/Econ 17Q3 - Full Comp File - PASS 4 - IFW_Recast of E17Q3P1.txt",
 #                                                                     "\t", escape_double = FALSE, trim_ws = TRUE)
@@ -643,3 +732,4 @@ rspivot <- function(df=.Last.value, valueName = "value",
 #   filter(Year %in% 2010:2020)
 #
 # rspivot(econ2, initRows = "SCENARIO")
+

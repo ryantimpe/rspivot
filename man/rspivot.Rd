@@ -5,7 +5,7 @@
 \title{View data frames as Shiny pivot tables}
 \usage{
 rspivot(df = .Last.value, valueName = "value", initCols = "",
-  initRows = "", initNest = "")
+  initRows = "", initNest = "", initFilters = list())
 }
 \arguments{
 \item{df}{A data frame flat file to be converted to pivot format. Data should be in "long" format, with a single column of values named \code{value}.
@@ -19,6 +19,8 @@ Can also accept an array of strings containing the names of multiple value colum
 \item{initRows}{Specify the series to be displayed as rows. If blank, defaults to the 2nd right-most series in the data frame.}
 
 \item{initNest}{Specify the series to be displayed as nested rows. If blank, no nested rows are displayed.}
+
+\item{initFilters}{Optional list of initial filter selections. Leave a series blank or use "Show All" to select all. Pass series names to \code{make.names()} to ensure correct use.}
 }
 \value{
 An RStudio dialog box will pop-up with a Shiny pivot table of the data.
@@ -27,6 +29,7 @@ An RStudio dialog box will pop-up with a Shiny pivot table of the data.
 View data frames as Shiny pivot tables. This is an alternative to \code{View()} to view data frames as summarized data.
 }
 \examples{
+\dontrun{
 rspivot(GVAIndustry)
 
 GVAIndustry2 <- GVAIndustry \%>\%
@@ -34,5 +37,5 @@ GVAIndustry2 <- GVAIndustry \%>\%
 rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
 
 rspivot(GVAIndustry, initRows = "Country", initNest = "Industry")
-
+}
 }
