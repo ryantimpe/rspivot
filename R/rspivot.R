@@ -657,7 +657,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
         #If no items are selected or the Select All is selected, show ALL items
         if(length(get_input) == 0 || all.elements %in% get_input){
-          get_series <- all.elements
+          #get_series <- all.elements
+          next()
         }
         #For Numeric series
         else if(dim_names[i] %in% series.num){
@@ -732,4 +733,6 @@ rspivot <- function(df=.Last.value, valueName = "value",
 #   filter(Year %in% 2010:2020)
 #
 # rspivot(econ2, initRows = "SCENARIO")
+#
+# rspivot(econ2 %>% select(-Year))
 
