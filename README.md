@@ -2,7 +2,7 @@
 
 rspivot is a Shiny gadget addin for RStudio. rspivot provides an alternative to the `View()` function, allowing examination of a data frame as a pivot table rather than flat file.
 
-The data is presented as columns and nested rows, summing over all data values not explicitly shown in the data table. Additionally, the user can filter each column in the data frame to specific elements to examine subtotals.
+The data is presented as columns and nested rows, summing over all data values not explicitly shown in the data table. Additionally, the user can filter each column in the data frame to specific elements to examine subtotals. Row totals or subtotals are shown in last column on the right.
 
 In the "Data Options" tab, the user can add growth rate or share metrics to the data, with the ability to nest those metrics with the original data.
 
