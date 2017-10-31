@@ -101,9 +101,6 @@ rspivot <- function(df=.Last.value, valueName = "value",
                 span(
                   textOutput("need.data.frame"),
                   style = "color:red; font-size:18pt"),
-                span(
-                   textOutput("ui_update_warning"),
-                  style = "color:#4040FF; font-size:18pt"),
                 DT::dataTableOutput("df_table"),
                 hr(),
                 strong("Save function call"),
@@ -310,14 +307,6 @@ rspivot <- function(df=.Last.value, valueName = "value",
       actionButton("update_data", label = "Refresh Data", icon = shiny::icon("refresh"),
                    style = "background-color:#4040FF; color:#ffffff;")
     })
-    output$ui_update_warning <- renderText({
-      if(is.null(input$update_data)){
-        return("Begin by specifying filter options, then click 'Refresh Data'")
-      }else{
-        if(input$update_data == 0){return("Begin by specifying filter options, then click 'Refresh Data'")} else {NULL}
-      }
-    })
-
 
     ###
     # Edit table
@@ -325,8 +314,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
     #1 - Filter
     # Only update filters when clicked
-    dat1 <- eventReactive(input$update_data, {
-      req(dat0())
+    dat1 <- eventReactive(input$update_data,
+                          ignoreNULL = FALSE, {
+      #req(dat0())
 
       sel_col <- input$PivCols
       sel_row <- input$PivRows
@@ -751,4 +741,4 @@ rspivot <- function(df=.Last.value, valueName = "value",
 #   filter(Year %in% 2010:2020)
 #
 # rspivot(econ2, initRows = "SCENARIO")
-# rspivot(econ2, initRows = "SCENARIO")
+
