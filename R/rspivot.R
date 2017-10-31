@@ -10,6 +10,7 @@
 #' @param initRows Specify the series to be displayed as rows. If blank, defaults to the 2nd right-most series in the data frame.
 #' @param initNest Specify the series to be displayed as nested rows. If blank, no nested rows are displayed.
 #' @param initFilters Optional list of initial filter selections. Leave a series blank or use "Show All" to select all. Pass series names to \code{make.names()} to ensure correct use.
+#' Alternatively, leave this blank on the intiial run, and use the Save Function feature after manually selecting filters.
 #' @return An RStudio dialog box will pop-up with a Shiny pivot table of the data.
 #' @examples
 #' \dontrun{
@@ -108,7 +109,18 @@ rspivot <- function(df=.Last.value, valueName = "value",
                 strong("Save function call"),
                 helpText("Running this function next time will resume the pivot in its current state."),
                 verbatimTextOutput("stateSave"),
-                actionButton("stateClipboard", label = "Copy to Clipboard", icon = icon("clipboard"))
+                fluidRow(
+                  column(width = 3,
+                         actionButton("stateClipboard", label = "Copy to Clipboard", icon = icon("clipboard"))
+                         ),
+                  column(width = 9,
+                         radioButtons("stateWrite", label = strong("When 'Done', write function"),
+                                      choices = c("Nowhere" = 0,
+                                                  "At curser position" = 1,
+                                                  "At end of document" = 2),
+                                      selected = 0))
+                ),
+                br()
               )
             )
 
@@ -699,7 +711,13 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
     # Listen for 'done' events. When we're finished, we'll
     observeEvent(input$done, {
-      #Insert script here to create new data frame of changed data
+      #Save function
+      if(input$stateWrite == 1){ #At curser
+        rstudioapi::insertText(stateSave_Text())
+      } else if(input$stateWrite == 2){ #At end
+        rstudioapi::insertText(Inf, stateSave_Text())
+      }
+
       stopApp()
     })
 
@@ -733,6 +751,4 @@ rspivot <- function(df=.Last.value, valueName = "value",
 #   filter(Year %in% 2010:2020)
 #
 # rspivot(econ2, initRows = "SCENARIO")
-#
-# rspivot(econ2 %>% select(-Year))
-
+# rspivot(econ2, initRows = "SCENARIO")

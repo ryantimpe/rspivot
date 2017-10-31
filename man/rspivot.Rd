@@ -20,7 +20,8 @@ Can also accept an array of strings containing the names of multiple value colum
 
 \item{initNest}{Specify the series to be displayed as nested rows. If blank, no nested rows are displayed.}
 
-\item{initFilters}{Optional list of initial filter selections. Leave a series blank or use "Show All" to select all. Pass series names to \code{make.names()} to ensure correct use.}
+\item{initFilters}{Optional list of initial filter selections. Leave a series blank or use "Show All" to select all. Pass series names to \code{make.names()} to ensure correct use.
+Alternatively, leave this blank on the intiial run, and use the Save Function feature after manually selecting filters.}
 }
 \value{
 An RStudio dialog box will pop-up with a Shiny pivot table of the data.
