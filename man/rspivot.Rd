@@ -5,7 +5,8 @@
 \title{View data frames as Shiny pivot tables}
 \usage{
 rspivot(df = .Last.value, valueName = "value", initCols = "",
-  initRows = "", initNest = "", initFilters = list())
+  initRows = "", initNest = "", initFilters = list(),
+  initMetric = list(metric = "Values", series = ""))
 }
 \arguments{
 \item{df}{A data frame flat file to be converted to pivot format. Data should be in "long" format, with a single column of values named \code{value}.
@@ -22,6 +23,10 @@ Can also accept an array of strings containing the names of multiple value colum
 
 \item{initFilters}{Optional list of initial filter selections. Leave a series blank or use "Show All" to select all. Pass series names to \code{make.names()} to ensure correct use.
 Alternatively, leave this blank on the intiial run, and use the Save Function feature after manually selecting filters.}
+
+\item{initMetric}{Optional list of the initial data metrics to display.
+Specify \code{list(metric = "c("Values", "Growth", "Shares"), series = "")} where \code{series} is a single dimension name.
+Alternatively, leave this blank on the intiial run, and use the Save Function feature after manually setting the data metrics.}
 }
 \value{
 An RStudio dialog box will pop-up with a Shiny pivot table of the data.
