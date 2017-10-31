@@ -216,7 +216,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                       )
 
     updateSelectInput(session, "PivRowNest",
-                      choices = c("None", dim_names),
+                      choices = c("None", "*Metric*" = "Metric_calc", dim_names),
                       selected = (if(initNest == ""){"None"}else{make.names(initNest)})
                       )
 
@@ -302,13 +302,23 @@ rspivot <- function(df=.Last.value, valueName = "value",
       }
     })
 
-    #Allow nested metric if metric turned on
-    observe({
-      if(input$dataMetric != "Values"){
-        updateSelectInput(session, "PivRowNest",
-                          choices = c("None", "*Metric*" = "Metric_calc", dim_names), selected = "None")
-      }
-    })
+    # ##
+    # #Allow nested metric if metric turned on
+    # ##
+    #
+    # current_nest <- reactiveVal(NULL)
+    # # observeEvent(input$PivRowNest, {
+    # #   current_nest(input$PivRowNest)
+    # # })
+    #
+    # observe({
+    #   current_nest(input$PivRowNest)
+    #   if(input$dataMetric != "Values"){
+    #     updateSelectInput(session, "PivRowNest",
+    #                       choices = c("None", "*Metric*" = "Metric_calc", dim_names),
+    #                       selected = current_nest())
+    #   }
+    # })
 
     ###
     # Action Button
@@ -559,8 +569,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
           columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{-1},
           valueColumns = if(input$PivRowNest == "Metric_calc"){"Metric_calc"}else{-1},
           target = 'row',
-          backgroundColor = styleEqual(c(input$dataMetric), c('#ffffcc')),
-          color = styleEqual(c(input$dataMetric), c('#992020'))
+          backgroundColor = styleEqual(c("Growth", "Shares"), c('#ffffcc', '#eeeebb')),
+          color = styleEqual(c("Growth", "Shares"), c('#992020', '#992020'))
         ) %>%
         formatStyle(
           columns = if(input$PivCols_tot == TRUE){"*Total*"}else{999},
@@ -645,7 +655,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       sel_col <- input$PivCols
       sel_row <- input$PivRows
-      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc")){"None"}else{input$PivRowNest}
+      sel_nest <- if(input$PivRowNest %in% c("None")){"None"}else{input$PivRowNest}
 
       dat <- dat0()
 
@@ -693,12 +703,23 @@ rspivot <- function(df=.Last.value, valueName = "value",
       state_filter <- paste0("initFilters = list(", paste(filterList, collapse = ", "), ")")
 
       ##
+      # Metric
+      ##
+      if(input$dataMetric == "Values"){
+        state_metric <- NULL
+      } else {
+        state_metric <- paste0(', initMetric = list(metric = "', input$dataMetric, '", ',
+                               'series = "', input$dataMetricSeries, '")')
+      }
+
+      ##
       #Combine
       ##
 
       state_all <- paste0("rspivot(", df.name, ", ",
                           state_rowcol, ", ",
                           state_filter,
+                          state_metric,
                           ")")
 
       # writeClipboard(state_all)
@@ -751,4 +772,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
 #   mutate(Year = as.numeric(Year)) %>%
 #   filter(Year %in% 2010:2020)
 #
-rspivot(econ2, initRows = "SCENARIO", initMetric = list(metric = "Growth", series = "Year"))
+# rspivot(econ2, initRows = "SCENARIO")
+#
+#
+# rspivot(econ2, initCols = "Year", initRows = "SCENARIO", initNest = "None",
+#         initFilters = list(MEASURE = c("Real"), ECON = c("GDP"), QUARTER = c("Q1", "Q2", "Q3", "Q4"), Year = c(2014, 2020)))
+
