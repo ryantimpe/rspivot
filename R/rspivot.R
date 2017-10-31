@@ -11,6 +11,9 @@
 #' @param initNest Specify the series to be displayed as nested rows. If blank, no nested rows are displayed.
 #' @param initFilters Optional list of initial filter selections. Leave a series blank or use "Show All" to select all. Pass series names to \code{make.names()} to ensure correct use.
 #' Alternatively, leave this blank on the intiial run, and use the Save Function feature after manually selecting filters.
+#' @param initMetric Optional list of the initial data metrics to display.
+#' Specify \code{list(metric = "c("Values", "Growth", "Shares"), series = "")} where \code{series} is a single dimension name.
+#' Alternatively, leave this blank on the intiial run, and use the Save Function feature after manually setting the data metrics.
 #' @return An RStudio dialog box will pop-up with a Shiny pivot table of the data.
 #' @examples
 #' \dontrun{
@@ -26,7 +29,7 @@
 
 rspivot <- function(df=.Last.value, valueName = "value",
                     initCols = "", initRows = "", initNest = "",
-                    initFilters = list()) {
+                    initFilters = list(), initMetric = list(metric = "Values", series = "")) {
 
   library(shiny)
   library(miniUI)
@@ -283,12 +286,20 @@ rspivot <- function(df=.Last.value, valueName = "value",
       })
     })
 
-
+    ##
     #Data edits
+    ##
     observe({
       req(input$PivCols)
       updateSelectInput(session, "dataMetricSeries",
                         choices = dim_names, selected = input$PivCols)
+
+      if(initMetric$metric != "Values"){
+        updateSelectInput(session, "dataMetric",
+                          selected = initMetric$metric)
+        updateSelectInput(session, "dataMetricSeries",
+                          selected = initMetric$series)
+      }
     })
 
     #Allow nested metric if metric turned on
@@ -740,5 +751,4 @@ rspivot <- function(df=.Last.value, valueName = "value",
 #   mutate(Year = as.numeric(Year)) %>%
 #   filter(Year %in% 2010:2020)
 #
-# rspivot(econ2, initRows = "SCENARIO")
-
+rspivot(econ2, initRows = "SCENARIO", initMetric = list(metric = "Growth", series = "Year"))
