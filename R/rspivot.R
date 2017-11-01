@@ -526,16 +526,16 @@ rspivot <- function(df=.Last.value, valueName = "value",
     ###
     # Publish pivot ----
     ###
-    # dat_4E <- eventReactive(input$edits_save, {
-    #   # if (!is.null(input$hot)) {
-    #   #   df <- hot_to_r(input$hot)
-    #   # } else {
-    #     df <- dat4()
-    #   #}
-    # }, ignoreNULL = FALSE, ignoreInit = FALSE)
+    dat4E <- eventReactive(list(input$update_data, input$PivCols, input$PivRows, input$PivRowNest),
+                           {dat4()},
+                           ignoreNULL = FALSE, ignoreInit = FALSE)
+
+    # dat4E <- eventReactive(input$edits_save, {
+    #     df <- hot_to_r(input$hot)
+    # }, ignoreNULL = TRUE, ignoreInit = TRUE)
 
     output$hot <- renderRHandsontable({
-      df <- dat4()
+      df <- dat4E()
       rhandsontable(df) %>%
         hot_table(highlightCol = TRUE, highlightRow = TRUE)
     })
@@ -708,8 +708,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
 # df<- GVAIndustry
 # # Run it
 #
-# rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Econ",
-#         initFilters = list(Measure = c("Real"), Year = c(2010, 2016)))
+rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Econ",
+        initFilters = list(Measure = c("Real"), Year = c(2010, 2016)))
 
 
 # load("Z:/Shared/P-Drive/Huawei/2016 H2 (Phase 1)/03 WORK (ANALYSIS)/Centralized Integration/_Model Output/3_IntegrateFile_Start")
