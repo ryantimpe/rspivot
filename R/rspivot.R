@@ -75,7 +75,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
             fluidRow(
               column(width = 3,
                      uiOutput("ui_update_data"),
-                     p("Click here to update the data in the pivot table after filter changes.")
+                     helptext("Pivot will not update until this is pressed. This postpone calculations until all filters are updated.")
                      ),
               column(width = 3,
                 selectInput("PivRows", label = "Rows",
@@ -301,24 +301,6 @@ rspivot <- function(df=.Last.value, valueName = "value",
                           selected = initMetric$series)
       }
     })
-
-    # ##
-    # #Allow nested metric if metric turned on
-    # ##
-    #
-    # current_nest <- reactiveVal(NULL)
-    # # observeEvent(input$PivRowNest, {
-    # #   current_nest(input$PivRowNest)
-    # # })
-    #
-    # observe({
-    #   current_nest(input$PivRowNest)
-    #   if(input$dataMetric != "Values"){
-    #     updateSelectInput(session, "PivRowNest",
-    #                       choices = c("None", "*Metric*" = "Metric_calc", dim_names),
-    #                       selected = current_nest())
-    #   }
-    # })
 
     ###
     # Action Button
@@ -777,4 +759,5 @@ rspivot <- function(df=.Last.value, valueName = "value",
 #
 # rspivot(econ2, initCols = "Year", initRows = "SCENARIO", initNest = "None",
 #         initFilters = list(MEASURE = c("Real"), ECON = c("GDP"), QUARTER = c("Q1", "Q2", "Q3", "Q4"), Year = c(2014, 2020)))
-
+#
+# rspivot(econ2, initCols = "Year", initRows = "SCENARIO", initNest = "Metric_calc", initFilters = list(MEASURE = c("Real"), ECON = c("GDP"), QUARTER = c("Q1", "Q2", "Q3", "Q4"), Year = c(2014, 2020)), initMetric = list(metric = "Growth", series = "Year"))
