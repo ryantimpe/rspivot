@@ -36,6 +36,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
   library(DT)
   library(tidyverse)
   library(lazyeval)
+  library(rhandsontable)
 
   ################ ----
   # Non-Reactive functions
@@ -75,7 +76,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
             fluidRow(
               column(width = 3,
                      uiOutput("ui_update_data"),
-                     helptext("Pivot will not update until this is pressed. This postpone calculations until all filters are updated.")
+                     helpText("Pivot will not update until this is pressed. This postpone calculations until all filters are updated.")
                      ),
               column(width = 3,
                 selectInput("PivRows", label = "Rows",
@@ -104,7 +105,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
                 span(
                   textOutput("need.data.frame"),
                   style = "color:red; font-size:18pt"),
-                DT::dataTableOutput("df_table"),
+                actionButton("edits_save", label = "Save Edits", icon = icon("floppy-o"),
+                             style = "background-color:#FF4040; color:#ffffff;"),
+                hr(),
+                rHandsontableOutput("hot"),
                 hr(),
                 strong("Save function call"),
                 helpText("Running this function next time will resume the pivot in its current state."),
@@ -522,52 +526,18 @@ rspivot <- function(df=.Last.value, valueName = "value",
     ###
     # Publish pivot ----
     ###
-    # output$test <- renderText(cols_numeric())
-    output$df_table <- DT::renderDataTable({
-      dat <- dat4()
+    # dat_4E <- eventReactive(input$edits_save, {
+    #   # if (!is.null(input$hot)) {
+    #   #   df <- hot_to_r(input$hot)
+    #   # } else {
+    #     df <- dat4()
+    #   #}
+    # }, ignoreNULL = FALSE, ignoreInit = FALSE)
 
-      dt <- datatable(as.data.frame(dat),
-                      extensions = c('FixedColumns', 'Scroller'),
-                      # extensions = c('FixedColumns', 'Scroller', 'ColReorder', 'RowReorder'),
-                      options = list(
-                        #dom = 't',
-                        scrollX = TRUE,
-                        scrollY = 500,
-                        scroller = TRUE, deferRender = TRUE,
-                        rownames = FALSE,
-                        fixedHeader = TRUE,
-                        fixedColumns = list(leftColumns = ifelse(input$PivRowNest == "None", 2, 3))#,
-                        #colReorder = list(realtime = FALSE),
-                        #rowReorder = TRUE
-                      )
-                      ) %>%
-        formatCurrency(columns = if(input$dataMetric == "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{99},
-                    currency = "", digits = input$decValues) %>%
-        formatPercentage(columns = if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{99},
-                    digits = input$decMetric) %>%
-        formatCurrency(columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{99},
-                       currency = "", digits = input$decMetric)%>%
-        formatStyle(
-          columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{-1},
-          valueColumns = if(input$PivRowNest == "Metric_calc"){"Metric_calc"}else{-1},
-          target = 'row',
-          backgroundColor = styleEqual(c("Growth", "Shares"), c('#ffffcc', '#eeeebb')),
-          color = styleEqual(c("Growth", "Shares"), c('#992020', '#992020'))
-        ) %>%
-        formatStyle(
-          columns = if(input$PivCols_tot == TRUE){"*Total*"}else{999},
-          target = 'cell',
-          backgroundColor = "#ffcccc"
-        )
-        # formatStyle(
-        #   columns = cols_numeric(),
-        #   valueColumns = input$PivRows,
-        #   target = 'row',
-        #   backgroundColor = styleEqual(c("*Total*"), c('#ccffff')),
-        #   color = styleEqual(c(input$dataMetric), c('black'))
-        # )
-
-      return(dt)
+    output$hot <- renderRHandsontable({
+      df <- dat4()
+      rhandsontable(df) %>%
+        hot_table(highlightCol = TRUE, highlightRow = TRUE)
     })
 
     ###
@@ -582,7 +552,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       sel_type <- input$PlotToggle
 
-      dat0 <- dat4()
+      dat0 <- dat4E()
 
       if(sel_nest == "None"){
         dat <- as.data.frame(dat0) %>%
@@ -737,11 +707,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
 #
 # df<- GVAIndustry
 # # Run it
-# GV2 <- GVAIndustry %>%
-#   rename(`Country (15)` = Country)
-# rspivot(GV2, initRows = "Country (15)")
-# rspivot(GVAIndustry, initRows = "Country")
-# rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
+#
+# rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Econ",
+#         initFilters = list(Measure = c("Real"), Year = c(2010, 2016)))
+
 
 # load("Z:/Shared/P-Drive/Huawei/2016 H2 (Phase 1)/03 WORK (ANALYSIS)/Centralized Integration/_Model Output/3_IntegrateFile_Start")
 # rspivot(IntegrateFile.Start, valueName="value", initCols = "Year", initRows = "Region")
