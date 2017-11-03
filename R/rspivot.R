@@ -91,7 +91,11 @@ rspivot <- function(df=.Last.value, valueName = "value",
               column(width = 3,
                 selectInput("PivCols", label = "Columns",
                           choices = NULL , selected = NULL),
-                checkboxInput("PivCols_tot", label = "Show Column Totals", value=TRUE)
+                checkboxInput("PivCols_tot", label = "Show Column Totals", value=FALSE),
+                radioButtons("PivCols_chart", label = "Show Column Charts",
+                             choices = c("None" = "None", "Bars" = "bar", "Spark" = "line"),
+                             selected = "line",
+                             inline = TRUE)
                 )
           ),
           fluidRow(
@@ -105,9 +109,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
                 span(
                   textOutput("need.data.frame"),
                   style = "color:red; font-size:18pt"),
-                actionButton("edits_save", label = "Save Edits", icon = icon("floppy-o"),
-                             style = "background-color:#FF4040; color:#ffffff;"),
-                hr(),
+                # actionButton("edits_save", label = "Save Edits", icon = icon("floppy-o"),
+                #              style = "background-color:#FF4040; color:#ffffff;"),
+                # hr(),
                 rHandsontableOutput("hot"),
                 hr(),
                 strong("Save function call"),
@@ -535,10 +539,36 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       df <- hotData()
 
-      if(!is.null(df)){
-        rhandsontable(df) %>%
-          hot_table(highlightCol = TRUE, highlightRow = TRUE)
+      #Sparklines
+      if(input$PivCols_chart != "None"){
+        df_spk <- df %>%
+          do(if(input$PivCols_tot == TRUE){select(., -`*Total*`)}else{.})
+
+        df$`*Chart*` <- sapply(1:nrow(df_spk), function(i){
+          vals <- round(as.numeric(df_spk[i, cols_numeric()[cols_numeric() != "*Total*"]]), 5)
+          vals <- vals[!is.na(vals)]
+
+          jsonlite::toJSON(list(values = vals,
+                                options = list(type = input$PivCols_chart)))
+        })
       }
+
+      rh <- rhandsontable(df, width = 1000, height = 400) %>%
+        hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
+        hot_cols(fixedColumnsLeft = 1)
+
+      if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){
+        rh <- rh %>%
+          hot_cols(format = "0.0%")
+      }
+
+      #Sparklines
+      if(input$PivCols_chart != "None"){
+        rh <- rh %>%
+          hot_col("*Chart*", renderer = htmlwidgets::JS("renderSparkline"), width = 80)
+      }
+
+      return(rh)
 
     })
 
@@ -601,9 +631,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
       return(gg)
     })
 
-
-
-    #Also save each filter state
+    ####
+    #Also save each filter state ----
+    ####
     stateSave_Text <- reactive({
       # req(dat0())
 
@@ -698,6 +728,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
     })
 
   } #End Server
+
+  ####
+  # Addin settings ----
+  ####
 
   viewer <- dialogViewer(paste("RSPivot -", deparse(substitute(df))), width = 1400, height= 2000)
   runGadget(ui, server, viewer = viewer)
