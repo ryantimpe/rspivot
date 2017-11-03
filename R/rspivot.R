@@ -1,6 +1,7 @@
 #' View data frames as Shiny pivot tables
 #'
 #' View data frames as Shiny pivot tables. This is an alternative to \code{View()} to view data frames as summarized data.
+#' Additional options include sparklines and charts and multiple data metrics.
 #'
 #' @param df A data frame flat file to be converted to pivot format. Data should be in "long" format, with a single column of values named \code{value}.
 #' The function defaults to showing the most recent object made in R.
