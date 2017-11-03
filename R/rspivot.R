@@ -184,7 +184,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                  ),
           column(width = 3,
                  strong("Text"),
-                 numericInput("textTruncate", label = "Truncate long labels", value = 15,
+                 numericInput("textTruncate", label = "Truncate long labels", value = 20,
                                min = 5, max = 50, step = 5))
         )
       )
@@ -561,7 +561,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       rh <- rhandsontable(df, width = 1000, height = 400) %>%
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
-        hot_cols(fixedColumnsLeft = 1)
+        hot_cols(fixedColumnsLeft = (if(input$PivRowNest == "None"){1}else{2})) #If nested, freeze two columns
 
       if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){
         rh <- rh %>%
@@ -753,12 +753,12 @@ rspivot <- function(df=.Last.value, valueName = "value",
 # df<- GVAIndustry
 # # Run it
 #
-rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Econ",
-        initFilters = list(Measure = c("Real"), Year = c(2010, 2016)))
-
-rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Metric_calc",
-        initFilters = list(Measure = c("Real"), Econ = c("GDP"), Year = c(2005, 2016)),
-        initMetric = list(metric = "Growth", series = "Year"))
+# rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Econ",
+#         initFilters = list(Measure = c("Real"), Year = c(2010, 2016)))
+#
+# rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Metric_calc",
+#         initFilters = list(Measure = c("Real"), Econ = c("GDP"), Year = c(2005, 2016)),
+#         initMetric = list(metric = "Growth", series = "Year"))
 
 
 
