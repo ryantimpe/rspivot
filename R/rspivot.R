@@ -546,13 +546,17 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       df <- hotData()
 
+      #Drop columns that are all NAs --- mostly YY growths
+      df <-  df[, colSums(is.na(df)) < nrow(df)]
+      cols_num <- names(df)[names(df) %in% cols_numeric()]
+
       #Sparklines
       if(input$PivCols_chart != "None"){
         df_spk <- df %>%
           do(if(input$PivCols_tot == TRUE){select(., -`*Total*`)}else{.})
 
         df$`*Chart*` <- sapply(1:nrow(df_spk), function(i){
-          vals <- round(as.numeric(df_spk[i, cols_numeric()[cols_numeric() != "*Total*"]]), 5)
+          vals <- round(as.numeric(df_spk[i, cols_num[cols_num != "*Total*"]]), 5)
           vals <- vals[!is.na(vals)]
 
           jsonlite::toJSON(list(values = vals,
@@ -560,7 +564,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
         })
       }
 
-      rh <- rhandsontable(df, width = 1000, height = 400) %>%
+      rh <- rhandsontable(df, width = 1000, height = 500) %>%
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
         hot_cols(fixedColumnsLeft = (if(input$PivRowNest == "None"){1}else{2})) #If nested, freeze two columns
 
@@ -757,10 +761,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
 # rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Econ",
 #         initFilters = list(Measure = c("Real"), Year = c(2010, 2016)))
 #
-rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Metric_calc",
-        initFilters = list(Measure = c("Real"), Econ = c("GDP"), Year = c(2005, 2016)),
-        initMetric = list(metric = "Growth", series = "Year"))
-
+# rspivot(GVAIndustry, initCols = "Year", initRows = "Country",
+#         initFilters = list(Measure = c("Real"), Econ = c("GDP"), Year = c(2005, 2016)),
+#         initMetric = list(metric = "Growth", series = "Year"))
+#
 
 
 # load("Z:/Shared/P-Drive/Huawei/2016 H2 (Phase 1)/03 WORK (ANALYSIS)/Centralized Integration/_Model Output/3_IntegrateFile_Start")
