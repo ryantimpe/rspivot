@@ -496,7 +496,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
             mutate_at(., vars(sel_nest), as.character())
           } else {.}
         ) %>%
-        mutate_at(vars(sel_col), as.character()) %>%  #If its numeric, needs to be char before spreading
+        mutate_at(vars(sel_col), as.character()) %>% #If its numeric, needs to be char before spreading
+        mutate(value = ifelse(is.nan(value) | is.infinite(value), NA, value)) %>% #Replace NaN and Inf with NA
         spread(sel_col, value) %>%
         #Truncate Text
         rowwise() %>%
@@ -756,9 +757,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
 # rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Econ",
 #         initFilters = list(Measure = c("Real"), Year = c(2010, 2016)))
 #
-# rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Metric_calc",
-#         initFilters = list(Measure = c("Real"), Econ = c("GDP"), Year = c(2005, 2016)),
-#         initMetric = list(metric = "Growth", series = "Year"))
+rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Metric_calc",
+        initFilters = list(Measure = c("Real"), Econ = c("GDP"), Year = c(2005, 2016)),
+        initMetric = list(metric = "Growth", series = "Year"))
 
 
 
