@@ -91,11 +91,17 @@ rspivot <- function(df=.Last.value, valueName = "value",
               column(width = 3,
                 selectInput("PivCols", label = "Columns",
                           choices = NULL , selected = NULL),
-                checkboxInput("PivCols_tot", label = "Show Column Totals", value=FALSE),
-                radioButtons("PivCols_chart", label = "Show Column Charts",
-                             choices = c("None" = "None", "Bars" = "bar", "Spark" = "line"),
-                             selected = "line",
-                             inline = TRUE)
+                fluidRow(
+                  column(width = 3,
+                         checkboxInput("PivCols_tot", label = "Totals", value=FALSE)
+                         ),
+                  column(width = 9,
+                         radioButtons("PivCols_chart", label = "Column Charts",
+                                      choices = c("None" = "None", "Bars" = "bar", "Spark" = "line"),
+                                      selected = "line",
+                                      inline = TRUE)
+                         )
+                )
                 )
           ),
           fluidRow(
@@ -559,7 +565,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){
         rh <- rh %>%
-          hot_cols(format = "0.0%")
+          hot_cols(format = paste0("0.", paste(rep("0", input$decMetric), collapse = ""), "%"))
       }
 
       #Sparklines
@@ -744,8 +750,11 @@ rspivot <- function(df=.Last.value, valueName = "value",
 # df<- GVAIndustry
 # # Run it
 #
-# rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Econ",
-#         initFilters = list(Measure = c("Real"), Year = c(2010, 2016)))
+rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Econ",
+        initFilters = list(Measure = c("Real"), Year = c(2010, 2016)))
+
+rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Econ", initFilters = list(Measure = c("Real"), Year = c(2010, 2016)), initMetric = list(metric = "Growth", series = "Year"))
+
 
 
 # load("Z:/Shared/P-Drive/Huawei/2016 H2 (Phase 1)/03 WORK (ANALYSIS)/Centralized Integration/_Model Output/3_IntegrateFile_Start")
