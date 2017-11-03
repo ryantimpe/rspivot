@@ -511,14 +511,12 @@ rspivot <- function(df=.Last.value, valueName = "value",
       return(datZ)
     })
 
-    # dat4 <- reactive({dat1()})
-
     ###
     # Prepare Data Table ----
     ###
 
     cols_numeric <- reactive({
-      req(dat4(), input$PivCols)
+      req(dat4() , input$PivCols)
       dat <- as.data.frame(dat0())
       return(as.character(names(dat4())[names(dat4()) %in% c(unique(dat[, input$PivCols]), "*Total*")]))
     })
@@ -526,22 +524,26 @@ rspivot <- function(df=.Last.value, valueName = "value",
     ###
     # Publish pivot ----
     ###
-    dat4E <- eventReactive(list(input$update_data, input$PivCols, input$PivRows, input$PivRowNest),
-                           {dat4()},
-                           ignoreNULL = FALSE, ignoreInit = FALSE)
 
-    # dat4E <- eventReactive(input$edits_save, {
-    #     df <- hot_to_r(input$hot)
-    # }, ignoreNULL = TRUE, ignoreInit = TRUE)
+
+    hotData <- reactive({
+      df <- dat4()
+      return(df)
+    })
 
     output$hot <- renderRHandsontable({
-      df <- dat4E()
-      rhandsontable(df) %>%
-        hot_table(highlightCol = TRUE, highlightRow = TRUE)
+
+      df <- hotData()
+
+      if(!is.null(df)){
+        rhandsontable(df) %>%
+          hot_table(highlightCol = TRUE, highlightRow = TRUE)
+      }
+
     })
 
     ###
-    # Graph pivot
+    # Graph pivot ----
     ###
 
     output$df_plot <- renderPlot({
@@ -552,7 +554,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       sel_type <- input$PlotToggle
 
-      dat0 <- dat4E()
+      dat0 <- dat4()
 
       if(sel_nest == "None"){
         dat <- as.data.frame(dat0) %>%
