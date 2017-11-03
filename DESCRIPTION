@@ -4,7 +4,6 @@ Title: View data frames as Shiny pivot tables.
 Imports: 
     tidyverse (>= 1.1.1),
     lazyeval (>= 0.2.0),
-    DT (>= 0.2),
     shiny (>= 0.13),
     miniUI (>= 0.1.1),
     rstudioapi (>= 0.5),

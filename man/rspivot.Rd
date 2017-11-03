@@ -24,12 +24,7 @@ Can also accept an array of strings containing the names of multiple value colum
 \item{initFilters}{Optional list of initial filter selections. Leave a series blank or use "Show All" to select all. Pass series names to \code{make.names()} to ensure correct use.
 Alternatively, leave this blank on the intiial run, and use the Save Function feature after manually selecting filters.}
 
-\item{initMetric}{Optional list of the initial data metrics to display.
-Specify \code{list(metric = "c("Values", "Growth", "Shares"), series = "")} where \code{series} is a single dimension name.
-Alternatively, leave this blank on the intiial run, and use the Save Function feature after manually setting the data metrics.}
-}
-\value{
-An RStudio dialog box will pop-up with a Shiny pivot table of the data.
+\item{initMetric}{Optional list of the initial data metrics to display.}
 }
 \description{
 View data frames as Shiny pivot tables. This is an alternative to \code{View()} to view data frames as summarized data.
@@ -42,7 +37,5 @@ rspivot(GVAIndustry)
 GVAIndustry2 <- GVAIndustry \%>\%
      spread(Econ, value)
 rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
-
-rspivot(GVAIndustry, initRows = "Country", initNest = "Industry")
 }
 }

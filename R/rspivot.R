@@ -13,9 +13,6 @@
 #' @param initFilters Optional list of initial filter selections. Leave a series blank or use "Show All" to select all. Pass series names to \code{make.names()} to ensure correct use.
 #' Alternatively, leave this blank on the intiial run, and use the Save Function feature after manually selecting filters.
 #' @param initMetric Optional list of the initial data metrics to display.
-#' Specify \code{list(metric = "c("Values", "Growth", "Shares"), series = "")} where \code{series} is a single dimension name.
-#' Alternatively, leave this blank on the intiial run, and use the Save Function feature after manually setting the data metrics.
-#' @return An RStudio dialog box will pop-up with a Shiny pivot table of the data.
 #' @examples
 #' \dontrun{
 #' rspivot(GVAIndustry)
@@ -23,8 +20,6 @@
 #' GVAIndustry2 <- GVAIndustry %>%
 #'      spread(Econ, value)
 #' rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
-#'
-#' rspivot(GVAIndustry, initRows = "Country", initNest = "Industry")
 #'}
 #' @export
 
@@ -38,6 +33,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
   library(tidyverse)
   library(lazyeval)
   library(rhandsontable)
+  library(jsonlite)
 
   ################ ----
   # Non-Reactive functions
@@ -568,11 +564,13 @@ rspivot <- function(df=.Last.value, valueName = "value",
       rh <- rhandsontable(df, width = 1000, height = 500) %>%
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
         hot_cols(columnSorting = TRUE,
-                 fixedColumnsLeft = (if(input$PivRowNest == "None"){1}else{2})) #If nested, freeze two columns
+                 fixedColumnsLeft = (if(input$PivRowNest == "None"){1}else{2})
+                 ) #If nested, freeze two columns
 
       if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){
         rh <- rh %>%
           hot_cols(format = paste0("0.", paste(rep("0", input$decMetric), collapse = ""), "%"))
+          # hot_cols(format = paste0("0.", paste(rep("0", input$decMetric), collapse = "")))
       } else {
         rh <- rh %>%
           hot_cols(format = paste0("0.", paste(rep("0", input$decValues), collapse = "")))
@@ -753,37 +751,3 @@ rspivot <- function(df=.Last.value, valueName = "value",
   runGadget(ui, server, viewer = viewer)
 
 }
-
-# GVAIndustry2 <- GVAIndustry %>%
-#   spread(Econ, value)
-#
-# df<- GVAIndustry
-# # Run it
-#
-# rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Econ",
-#         initFilters = list(Measure = c("Real"), Year = c(2010, 2016)))
-#
-# rspivot(GVAIndustry, initCols = "Year", initRows = "Country",
-#         initFilters = list(Measure = c("Real"), Econ = c("GDP"), Year = c(2005, 2016)),
-#         initMetric = list(metric = "Growth", series = "Year"))
-
-
-
-# load("Z:/Shared/P-Drive/Huawei/2016 H2 (Phase 1)/03 WORK (ANALYSIS)/Centralized Integration/_Model Output/3_IntegrateFile_Start")
-# rspivot(IntegrateFile.Start, valueName="value", initCols = "Year", initRows = "Region")
-
-#
-# econ <- read_delim("F:/Intel/Intel MA/2017-10 October/DATA/Econ 17Q3 - Full Comp File - PASS 4 - IFW_Recast of E17Q3P1.txt",
-#                                                                     "\t", escape_double = FALSE, trim_ws = TRUE)
-# econ2 <- econ %>%
-#   gather(Year, value, 6:ncol(.)) %>%
-#   mutate(Year = as.numeric(Year)) %>%
-#   filter(Year %in% 2010:2020)
-#
-# rspivot(econ2, initRows = "SCENARIO")
-#
-#
-# rspivot(econ2, initCols = "Year", initRows = "SCENARIO", initNest = "None",
-#         initFilters = list(MEASURE = c("Real"), ECON = c("GDP"), QUARTER = c("Q1", "Q2", "Q3", "Q4"), Year = c(2014, 2020)))
-
-# rspivot(econ2, initCols = "Year", initRows = "SCENARIO", initNest = "Metric_calc", initFilters = list(MEASURE = c("Real"), ECON = c("GDP"), QUARTER = c("Q1", "Q2", "Q3", "Q4"), Year = c(2014, 2020)), initMetric = list(metric = "Growth", series = "Year"))
