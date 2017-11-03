@@ -566,6 +566,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
       if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){
         rh <- rh %>%
           hot_cols(format = paste0("0.", paste(rep("0", input$decMetric), collapse = ""), "%"))
+      } else {
+        rh <- rh %>%
+          hot_cols(format = paste0("0.", paste(rep("0", input$decValues), collapse = "")))
       }
 
       #Sparklines
@@ -753,7 +756,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
 rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Econ",
         initFilters = list(Measure = c("Real"), Year = c(2010, 2016)))
 
-rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Econ", initFilters = list(Measure = c("Real"), Year = c(2010, 2016)), initMetric = list(metric = "Growth", series = "Year"))
+rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Metric_calc",
+        initFilters = list(Measure = c("Real"), Econ = c("GDP"), Year = c(2005, 2016)),
+        initMetric = list(metric = "Growth", series = "Year"))
 
 
 
