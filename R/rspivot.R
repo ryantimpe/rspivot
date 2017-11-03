@@ -1,6 +1,7 @@
 #' View data frames as Shiny pivot tables
 #'
 #' View data frames as Shiny pivot tables. This is an alternative to \code{View()} to view data frames as summarized data.
+#' Additional options include sparklines and charts and multiple data metrics.
 #'
 #' @param df A data frame flat file to be converted to pivot format. Data should be in "long" format, with a single column of values named \code{value}.
 #' The function defaults to showing the most recent object made in R.
@@ -36,6 +37,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
   library(DT)
   library(tidyverse)
   library(lazyeval)
+  library(rhandsontable)
 
   ################ ----
   # Non-Reactive functions
@@ -90,7 +92,17 @@ rspivot <- function(df=.Last.value, valueName = "value",
               column(width = 3,
                 selectInput("PivCols", label = "Columns",
                           choices = NULL , selected = NULL),
-                checkboxInput("PivCols_tot", label = "Show Column Totals", value=TRUE)
+                fluidRow(
+                  column(width = 3,
+                         checkboxInput("PivCols_tot", label = "Totals", value=FALSE)
+                         ),
+                  column(width = 9,
+                         radioButtons("PivCols_chart", label = "Column Charts",
+                                      choices = c("None" = "None", "Bars" = "bar", "Spark" = "line"),
+                                      selected = "line",
+                                      inline = TRUE)
+                         )
+                )
                 )
           ),
           fluidRow(
@@ -104,7 +116,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
                 span(
                   textOutput("need.data.frame"),
                   style = "color:red; font-size:18pt"),
-                DT::dataTableOutput("df_table"),
+                # actionButton("edits_save", label = "Save Edits", icon = icon("floppy-o"),
+                #              style = "background-color:#FF4040; color:#ffffff;"),
+                # hr(),
+                rHandsontableOutput("hot"),
                 hr(),
                 strong("Save function call"),
                 helpText("Running this function next time will resume the pivot in its current state."),
@@ -170,7 +185,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                  ),
           column(width = 3,
                  strong("Text"),
-                 numericInput("textTruncate", label = "Truncate long labels", value = 15,
+                 numericInput("textTruncate", label = "Truncate long labels", value = 20,
                                min = 5, max = 50, step = 5))
         )
       )
@@ -482,7 +497,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
             mutate_at(., vars(sel_nest), as.character())
           } else {.}
         ) %>%
-        mutate_at(vars(sel_col), as.character()) %>%  #If its numeric, needs to be char before spreading
+        mutate_at(vars(sel_col), as.character()) %>% #If its numeric, needs to be char before spreading
+        mutate(value = ifelse(is.nan(value) | is.infinite(value), NA, value)) %>% #Replace NaN and Inf with NA
         spread(sel_col, value) %>%
         #Truncate Text
         rowwise() %>%
@@ -507,14 +523,12 @@ rspivot <- function(df=.Last.value, valueName = "value",
       return(datZ)
     })
 
-    # dat4 <- reactive({dat1()})
-
     ###
     # Prepare Data Table ----
     ###
 
     cols_numeric <- reactive({
-      req(dat4(), input$PivCols)
+      req(dat4() , input$PivCols)
       dat <- as.data.frame(dat0())
       return(as.character(names(dat4())[names(dat4()) %in% c(unique(dat[, input$PivCols]), "*Total*")]))
     })
@@ -522,56 +536,59 @@ rspivot <- function(df=.Last.value, valueName = "value",
     ###
     # Publish pivot ----
     ###
-    # output$test <- renderText(cols_numeric())
-    output$df_table <- DT::renderDataTable({
-      dat <- dat4()
 
-      dt <- datatable(as.data.frame(dat),
-                      extensions = c('FixedColumns', 'Scroller'),
-                      # extensions = c('FixedColumns', 'Scroller', 'ColReorder', 'RowReorder'),
-                      options = list(
-                        #dom = 't',
-                        scrollX = TRUE,
-                        scrollY = 500,
-                        scroller = TRUE, deferRender = TRUE,
-                        rownames = FALSE,
-                        fixedHeader = TRUE,
-                        fixedColumns = list(leftColumns = ifelse(input$PivRowNest == "None", 2, 3))#,
-                        #colReorder = list(realtime = FALSE),
-                        #rowReorder = TRUE
-                      )
-                      ) %>%
-        formatCurrency(columns = if(input$dataMetric == "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{99},
-                    currency = "", digits = input$decValues) %>%
-        formatPercentage(columns = if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){cols_numeric()}else{99},
-                    digits = input$decMetric) %>%
-        formatCurrency(columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{99},
-                       currency = "", digits = input$decMetric)%>%
-        formatStyle(
-          columns = if(input$PivRowNest == "Metric_calc"){cols_numeric()}else{-1},
-          valueColumns = if(input$PivRowNest == "Metric_calc"){"Metric_calc"}else{-1},
-          target = 'row',
-          backgroundColor = styleEqual(c("Growth", "Shares"), c('#ffffcc', '#eeeebb')),
-          color = styleEqual(c("Growth", "Shares"), c('#992020', '#992020'))
-        ) %>%
-        formatStyle(
-          columns = if(input$PivCols_tot == TRUE){"*Total*"}else{999},
-          target = 'cell',
-          backgroundColor = "#ffcccc"
-        )
-        # formatStyle(
-        #   columns = cols_numeric(),
-        #   valueColumns = input$PivRows,
-        #   target = 'row',
-        #   backgroundColor = styleEqual(c("*Total*"), c('#ccffff')),
-        #   color = styleEqual(c(input$dataMetric), c('black'))
-        # )
 
-      return(dt)
+    hotData <- reactive({
+      df <- dat4()
+      return(df)
+    })
+
+    output$hot <- renderRHandsontable({
+
+      df <- hotData()
+
+      #Drop columns that are all NAs --- mostly YY growths
+      df <-  df[, colSums(is.na(df)) < nrow(df)]
+      cols_num <- names(df)[names(df) %in% cols_numeric()]
+
+      #Sparklines
+      if(input$PivCols_chart != "None"){
+        df_spk <- df %>%
+          do(if(input$PivCols_tot == TRUE){select(., -`*Total*`)}else{.})
+
+        df$`*Chart*` <- sapply(1:nrow(df_spk), function(i){
+          vals <- round(as.numeric(df_spk[i, cols_num[cols_num != "*Total*"]]), 5)
+          vals <- vals[!is.na(vals)]
+
+          jsonlite::toJSON(list(values = vals,
+                                options = list(type = input$PivCols_chart)))
+        })
+      }
+
+      rh <- rhandsontable(df, width = 1000, height = 500) %>%
+        hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
+        hot_cols(fixedColumnsLeft = (if(input$PivRowNest == "None"){1}else{2})) #If nested, freeze two columns
+
+      if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){
+        rh <- rh %>%
+          hot_cols(format = paste0("0.", paste(rep("0", input$decMetric), collapse = ""), "%"))
+      } else {
+        rh <- rh %>%
+          hot_cols(format = paste0("0.", paste(rep("0", input$decValues), collapse = "")))
+      }
+
+      #Sparklines
+      if(input$PivCols_chart != "None"){
+        rh <- rh %>%
+          hot_col("*Chart*", renderer = htmlwidgets::JS("renderSparkline"), width = 80)
+      }
+
+      return(rh)
+
     })
 
     ###
-    # Graph pivot
+    # Graph pivot ----
     ###
 
     output$df_plot <- renderPlot({
@@ -629,9 +646,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
       return(gg)
     })
 
-
-
-    #Also save each filter state
+    ####
+    #Also save each filter state ----
+    ####
     stateSave_Text <- reactive({
       # req(dat0())
 
@@ -727,6 +744,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
   } #End Server
 
+  ####
+  # Addin settings ----
+  ####
+
   viewer <- dialogViewer(paste("RSPivot -", deparse(substitute(df))), width = 1400, height= 2000)
   runGadget(ui, server, viewer = viewer)
 
@@ -737,11 +758,15 @@ rspivot <- function(df=.Last.value, valueName = "value",
 #
 # df<- GVAIndustry
 # # Run it
-# GV2 <- GVAIndustry %>%
-#   rename(`Country (15)` = Country)
-# rspivot(GV2, initRows = "Country (15)")
-# rspivot(GVAIndustry, initRows = "Country")
-# rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
+#
+# rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Econ",
+#         initFilters = list(Measure = c("Real"), Year = c(2010, 2016)))
+#
+# rspivot(GVAIndustry, initCols = "Year", initRows = "Country",
+#         initFilters = list(Measure = c("Real"), Econ = c("GDP"), Year = c(2005, 2016)),
+#         initMetric = list(metric = "Growth", series = "Year"))
+#
+
 
 # load("Z:/Shared/P-Drive/Huawei/2016 H2 (Phase 1)/03 WORK (ANALYSIS)/Centralized Integration/_Model Output/3_IntegrateFile_Start")
 # rspivot(IntegrateFile.Start, valueName="value", initCols = "Year", initRows = "Region")

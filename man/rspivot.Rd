@@ -33,6 +33,7 @@ An RStudio dialog box will pop-up with a Shiny pivot table of the data.
 }
 \description{
 View data frames as Shiny pivot tables. This is an alternative to \code{View()} to view data frames as summarized data.
+Additional options include sparklines and charts and multiple data metrics.
 }
 \examples{
 \dontrun{
