@@ -759,4 +759,4 @@ rspivot <- function(df=.Last.value, valueName = "value",
   runGadget(ui, server, viewer = viewer)
 
 }
-rspivot(mtcars, valueName = "mpg")
+
