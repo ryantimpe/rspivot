@@ -110,6 +110,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
               list(
                 span(
                   textOutput("need.data.frame"),
+                  textOutput("need.valueName"),
                   style = "color:red; font-size:18pt"),
                 # actionButton("edits_save", label = "Save Edits", icon = icon("floppy-o"),
                 #              style = "background-color:#FF4040; color:#ffffff;"),
@@ -202,13 +203,18 @@ rspivot <- function(df=.Last.value, valueName = "value",
       output$need.data.frame <- renderText({
         return("Supplied object is not a data frame.")
       })
-    } else{
+    } else if(!("value" %in% names(df0a))){
+      msg_valueName <- paste("valueName:", valueName, "not found in input dataframe. Please check function call.")
+      message(msg_valueName)
+      output$need.valueName <- renderText({
+        return(msg_valueName)
+      })
+    } else {
       dat0 <- reactive({
         dat <- df0a
         return(dat)
       })
     }
-
 
     ###
     #Create UI menus ----
@@ -232,6 +238,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
     #Series filtering
     output$selects <- renderUI({
+      req(dat0())
       #Loop through each dimension to build a filter
       lapply(seq_along(dim_names), function(i){
         dat <- dat0()
@@ -329,7 +336,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
     # Only update filters when clicked
     dat1 <- eventReactive(input$update_data,
                           ignoreNULL = FALSE, {
-      #req(dat0())
+      req(dat0())
 
       sel_col <- input$PivCols
       sel_row <- input$PivRows
@@ -759,4 +766,3 @@ rspivot <- function(df=.Last.value, valueName = "value",
   runGadget(ui, server, viewer = viewer)
 
 }
-
