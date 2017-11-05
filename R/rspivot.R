@@ -571,6 +571,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
         hot_cols(columnSorting = TRUE,
                  fixedColumnsLeft = (if(input$PivRowNest == "None"){1}else{2}), #If nested, freeze two columns
+                 manualColumnResize = TRUE,
                  renderer = "function (instance, td, row, col, prop, value, cellProperties) {
                          Handsontable.renderers.NumericRenderer.apply(this, arguments);
                           td.style.color = 'black';
