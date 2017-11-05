@@ -9,7 +9,7 @@ Imports:
     rstudioapi (>= 0.5),
     rhandsontable (>= 0.3.4),
     jsonlite (>= 1.5)
-Version: 0.0.0.941
+Version: 0.0.0.943
 Author: Ryan Timpe <ryan.timpe at gmail.com>
 Authors@R: c(
     person("Ryan", "Timpe", email = "ryan.timpe@gmail.com", role = c("aut", "cre"))
