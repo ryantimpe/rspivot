@@ -29,7 +29,6 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
   library(shiny)
   library(miniUI)
-  library(DT)
   library(tidyverse)
   library(lazyeval)
   library(rhandsontable)
@@ -658,6 +657,14 @@ rspivot <- function(df=.Last.value, valueName = "value",
       dat <- dat0()
 
       ##
+      # Value Names
+      ##
+
+      state_valueName <- if(valueName[1] == "value" & length(valueName) == 1){NULL}else{
+        paste0('valueName = c("', paste(valueName, collapse = '", "'), '"), ')
+      }
+
+      ##
       # Row/Cols
       ##
       state_rowcol <- paste(paste0('initCols = "', sel_col, '"'),
@@ -715,6 +722,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       ##
 
       state_all <- paste0("rspivot(", df.name, ", ",
+                          state_valueName,
                           state_rowcol, ", ",
                           state_filter,
                           state_metric,
