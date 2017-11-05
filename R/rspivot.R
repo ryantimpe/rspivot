@@ -30,7 +30,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
   library(shiny)
   library(miniUI)
   library(tidyverse)
-  # library(lazyeval)
+  library(lazyeval)
   library(rhandsontable)
   library(jsonlite)
 
@@ -759,3 +759,4 @@ rspivot <- function(df=.Last.value, valueName = "value",
   runGadget(ui, server, viewer = viewer)
 
 }
+rspivot(mtcars, valueName = "mpg")
