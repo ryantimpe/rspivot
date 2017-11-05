@@ -567,11 +567,15 @@ rspivot <- function(df=.Last.value, valueName = "value",
         })
       }
 
-      rh <- rhandsontable(df, width = 1000, height = 500) %>%
+      rh <- rhandsontable(df, width = 1000, height = 500, readOnly = TRUE) %>%
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
         hot_cols(columnSorting = TRUE,
-                 fixedColumnsLeft = (if(input$PivRowNest == "None"){1}else{2})
-                 ) #If nested, freeze two columns
+                 fixedColumnsLeft = (if(input$PivRowNest == "None"){1}else{2}), #If nested, freeze two columns
+                 renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                         Handsontable.renderers.NumericRenderer.apply(this, arguments);
+                          td.style.color = 'black';
+                       }"
+                 )
 
       if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){
         rh <- rh %>%
