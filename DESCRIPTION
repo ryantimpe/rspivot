@@ -2,14 +2,16 @@ Package: rspivot
 Type: Package
 Title: View data frames as Shiny pivot tables.
 Imports: 
-    tidyverse (>= 1.1.1),
+    dplyr (>= 0.7.4),
+    tidyr (>= 0.7.2),
+    ggplot2 (>= 2.2.1),
     shiny (>= 0.13),
     lazyeval,
     miniUI (>= 0.1.1),
     rstudioapi (>= 0.5),
     rhandsontable (>= 0.3.4),
     jsonlite (>= 1.5)
-Version: 0.0.0.943
+Version: 0.0.0.95
 Author: Ryan Timpe <ryan.timpe at gmail.com>
 Authors@R: c(
     person("Ryan", "Timpe", email = "ryan.timpe@gmail.com", role = c("aut", "cre"))

@@ -12,7 +12,7 @@ See my [GitHub](https://github.com/ryantimpe/rspivot) for the script and latest 
 
 ### Prerequisites
 
-This package requires RStudio is built using the [tidyverse](https://github.com/tidyverse/tidyverse) and [shiny](http://shiny.rstudio.com/articles/gadgets.html) packages. 
+This package requires RStudio and is built using the [tidyverse](https://github.com/tidyverse/tidyverse) and [shiny](http://shiny.rstudio.com/articles/gadgets.html) packages. 
 
 
 ### Installing

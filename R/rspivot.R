@@ -76,13 +76,13 @@ rspivot <- function(df=.Last.value, valueName = "value",
                      ),
               column(width = 3,
                 selectInput("PivRows", label = "Rows",
-                          choices = NULL , selected = NULL)#,
-                #checkboxInput("PivRows_tot", label = "Show Row Totals", value=TRUE)
+                          choices = NULL , selected = NULL),
+                checkboxInput("PivRows_tot", label = "Totals", value=TRUE)
                 ),
               column(width = 3,
                 selectInput("PivRowNest", label = "Nested Rows",
-                          choices = NULL , selected = NULL)#,
-                #checkboxInput("PivRowNest_tot", label = "Show Nest Totals", value=FALSE)
+                          choices = NULL , selected = NULL),
+                checkboxInput("PivRowNest_tot", label = "Nest Totals", value=FALSE)
                 ),
               column(width = 3,
                 selectInput("PivCols", label = "Columns",
@@ -400,40 +400,44 @@ rspivot <- function(df=.Last.value, valueName = "value",
         summarize(value = sum(value, na.rm=TRUE)) %>%
         ungroup()
 
-      #Col / Row sums
-      if(input$PivCols_tot){
-        sel_row2 <- if(sel_row == sel_col){NULL}else{sel_row}
-        sel_nest2 <- if(!is.null(sel_nest)){if(sel_nest == sel_col){NULL}else{sel_nest}}
+      ##
+      #Column & Row Totals
+      ##
 
-        dat <- dat %>%
-          bind_rows(
-            group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_row2, sel_nest2)])) %>%
-              summarize(value = sum(value)) %>%
-              ungroup()
-          ) %>%
-          mutate_at(vars(sel_col), funs(ifelse(is.na(.), "*Total*", .)))
-      }
-      # if(input$PivRows_tot){
-      #   dat <- dat %>%
-      #     bind_rows(
-      #       group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_col, sel_nest)])) %>%
-      #         summarize(value = sum(value)) %>%
-      #         ungroup()
-      #     ) %>%
-      #     mutate_at(vars(sel_row), funs(ifelse(is.na(.), "*Total*", .)))
-      # }
+      #Nest
+      dat_tot <- dat %>%
+        #Nested
+        do(if(!is.null(sel_nest)){
+              if(sel_nest != sel_row & sel_nest != sel_col){
+                bind_rows(.,
+                          group_by_(., .dots = as.list(c(sel_col, sel_row))) %>%
+                            summarize(value = sum(value)) %>%
+                            ungroup()) %>%
+                  mutate_at(vars(sel_nest), funs(ifelse(is.na(.),"zzz*Total*", .)))
+              } else {.}
+          } else {.}
+        ) %>%
+        #Rows
+        do(if(sel_row != sel_col){
+          bind_rows(.,
+                    group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_col, sel_nest)])) %>%
+                      summarize(value = sum(value)) %>%
+                      ungroup()) %>%
+            mutate_at(vars(sel_row), funs(ifelse(is.na(.),"zzz*Total*", .)))
+          } else {.}
+        ) %>%
+        #Columns
+        do(if(sel_row != sel_col){
+          bind_rows(.,
+                    group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_row, sel_nest)])) %>%
+                      summarize(value = sum(value)) %>%
+                      ungroup()) %>%
+            mutate_at(vars(sel_col), funs(ifelse(is.na(.),"zzz*Total*", .)))
+        } else {.}
+        )
 
-      # if(input$PivRowNest_tot & !(sel_nest %in% c("None", "Metric_calc"))){
-      #   dat <- dat %>%
-      #     bind_rows(
-      #       group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_col, sel_row)])) %>%
-      #         summarize(value = sum(value)) %>%
-      #         ungroup()
-      #     ) %>%
-      #     mutate_at(vars(sel_nest), funs(ifelse(is.na(.), "*Total*", .)))
-      # }
 
-      return(dat)
+      return(dat_tot)
     })
     #4 - Modes ----
     dat4 <- reactive({
@@ -517,10 +521,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
       #     filter_(filter_criteria_F) %>%
       #     bind_rows(datZ %>% filter_(filter_criteria_T))
       # }
-      if(input$PivCols_tot == TRUE){
-        datZ <- datZ[, names(datZ)[names(datZ) != "*Total*"]] %>%
-          bind_cols(tibble(`*Total*` = datZ$`*Total*`))
-      }
+      # if(input$PivCols_tot == TRUE){
+      #   datZ <- datZ[, names(datZ)[names(datZ) != "*Total*"]] %>%
+      #     bind_cols(tibble(`*Total*` = datZ$`*Total*`))
+      # }
 
       return(datZ)
     })
@@ -532,22 +536,62 @@ rspivot <- function(df=.Last.value, valueName = "value",
     cols_numeric <- reactive({
       req(dat4() , input$PivCols)
       dat <- as.data.frame(dat0())
-      return(as.character(names(dat4())[names(dat4()) %in% c(unique(dat[, input$PivCols]), "*Total*")]))
+
+      cols <- as.character(names(dat4())[names(dat4()) %in% c(unique(dat[, input$PivCols]), "zzz*Total*")])
+      return(cols)
     })
 
     ###
-    # Publish pivot ----
+    # Show pivot ----
     ###
 
-
     hotData <- reactive({
+      sel_col <- input$PivCols
+      sel_row <- input$PivRows
+      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc")){NULL}else{input$PivRowNest}
+
+      inc_col <- input$PivCols_tot
+      inc_row <- input$PivRows_tot
+      inc_nest <- input$PivRowNest_tot
+
       df <- dat4()
+
+      names(df)[names(df) == "zzz*Total*"] <- "*Total*"
+
+      #Include column totals?
+      if(!inc_col){
+        df[, "*Total*"] <- NULL
+      }
+
+      #Include row totals?
+      if(inc_row){
+        df <- df %>%
+          mutate_at(vars(sel_row), funs(ifelse(. == "zzz*Total*", "*Total*", .)))
+      } else {
+        filter_criteria <- interp( ~ which_column != "zzz*Total*", which_column = as.name(sel_row))
+        df <- df %>%
+          filter_(filter_criteria)
+      }
+
+      #Include nest totals?
+      if(!is.null(sel_nest)){
+        if(inc_nest){
+          df <- df %>%
+            mutate_at(vars(sel_nest), funs(ifelse(. == "zzz*Total*", "*Total*", .)))
+        } else {
+          filter_criteria <- interp( ~ which_column != "zzz*Total*", which_column = as.name(sel_nest))
+          df <- df %>%
+            filter_(filter_criteria)
+        }
+      }
+
       return(df)
     })
 
     output$hot <- renderRHandsontable({
 
       df <- hotData()
+      names(df) <- trimws(names(df))
 
       #Drop columns that are all NAs --- mostly YY growths
       df <-  df[, colSums(is.na(df)) < nrow(df)]
@@ -609,7 +653,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       sel_type <- input$PlotToggle
 
-      dat0 <- dat4()
+      dat0 <- hotData()
 
       if(sel_nest == "None"){
         dat <- as.data.frame(dat0) %>%
@@ -771,3 +815,4 @@ rspivot <- function(df=.Last.value, valueName = "value",
   runGadget(ui, server, viewer = viewer)
 
 }
+
