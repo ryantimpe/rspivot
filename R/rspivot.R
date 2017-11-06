@@ -476,8 +476,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
       if(input$dataMetric == "Shares"){
 
         dat <- dat %>%
-          group_by_(.dots = names(.)[!(names(.) %in% c(sel_metric, "value"))]) %>%
+          group_by_(.dots = as.list(names(.)[!(names(.) %in% c(sel_metric, "value"))])) %>%
           mutate(Shares = (value / sum(value)) *
+                   (if(sel_metric %in% c(sel_col, sel_row, sel_nest)){2}else{1}) * #*2 to account for Total... this is sloppy
                    (if(sel_nest =="Metric_calc"){100}else{1})
                  ) %>%
           ungroup() %>%
@@ -511,20 +512,6 @@ rspivot <- function(df=.Last.value, valueName = "value",
         mutate_if(is.character, funs(ifelse(nchar(.) > sel_truncate, substr(., 1, sel_truncate), .))) %>%
         ungroup() %>%
         as.data.frame()
-
-      #Move Total to end
-      # if(input$PivRows_tot == TRUE){
-      #   filter_criteria_F <- interp( ~ which_column != "*Total*", which_column = as.name(sel_row))
-      #   filter_criteria_T <- interp( ~ which_column == "*Total*", which_column = as.name(sel_row))
-      #
-      #   datZ <- datZ %>%
-      #     filter_(filter_criteria_F) %>%
-      #     bind_rows(datZ %>% filter_(filter_criteria_T))
-      # }
-      # if(input$PivCols_tot == TRUE){
-      #   datZ <- datZ[, names(datZ)[names(datZ) != "*Total*"]] %>%
-      #     bind_cols(tibble(`*Total*` = datZ$`*Total*`))
-      # }
 
       return(datZ)
     })
@@ -815,4 +802,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
   runGadget(ui, server, viewer = viewer)
 
 }
-
+# rspivot(GVAIndustry)
+#
+# rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "Industry",
+#         initFilters = list(Year = c(2005, 2016)), initMetric = list(metric = "Shares", series = "Industry"))
