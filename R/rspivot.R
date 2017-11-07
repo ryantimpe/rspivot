@@ -72,7 +72,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
             fluidRow(
               column(width = 3,
                      uiOutput("ui_update_data"),
-                     helpText("Pivot will not update until this is pressed. This postpone calculations until all filters are updated.")
+                     helpText("Select filters and then click the button to update the table.")
                      ),
               column(width = 3,
                 selectInput("PivRows", label = "Rows",
