@@ -644,17 +644,19 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       if(sel_nest == "None"){
         dat <- as.data.frame(dat0) %>%
-          gather(dim_x, value, 2:ncol(.)) %>%
-          filter(dim_x != "*Total*")
+          gather(dim_x, value, 2:ncol(.))
       } else {
         dat <- as.data.frame(dat0) %>%
-          gather(dim_x, value, 3:ncol(.)) %>%
-          filter(dim_x != "*Total*")
+          gather(dim_x, value, 3:ncol(.))
 
         names(dat)[names(dat) == sel_nest] <- "dim_z"
       }
 
       names(dat)[names(dat) == sel_row] <- "dim_y"
+
+      dat <- dat %>%
+        filter(dim_y != "*Total*") %>%
+        filter(dim_x != "*Total")
 
       gg <- ggplot(data = dat, aes(x = dim_x, y = value, group = dim_y))
 
