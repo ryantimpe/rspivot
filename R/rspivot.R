@@ -175,13 +175,22 @@ rspivot <- function(df=.Last.value, valueName = "value",
         icon = icon("edit"),
         fluidRow(
           column(width = 3,
+                 radioButtons("dataPivValues", label = "Pivot table values",
+                              choices = c("Sum" = "sum", "Mean" = "mean", "Count" = "count"),
+                              selected = "sum", inline = T),
+                 helpText("How to combine data behind the pivot table.
+                          'Sum' is the default, showing the total values of the rows and columns.
+                          'Mean' is useful for values that cannot be summed, such as ratios.
+                          'Count' is useful for data validation."),
+                 hr(),
                  selectInput("dataMetric", label = "Data Metric",
                              choices = data_metric_choices, selected = "Values"),
                  conditionalPanel(
                    condition = "input.dataMetric != 'Values'",
                    selectInput("dataMetricSeries", label = "Metric over",
                                choices = NULL , selected = NULL)
-                 )
+                 ),
+                 helpText("Data metrics further transform the pivot table values, as defined above.")
                  ),
           column(width = 3,
                  strong("Decimals"),
@@ -410,10 +419,26 @@ rspivot <- function(df=.Last.value, valueName = "value",
       sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc")){NULL}else{input$PivRowNest}
       sel_metric <- if(input$dataMetric == "Values"){NULL}else{input$dataMetricSeries}
 
-      dat <- dat2() %>%
-        group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
-        summarize(value = sum(value, na.rm=TRUE)) %>%
-        ungroup()
+      sel_pivValues <- input$dataPivValues
+
+      dat0 <- dat2()
+
+      if(sel_pivValues == "sum"){
+        dat <- dat0 %>%
+          group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
+          summarize(value = sum(value, na.rm=TRUE)) %>%
+          ungroup()
+      } else if(sel_pivValues == "mean"){
+        dat <- dat0 %>%
+          group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
+          summarize(value = mean(value, na.rm=TRUE)) %>%
+          ungroup()
+      } else if(sel_pivValues == "count"){
+        dat <- dat0 %>%
+          group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
+          summarize(value = n()) %>%
+          ungroup()
+      }
 
       ##
       #Column & Row Totals
