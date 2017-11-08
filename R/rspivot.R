@@ -58,6 +58,17 @@ rspivot <- function(df=.Last.value, valueName = "value",
   df0a <- df0[, dim_names] %>%
     bind_cols(data.frame(value = df0$value, stringsAsFactors = FALSE))
 
+  #Create indices to preserve series ordering
+  dim_indices <- lapply(names(df0a)[names(df0a) != "value"], function(x){
+    dat <- tibble(series = as.character(unique(as.data.frame(df0a)[, x]))) %>%
+      mutate(index = 1:nrow(.))
+
+    names(dat) <- c(x, paste0(x, "_index"))
+
+    return(dat)
+
+  })
+
   ################ ----
   # UI
   ################
