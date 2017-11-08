@@ -66,8 +66,12 @@ rspivot <- function(df=.Last.value, valueName = "value",
     names(dat) <- c(x, paste0(x, "_index"))
 
     return(dat)
-
   })
+  names(dim_indices) <- names(df0a)[names(df0a) != "value"]
+
+  data_metric_choices <- c("Values", "Growth", "Difference", "Shares")
+  dim_indices[["Metric_calc"]] <- tibble(Metric_calc = data_metric_choices,
+                                         Metric_cal_index = 1:length(data_metric_choices))
 
   ################
   # UI ----
@@ -172,7 +176,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
         fluidRow(
           column(width = 3,
                  selectInput("dataMetric", label = "Data Metric",
-                             choices = c("Values", "Growth", "Difference", "Shares"), selected = "Values"),
+                             choices = data_metric_choices, selected = "Values"),
                  conditionalPanel(
                    condition = "input.dataMetric != 'Values'",
                    selectInput("dataMetricSeries", label = "Metric over",
