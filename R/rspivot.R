@@ -809,11 +809,20 @@ rspivot <- function(df=.Last.value, valueName = "value",
       ##
       # Metric
       ##
-      if(input$dataMetric == "Values"){
+      if(input$dataMetric == "Values" & input$dataPivValues == "sum"){
         state_metric <- NULL
-      } else {
-        state_metric <- paste0(', initMetric = list(metric = "', input$dataMetric, '", ',
+      } else if (input$dataPivValues == "sum"){
+        state_metric <- paste0(', initMetric = list(',
+                               'metric = "', input$dataMetric, '", ',
                                'series = "', input$dataMetricSeries, '")')
+      } else if(input$dataMetric == "Values"){
+        state_metric <- paste0(', initMetric = list(',
+                               'pivotValues = "', input$dataPivValues, '")')
+      } else {
+        state_metric <- paste0(', initMetric = list(',
+                               'metric = "', input$dataMetric, '", ',
+                               'series = "', input$dataMetricSeries,'", ',
+                               'pivotValues = "', input$dataPivValues, '")')
       }
 
       ##
