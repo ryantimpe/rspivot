@@ -25,7 +25,8 @@
 
 rspivot <- function(df=.Last.value, valueName = "value",
                     initCols = "", initRows = "", initNest = "",
-                    initFilters = list(), initMetric = list(metric = "Values", series = "")) {
+                    initFilters = list(), initPivotValues = "sum",
+                    initMetric = list(metric = "Values", series = "")) {
 
   library(shiny)
   library(miniUI)
@@ -177,7 +178,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
           column(width = 3,
                  radioButtons("dataPivValues", label = "Pivot table values",
                               choices = c("Sum" = "sum", "Mean" = "mean", "Count" = "count"),
-                              selected = "sum", inline = T),
+                              selected = initPivotValues, inline = T),
                  helpText("How to combine data behind the pivot table.
                           'Sum' is the default, showing the total values of the rows and columns.
                           'Mean' is useful for values that cannot be summed, such as ratios.
@@ -664,7 +665,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                        }"
                  )
 
-      if(input$dataMetric %in% c("Growth", "Share") & input$PivRowNest != "Metric_calc"){
+      if(input$dataMetric %in% c("Growth", "Shares") & input$PivRowNest != "Metric_calc"){
         rh <- rh %>%
           hot_cols(format = paste0("0.", paste(rep("0", input$decMetric), collapse = ""), "%"))
       } else {
@@ -809,20 +810,20 @@ rspivot <- function(df=.Last.value, valueName = "value",
       ##
       # Metric
       ##
-      if(input$dataMetric == "Values" & input$dataPivValues == "sum"){
+      if(input$dataMetric == "Values"){
         state_metric <- NULL
-      } else if (input$dataPivValues == "sum"){
-        state_metric <- paste0(', initMetric = list(',
-                               'metric = "', input$dataMetric, '", ',
-                               'series = "', input$dataMetricSeries, '")')
-      } else if(input$dataMetric == "Values"){
-        state_metric <- paste0(', initMetric = list(',
-                               'pivotValues = "', input$dataPivValues, '")')
       } else {
         state_metric <- paste0(', initMetric = list(',
                                'metric = "', input$dataMetric, '", ',
-                               'series = "', input$dataMetricSeries,'", ',
-                               'pivotValues = "', input$dataPivValues, '")')
+                               'series = "', input$dataMetricSeries, '")')
+      }
+      ###
+      # Pivot Values
+      ###
+      if(input$dataPivValues == "sum"){
+        state_pivvalues <- NULL
+      } else {
+        state_pivvalues <- paste0(', initPivotValues = "', input$dataPivValues, '"')
       }
 
       ##
@@ -833,6 +834,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                           state_valueName,
                           state_rowcol, ", ",
                           state_filter,
+                          state_pivvalues,
                           state_metric,
                           ")")
 
@@ -867,4 +869,6 @@ rspivot <- function(df=.Last.value, valueName = "value",
   runGadget(ui, server, viewer = viewer)
 
 }
-rspivot(GVAIndustry)
+
+
+
