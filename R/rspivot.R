@@ -12,7 +12,9 @@
 #' @param initNest Specify the series to be displayed as nested rows. If blank, no nested rows are displayed.
 #' @param initFilters Optional list of initial filter selections. Leave a series blank or use "Show All" to select all. Pass series names to \code{make.names()} to ensure correct use.
 #' Alternatively, leave this blank on the intiial run, and use the Save Function feature after manually selecting filters.
-#' @param initMetric Optional list of the initial data metrics to display.
+#' @param initPivotValues Summary values to display in the pivot table. Default is \code{"sum"}, showing the total values of the underlying data.
+#' Other options are \code{"mean"} and \code{"count"}.
+#' @param initMetric Optional list of the initial data metrics to display, after data is summarized using \code{initPivotValues}.
 #' @examples
 #' \dontrun{
 #' rspivot(GVAIndustry)

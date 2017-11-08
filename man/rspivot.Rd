@@ -6,7 +6,8 @@
 \usage{
 rspivot(df = .Last.value, valueName = "value", initCols = "",
   initRows = "", initNest = "", initFilters = list(),
-  initMetric = list(metric = "Values", series = ""))
+  initPivotValues = "sum", initMetric = list(metric = "Values", series =
+  ""))
 }
 \arguments{
 \item{df}{A data frame flat file to be converted to pivot format. Data should be in "long" format, with a single column of values named \code{value}.
@@ -24,7 +25,10 @@ Can also accept an array of strings containing the names of multiple value colum
 \item{initFilters}{Optional list of initial filter selections. Leave a series blank or use "Show All" to select all. Pass series names to \code{make.names()} to ensure correct use.
 Alternatively, leave this blank on the intiial run, and use the Save Function feature after manually selecting filters.}
 
-\item{initMetric}{Optional list of the initial data metrics to display.}
+\item{initPivotValues}{Summary values to display in the pivot table. Default is \code{"sum"}, showing the total values of the underlying data.
+Other options are \code{"mean"} and \code{"count"}.}
+
+\item{initMetric}{Optional list of the initial data metrics to display, after data is summarized using \code{initPivotValues}.}
 }
 \description{
 View data frames as Shiny pivot tables. This is an alternative to \code{View()} to view data frames as summarized data.
