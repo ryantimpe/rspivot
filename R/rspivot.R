@@ -34,8 +34,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
   library(rhandsontable)
   library(jsonlite)
 
-  ################ ----
-  # Non-Reactive functions
+  ################
+  # Non-Reactive functions ----
   ################
 
   if(length(valueName) > 1){
@@ -69,8 +69,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
   })
 
-  ################ ----
-  # UI
+  ################
+  # UI ----
   ################
   ui <- miniPage(
     gadgetTitleBar("RS Pivot"),
@@ -172,7 +172,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
         fluidRow(
           column(width = 3,
                  selectInput("dataMetric", label = "Data Metric",
-                             choices = c("Values", "Growth", "Shares"), selected = "Values"),
+                             choices = c("Values", "Growth", "Difference", "Shares"), selected = "Values"),
                  conditionalPanel(
                    condition = "input.dataMetric != 'Values'",
                    selectInput("dataMetricSeries", label = "Metric over",
@@ -200,8 +200,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
   )
 
 
-  ################ ----
-  # Server
+  ################
+  # Server ----
   ################
 
   server <- function(input, output, session) {
@@ -484,6 +484,17 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       }
 
+      if(input$dataMetric == "Difference"){
+
+        dat <- dat %>%
+          group_by_(.dots = names(.)[!(names(.) %in% c(sel_metric, "value"))]) %>%
+          mutate(Difference = (value - lag(value, 1))) %>%
+          ungroup() %>%
+          rename(Values = value) %>%
+          gather(Metric_calc, value, Values, Difference)
+
+      }
+
       if(input$dataMetric == "Shares"){
 
         dat <- dat %>%
@@ -624,10 +635,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
                        }"
                  )
 
-      if(input$dataMetric != "Values" & input$PivRowNest != "Metric_calc"){
+      if(input$dataMetric %in% c("Growth", "Share") & input$PivRowNest != "Metric_calc"){
         rh <- rh %>%
           hot_cols(format = paste0("0.", paste(rep("0", input$decMetric), collapse = ""), "%"))
-          # hot_cols(format = paste0("0.", paste(rep("0", input$decMetric), collapse = "")))
       } else {
         rh <- rh %>%
           hot_cols(format = paste0("0.", paste(rep("0", input$decValues), collapse = "")))
@@ -819,4 +829,4 @@ rspivot <- function(df=.Last.value, valueName = "value",
   runGadget(ui, server, viewer = viewer)
 
 }
-
+rspivot(GVAIndustry)
