@@ -179,7 +179,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
         fluidRow(
           column(width = 3,
                  radioButtons("dataPivValues", label = "Pivot table values",
-                              choices = c("Sum" = "sum", "Mean" = "mean", "Count" = "count"),
+                              choices = c("Sum" = "sum", "Mean" = "mean",
+                                          "Max" = "max", "Min" = "min",
+                                          "Count" = "n"),
                               selected = initPivotValues, inline = T),
                  helpText("How to combine data behind the pivot table.
                           'Sum' is the default, showing the total values of the rows and columns.
@@ -426,17 +428,12 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       dat0 <- dat2()
 
-      if(sel_pivValues == "sum"){
+      if(sel_pivValues != "n"){
         dat <- dat0 %>%
           group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
-          summarize(value = sum(value, na.rm=TRUE)) %>%
+          summarize_at(vars(value), sel_pivValues, na.rm=TRUE) %>%
           ungroup()
-      } else if(sel_pivValues == "mean"){
-        dat <- dat0 %>%
-          group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
-          summarize(value = mean(value, na.rm=TRUE)) %>%
-          ungroup()
-      } else if(sel_pivValues == "count"){
+      } else if(sel_pivValues == "n"){
         dat <- dat0 %>%
           group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
           summarize(value = n()) %>%
@@ -871,6 +868,4 @@ rspivot <- function(df=.Last.value, valueName = "value",
   runGadget(ui, server, viewer = viewer)
 
 }
-
-
 
