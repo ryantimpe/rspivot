@@ -13,7 +13,7 @@
 #' @param initFilters Optional list of initial filter selections. Leave a series blank or use "Show All" to select all. Pass series names to \code{make.names()} to ensure correct use.
 #' Alternatively, leave this blank on the intiial run, and use the Save Function feature after manually selecting filters.
 #' @param initPivotValues Summary values to display in the pivot table. Default is \code{"sum"}, showing the total values of the underlying data.
-#' Other options are \code{"mean"} and \code{"count"}.
+#' Other options are \code{"mean"}, \code{"median"}, \code{"min"}, \code{"max"}, and \code{"count"}. Can also accept customize, one-input summary functions.
 #' @param initMetric Optional list of the initial data metrics to display, after data is summarized using \code{initPivotValues}.
 #' @examples
 #' \dontrun{
@@ -71,6 +71,19 @@ rspivot <- function(df=.Last.value, valueName = "value",
     return(dat)
   })
   names(dim_indices) <- names(df0a)[names(df0a) != "value"]
+
+  ##
+  #Data editing options
+  ##
+
+  data_pivotValues_choices <- c("Sum" = "sum", "Mean" = "mean", "Median" = "median",
+                                "Max" = "max", "Min" = "min",
+                                "Count" = "n")
+  #Custom pivotValues function
+  if(!(initPivotValues %in% data_pivotValues_choices)){
+    data_pivotValues_choices <- c(data_pivotValues_choices, initPivotValues)
+  }
+
 
   data_metric_choices <- c("Values", "Growth", "Difference", "Shares")
   dim_indices[["Metric_calc"]] <- tibble(Metric_calc = data_metric_choices,
@@ -179,9 +192,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
         fluidRow(
           column(width = 3,
                  radioButtons("dataPivValues", label = "Pivot table values",
-                              choices = c("Sum" = "sum", "Mean" = "mean",
-                                          "Max" = "max", "Min" = "min",
-                                          "Count" = "n"),
+                              choices = data_pivotValues_choices,
                               selected = initPivotValues, inline = T),
                  helpText("How to combine data behind the pivot table.
                           'Sum' is the default, showing the total values of the rows and columns.
@@ -428,20 +439,25 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       dat0 <- dat2()
 
-      if(sel_pivValues != "n"){
+      if(sel_pivValues %in% c("sum", "mean", "median", "min", "max")){
         dat <- dat0 %>%
           group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
           summarize_at(vars(value), sel_pivValues, na.rm=TRUE) %>%
           ungroup()
-      } else if(sel_pivValues == "n"){
+      } else if(sel_pivValues == "n") {
         dat <- dat0 %>%
           group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
           summarize(value = n()) %>%
           ungroup()
+      } else {
+        dat <- dat0 %>%
+          group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
+          summarize_at(vars(value), sel_pivValues) %>%
+          ungroup()
       }
 
       ##
-      #Column & Row Totals
+      #Column & Row Totals ----
       ##
 
       #Nest
@@ -865,4 +881,3 @@ rspivot <- function(df=.Last.value, valueName = "value",
   runGadget(ui, server, viewer = viewer)
 
 }
-rspivot(GVAIndustry)

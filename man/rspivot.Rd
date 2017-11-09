@@ -26,7 +26,7 @@ Can also accept an array of strings containing the names of multiple value colum
 Alternatively, leave this blank on the intiial run, and use the Save Function feature after manually selecting filters.}
 
 \item{initPivotValues}{Summary values to display in the pivot table. Default is \code{"sum"}, showing the total values of the underlying data.
-Other options are \code{"mean"} and \code{"count"}.}
+Other options are \code{"mean"}, \code{"median"}, \code{"min"}, \code{"max"}, and \code{"count"}. Can also accept customize, one-input summary functions.}
 
 \item{initMetric}{Optional list of the initial data metrics to display, after data is summarized using \code{initPivotValues}.}
 }
