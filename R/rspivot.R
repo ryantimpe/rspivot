@@ -471,7 +471,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                       group_by_(., .dots = as.list(c(sel_col, sel_row))) %>%
                         summarize(value = sum(value)) %>%
                         ungroup()) %>%
-              mutate_at(vars(sel_nest), funs(ifelse(is.na(.),"zzz*Total*", .)))
+              mutate_at(vars(sel_nest), funs(ifelse(is.na(.),"*Total*", .)))
           } else {.}
         ) %>%
         #Rows
@@ -480,7 +480,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                     group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_col, sel_nest)])) %>%
                       summarize(value = sum(value)) %>%
                       ungroup()) %>%
-            mutate_at(vars(sel_row), funs(ifelse(is.na(.),"zzz*Total*", .)))
+            mutate_at(vars(sel_row), funs(ifelse(is.na(.),"*Total*", .)))
           } else {.}
         ) %>%
         #Columns
@@ -489,7 +489,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                     group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_row, sel_nest)])) %>%
                       summarize(value = sum(value)) %>%
                       ungroup()) %>%
-            mutate_at(vars(sel_col), funs(ifelse(is.na(.),"zzz*Total*", .)))
+            mutate_at(vars(sel_col), funs(ifelse(is.na(.),"*Total*", .)))
         } else {.}
         )
 
@@ -592,7 +592,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       req(dat4() , input$PivCols)
       dat <- as.data.frame(dat0())
 
-      cols <- as.character(names(dat4())[names(dat4()) %in% c(unique(dat[, input$PivCols]), "zzz*Total*")])
+      cols <- as.character(names(dat4())[names(dat4()) %in% c(unique(dat[, input$PivCols]), "*Total*")])
       return(cols)
     })
 
@@ -607,8 +607,6 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       df <- dat4()
 
-      names(df)[names(df) == "zzz*Total*"] <- "*Total*"
-
       #Include column totals?
       if(!inc_col){
         df[, "*Total*"] <- NULL
@@ -616,11 +614,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       #Include row totals?
       if(sel_row != sel_col){
-        if(inc_row ){
-          df <- df %>%
-            mutate_at(vars(sel_row), funs(ifelse(. == "zzz*Total*", "*Total*", .)))
-        } else {
-          filter_criteria <- interp( ~ which_column != "zzz*Total*", which_column = as.name(sel_row))
+        if(!inc_row ){
+          filter_criteria <- interp( ~ which_column != "*Total*", which_column = as.name(sel_row))
           df <- df %>%
             filter_(filter_criteria)
         }
@@ -628,11 +623,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       #Include nest totals?
       if(!is.null(sel_nest) && sel_nest != sel_row && sel_nest != sel_col){
-        if(inc_nest){
-          df <- df %>%
-            mutate_at(vars(sel_nest), funs(ifelse(. == "zzz*Total*", "*Total*", .)))
-        } else {
-          filter_criteria <- interp( ~ which_column != "zzz*Total*", which_column = as.name(sel_nest))
+        if(!inc_nest){
+          filter_criteria <- interp( ~ which_column != "*Total*", which_column = as.name(sel_nest))
           df <- df %>%
             filter_(filter_criteria)
         }
@@ -883,3 +875,4 @@ rspivot <- function(df=.Last.value, valueName = "value",
   runGadget(ui, server, viewer = viewer)
 
 }
+rspivot(GVAIndustry)
