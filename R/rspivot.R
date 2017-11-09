@@ -447,14 +447,13 @@ rspivot <- function(df=.Last.value, valueName = "value",
       #Nest
       dat_tot <- dat %>%
         #Nested
-        do(if(!is.null(sel_nest)){
-              if(sel_nest != sel_row & sel_nest != sel_col){
-                bind_rows(.,
-                          group_by_(., .dots = as.list(c(sel_col, sel_row))) %>%
-                            summarize(value = sum(value)) %>%
-                            ungroup()) %>%
-                  mutate_at(vars(sel_nest), funs(ifelse(is.na(.),"zzz*Total*", .)))
-              } else {.}
+        do(
+          if(!is.null(sel_nest) && sel_nest != sel_row && sel_nest != sel_col){
+            bind_rows(.,
+                      group_by_(., .dots = as.list(c(sel_col, sel_row))) %>%
+                        summarize(value = sum(value)) %>%
+                        ungroup()) %>%
+              mutate_at(vars(sel_nest), funs(ifelse(is.na(.),"zzz*Total*", .)))
           } else {.}
         ) %>%
         #Rows
@@ -610,16 +609,14 @@ rspivot <- function(df=.Last.value, valueName = "value",
       }
 
       #Include nest totals?
-      if(!is.null(sel_nest)){
-        if(sel_nest != sel_row & sel_nest != sel_col){
-          if(inc_nest){
-            df <- df %>%
-              mutate_at(vars(sel_nest), funs(ifelse(. == "zzz*Total*", "*Total*", .)))
-          } else {
-            filter_criteria <- interp( ~ which_column != "zzz*Total*", which_column = as.name(sel_nest))
-            df <- df %>%
-              filter_(filter_criteria)
-          }
+      if(!is.null(sel_nest) && sel_nest != sel_row && sel_nest != sel_col){
+        if(inc_nest){
+          df <- df %>%
+            mutate_at(vars(sel_nest), funs(ifelse(. == "zzz*Total*", "*Total*", .)))
+        } else {
+          filter_criteria <- interp( ~ which_column != "zzz*Total*", which_column = as.name(sel_nest))
+          df <- df %>%
+            filter_(filter_criteria)
         }
       }
 
@@ -744,7 +741,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
     })
 
     ####
-    #Also save each filter state ----
+    # Also save each filter state ----
     ####
     stateSave_Text <- reactive({
       # req(dat0())
@@ -868,4 +865,4 @@ rspivot <- function(df=.Last.value, valueName = "value",
   runGadget(ui, server, viewer = viewer)
 
 }
-
+rspivot(GVAIndustry)
