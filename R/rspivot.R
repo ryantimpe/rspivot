@@ -382,7 +382,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       sel_col <- input$PivCols
       sel_row <- input$PivRows
-      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc")){NULL}else{input$PivRowNest}
+      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc") || input$PivRowNest == sel_row ){NULL}else{input$PivRowNest}
 
       dat <- dat0()
       datF <- dat
@@ -434,7 +434,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       sel_col <- input$PivCols
       sel_row <- input$PivRows
-      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc")){NULL}else{input$PivRowNest}
+      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc") || input$PivRowNest == sel_row ){NULL}else{input$PivRowNest}
       sel_metric <- if(input$dataMetric == "Values"){NULL}else{input$dataMetricSeries}
 
       sel_pivValues <- input$dataPivValues
@@ -507,7 +507,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       sel_col <- input$PivCols
       sel_row <- input$PivRows
-      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc")){NULL}else{input$PivRowNest}
+      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc") || input$PivRowNest == sel_row ){NULL}else{input$PivRowNest}
       sel_metric <- input$dataMetricSeries
 
       sel_truncate <- input$textTruncate
@@ -559,7 +559,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
         do(
           if(!is.null(sel_nest) && sel_nest == "Metric_calc"){.}else{
             filter(., Metric_calc == input$dataMetric) %>%
-              select(-Metric_calc)
+              select(-Metric_calc) %>%
+              distinct()
           }
         ) %>%
         #This time, sum over the metric'd dimension
@@ -607,13 +608,13 @@ rspivot <- function(df=.Last.value, valueName = "value",
       ###
       # Truncate text
       ###
-      dat_truct <- dat_sorted %>%
+      dat_trunc <- dat_sorted %>%
         rowwise() %>%
         mutate_if(is.character, funs(ifelse(nchar(.) > sel_truncate, substr(., 1, sel_truncate), .))) %>%
         ungroup() %>%
         as.data.frame()
 
-      return(dat_truct)
+      return(dat_trunc)
     })
 
     ###
@@ -631,7 +632,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
     hotData <- reactive({
       sel_col <- input$PivCols
       sel_row <- input$PivRows
-      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc")){NULL}else{input$PivRowNest}
+      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc") || input$PivRowNest == sel_row ){NULL}else{input$PivRowNest}
 
       inc_col <- input$PivCols_tot
       inc_row <- input$PivRows_tot
@@ -790,7 +791,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       sel_col <- input$PivCols
       sel_row <- input$PivRows
-      sel_nest <- if(input$PivRowNest %in% c("None")){"None"}else{input$PivRowNest}
+      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc") || input$PivRowNest == sel_row ){NULL}else{input$PivRowNest}
 
       dat <- dat0()
 
