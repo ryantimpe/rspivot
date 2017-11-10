@@ -65,7 +65,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
   #Create indices to preserve series ordering
   ##
   dim_indices <- lapply(names(df0a)[names(df0a) != "value"], function(x){
-    dat <- tibble(series = c(as.character(unique(as.data.frame(df0a)[, x]))), "*Total*") %>%
+    dat <- tibble(series = c(as.character(unique(as.data.frame(df0a)[, x])), "*Total*")) %>%
       mutate(index = 1:nrow(.))
 
     names(dat) <- c(x, paste0(x, "_index"))
@@ -493,6 +493,27 @@ rspivot <- function(df=.Last.value, valueName = "value",
         } else {.}
         )
 
+      # dat_sorted <- as.data.frame(dat_tot) %>%
+      #   left_join(dim_indices[[sel_col]], by = c(sel_col))
+      #
+      # dat_sorted <- dat_sorted[order(dat_sorted[, paste0(sel_col, "_index")]), ]
+      #
+      # if(sel_row != sel_col){
+      #   dat_sorted <- dat_sorted %>%
+      #     left_join(dim_indices[[sel_row]], by = c(sel_row))
+      #
+      #   dat_sorted <- dat_sorted[order(dat_sorted[, paste0(sel_row, "_index")]), ]
+      # }
+      #
+      # if(!is.null(sel_nest) && sel_nest != sel_row && sel_nest != sel_col){
+      #   dat_sorted <- dat_sorted %>%
+      #     left_join(dim_indices[[sel_nest]], by = c(sel_nest))
+      #
+      #   dat_sorted <- dat_sorted[order(dat_sorted[, paste0(sel_nest, "_index")]), ]
+      # }
+      #
+      # dat_sorted <- dat_sorted %>%
+      #   select(-dplyr::contains("_index"))
 
       return(dat_tot)
     })
@@ -875,4 +896,5 @@ rspivot <- function(df=.Last.value, valueName = "value",
   runGadget(ui, server, viewer = viewer)
 
 }
-rspivot(GVAIndustry)
+rspivot(GVAIndustry, initCols = "Industry")
+rspivot(test)
