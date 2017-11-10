@@ -493,30 +493,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
         } else {.}
         )
 
-      # dat_sorted <- as.data.frame(dat_tot) %>%
-      #   left_join(dim_indices[[sel_col]], by = c(sel_col))
-      #
-      # dat_sorted <- dat_sorted[order(dat_sorted[, paste0(sel_col, "_index")]), ]
-      #
-      # if(sel_row != sel_col){
-      #   dat_sorted <- dat_sorted %>%
-      #     left_join(dim_indices[[sel_row]], by = c(sel_row))
-      #
-      #   dat_sorted <- dat_sorted[order(dat_sorted[, paste0(sel_row, "_index")]), ]
-      # }
-      #
-      # if(!is.null(sel_nest) && sel_nest != sel_row && sel_nest != sel_col){
-      #   dat_sorted <- dat_sorted %>%
-      #     left_join(dim_indices[[sel_nest]], by = c(sel_nest))
-      #
-      #   dat_sorted <- dat_sorted[order(dat_sorted[, paste0(sel_nest, "_index")]), ]
-      # }
-      #
-      # dat_sorted <- dat_sorted %>%
-      #   select(-dplyr::contains("_index"))
-
       return(dat_tot)
     })
+
     #4 - Modes ----
     dat4 <- reactive({
       req(input$PivCols, input$PivRows, input$PivRowNest,
@@ -528,7 +507,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       sel_col <- input$PivCols
       sel_row <- input$PivRows
-      sel_nest <- input$PivRowNest
+      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc")){NULL}else{input$PivRowNest}
       sel_metric <- input$dataMetricSeries
 
       sel_truncate <- input$textTruncate
@@ -578,7 +557,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       datZ <- dat %>%
         do(
-          if(sel_nest == "Metric_calc"){.}else{
+          if(!is.null(sel_nest) && sel_nest == "Metric_calc"){.}else{
             filter(., Metric_calc == input$dataMetric) %>%
               select(-Metric_calc)
           }
@@ -589,20 +568,52 @@ rspivot <- function(df=.Last.value, valueName = "value",
         ungroup() %>%
         mutate_at(vars(sel_row), as.character()) %>%
         do(
-          if(sel_nest != "None"){
+          if(!is.null(sel_nest) && sel_nest != "None"){
             mutate_at(., vars(sel_nest), as.character())
           } else {.}
         ) %>%
         mutate_at(vars(sel_col), as.character()) %>% #If its numeric, needs to be char before spreading
         mutate(value = ifelse(is.nan(value) | is.infinite(value), NA, value)) %>% #Replace NaN and Inf with NA
-        spread(sel_col, value) %>%
-        #Truncate Text
+        spread(sel_col, value)
+
+      ##
+      #Sort data correctly
+      ##
+
+      dat_sorted <- datZ
+      if(!is.null(sel_nest) && sel_nest != sel_row && sel_nest != sel_col){
+        dat_sorted <- dat_sorted %>%
+          left_join(dim_indices[[sel_nest]], by = c(sel_nest)) %>%
+          arrange(!!!rlang::syms(paste0(sel_nest, "_index")))
+      }
+
+      if(sel_row != sel_col){
+        dat_sorted <- dat_sorted %>%
+          left_join(dim_indices[[sel_row]], by = c(sel_row)) %>%
+          arrange(!!!rlang::syms(paste0(sel_row, "_index")))
+      }
+
+      dat_sorted <- dat_sorted %>%
+        select(-dplyr::contains("_index"))
+
+      #Columns.
+      dat_sorted_col_order <- as.character(as.data.frame(dim_indices[[sel_col]])[, sel_col])
+      dat_sorted_col_order <- dat_sorted_col_order[dat_sorted_col_order %in% names(dat_sorted)]
+      dat_sorted_col_order <- c(if(!is.null(sel_row) && sel_row != sel_col){sel_row},
+                                if(!is.null(sel_nest) && sel_nest != sel_row && sel_nest != sel_col){sel_nest},
+                                dat_sorted_col_order)
+      dat_sorted <- dat_sorted[, dat_sorted_col_order]
+
+      ###
+      # Truncate text
+      ###
+      dat_truct <- dat_sorted %>%
         rowwise() %>%
         mutate_if(is.character, funs(ifelse(nchar(.) > sel_truncate, substr(., 1, sel_truncate), .))) %>%
         ungroup() %>%
         as.data.frame()
 
-      return(datZ)
+      return(dat_truct)
     })
 
     ###
@@ -896,4 +907,3 @@ rspivot <- function(df=.Last.value, valueName = "value",
   runGadget(ui, server, viewer = viewer)
 
 }
-
