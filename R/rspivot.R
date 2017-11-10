@@ -522,7 +522,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
         dat <- dat %>%
           group_by_(.dots = names(.)[!(names(.) %in% c(sel_metric, "value"))]) %>%
           mutate(Growth = (value / lag(value, 1) - 1) *
-                   (if(sel_nest =="Metric_calc"){100}else{1})
+                   (if(!is.null(sel_nest) && sel_nest =="Metric_calc"){100}else{1})
                     ) %>%
           ungroup() %>%
           rename(Values = value) %>%
@@ -547,7 +547,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
           group_by_(.dots = as.list(names(.)[!(names(.) %in% c(sel_metric, "value"))])) %>%
           mutate(Shares = (value / sum(value)) *
                    (if(sel_metric %in% c(sel_col, sel_row, sel_nest)){2}else{1}) * #*2 to account for Total... this is sloppy
-                   (if(sel_nest =="Metric_calc"){100}else{1})
+                   (if(!is.null(sel_nest) && sel_nest =="Metric_calc"){100}else{1})
                  ) %>%
           ungroup() %>%
           rename(Values = value) %>%
