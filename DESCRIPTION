@@ -4,6 +4,7 @@ Title: View data frames as Shiny pivot tables.
 Imports: 
     dplyr (>= 0.7.4),
     tidyr (>= 0.7.2),
+    tibble(>= 1.3.4),
     ggplot2 (>= 2.2.1),
     shiny (>= 0.13),
     lazyeval,
