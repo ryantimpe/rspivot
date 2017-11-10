@@ -885,7 +885,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
     })
     output$stateSave <- renderText(stateSave_Text())
     observeEvent(input$stateClipboard, {
-      writeClipboard(stateSave_Text())
+      clipr::write_clip(stateSave_Text())
     })
 
     # Listen for 'done' events. When we're finished, we'll

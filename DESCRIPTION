@@ -11,7 +11,8 @@ Imports:
     miniUI (>= 0.1.1),
     rstudioapi (>= 0.5),
     rhandsontable (>= 0.3.4),
-    jsonlite (>= 1.5)
+    jsonlite (>= 1.5),
+    clipr(>= 0.4.0)
 Version: 0.0.0.9530
 Author: Ryan Timpe <ryan.timpe at gmail.com>
 Authors@R: c(
