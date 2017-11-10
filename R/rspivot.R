@@ -32,7 +32,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
   library(shiny)
   library(miniUI)
-  library(dplyr); library(tidyr); library(ggplot2);
+  library(dplyr); library(tidyr);
+  library(tibble);
+  library(ggplot2);
   library(lazyeval)
   library(rhandsontable)
   library(jsonlite)
