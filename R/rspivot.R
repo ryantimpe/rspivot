@@ -304,8 +304,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
         #Number input
         if(dim_names[i] %in% series.num){
-          slide.min <- floor(min(dat[, dim_names[i]]))
-          slide.max <- ceiling(max(dat[, dim_names[i]]))
+          slide.min <- floor(min(dat[, dim_names[i]], na.rm=TRUE))
+          slide.max <- ceiling(max(dat[, dim_names[i]], na.rm=TRUE))
 
           #Numeric with input
           if(!is.null(initFilters[[dim_names[i]]])){
@@ -896,5 +896,4 @@ rspivot <- function(df=.Last.value, valueName = "value",
   runGadget(ui, server, viewer = viewer)
 
 }
-rspivot(GVAIndustry, initCols = "Industry")
-rspivot(test)
+
