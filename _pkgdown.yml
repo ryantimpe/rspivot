@@ -1,0 +1,6 @@
+url: http://ryantimpe.github.io/rspivot
+
+template:
+  params:
+    bootswatch: flatly
+
