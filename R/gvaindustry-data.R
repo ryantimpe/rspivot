@@ -6,7 +6,7 @@
 #' \describe{
 #' \item{Country}{European country, 34 total}
 #' \item{Price}{price metric, Real (base year 2010) or Nominal, should not be summed}
-#' \item{Series}{national accounts series, 9 total, use caution when summing}
+#' \item{Series}{national accounts series, 9 total, includes dwellings and IT investment. Use caution when summing}
 #' \item{Industy}{industry ISIC Rev.3.1, 21 top level industries}
 #' \item{Year}{year, 1996-2016, earlier & recent years may not be complete}
 #' }
