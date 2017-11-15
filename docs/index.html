@@ -60,46 +60,43 @@
 <div id="introduction" class="section level2">
 <h2 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h2>
-<p>rspivot is a Shiny gadget addin for RStudio. rspivot provides an alternative to the <code>View()</code> function, allowing examination of a data frame as a pivot table rather than flat file.</p>
-<p>The data is presented as columns and nested rows, summing over all data values not explicitly shown in the data table. Additionally, the user can filter each column in the data frame to specific elements to examine subtotals. Row totals or subtotals are shown in last column on the right.</p>
-<p>Row, column, and filter selections can be saved as a function call for loading the same view with updated data. This function can be saved to the clipboard or printed directly in an open script.</p>
-<p>In the “Data Options” tab, the user can add growth rate or share metrics to the data, with the ability to nest those metrics with the original data.</p>
+<p>rspivot is a Shiny gadget for RStudio for viewing data frames.</p>
+<p>The <code>View()</code> function in RStudio displays data frames and tibbles as they are stored in the R environment: flat files of many rows and columns. Though <code>View()</code> provides the ability to filter series using a single parameter or value range, it lacks many tools necessary for properly examing output. <code><a href="reference/rspivot.html">rspivot()</a></code> provides an alternative to <code>View()</code> by viewing data frames and tibbles as interactive pivot tables.</p>
+<p>Key features of <code><a href="reference/rspivot.html">rspivot()</a></code> include:</p>
+<ul>
+<li>Row, nested row, and column selection - the table summarizes over data values not explicitly shown in the table</li>
+<li>Summarizing data using sum, mean, count, and other common functions</li>
+<li>Marginal totals for rows, nested rows, and columns</li>
+<li>Data transformations including %Growth, %Shares, and differences</li>
+<li>Resuming the selected filters and data metrics using the save feature</li>
+</ul>
+<p>Although <code><a href="reference/rspivot.html">rspivot()</a></code> provides some calculations, like the <code>View()</code> function, <code><a href="reference/rspivot.html">rspivot()</a></code> should be used to examine and review the results of analysis. For this reason, the goal is to keep the functionality of the gadget to a minimum, encouraging the user to use <a href="https://github.com/tidyverse/tidyverse">tidyverse</a> for the bulk of analysis.</p>
 <p>See my <a href="https://github.com/ryantimpe/rspivot">GitHub</a> for the script and latest updates.</p>
-<div id="prerequisites" class="section level3">
-<h3 class="hasAnchor">
-<a href="#prerequisites" class="anchor"></a>Prerequisites</h3>
+</div>
+<div id="installation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#installation" class="anchor"></a>Installation</h2>
 <p>This package requires RStudio and is built using the <a href="https://github.com/tidyverse/tidyverse">tidyverse</a> and <a href="http://shiny.rstudio.com/articles/gadgets.html">shiny</a> packages.</p>
-</div>
-<div id="installing" class="section level3">
-<h3 class="hasAnchor">
-<a href="#installing" class="anchor"></a>Installing</h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(devtools)
+<p>rspivot is not yet on CRAN, but you can install the latest development version from GitHub. It is recommended that you reinstall it at least every week until the first stable release.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#install.packages(devtools)</span>
 devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"ryantimpe/rspivot"</span>)</code></pre></div>
-</div>
 </div>
 <div id="built-with" class="section level2">
 <h2 class="hasAnchor">
 <a href="#built-with" class="anchor"></a>Built With</h2>
-<ul>
-<li>
-<a href="https://www.r-project.org/">R</a> - R</li>
-<li>
-<a href="http://shiny.rstudio.com/articles/gadgets.html">Shiny</a> - Shiny Gadgets</li>
-<li>
-<a href="https://github.com/tidyverse/tidyverse">tidyverse</a> - Tidyverse packages</li>
-</ul>
+<p>rspivot uses <a href="http://shiny.rstudio.com/articles/gadgets.html">Shiny</a> to control a hierarchy of <a href="https://github.com/tidyverse/tidyverse">tidyverse</a> commands to filter, mutate, and summarize a data frame. The output of those functions is displayed using an <a href="https://github.com/jrowen/rhandsontable">rhandsontable</a> table and <a href="http://ggplot2.org/">ggplot2</a> charts.</p>
 </div>
 <div id="versioning" class="section level2">
 <h2 class="hasAnchor">
 <a href="#versioning" class="anchor"></a>Versioning</h2>
-<p>For the versions available, see the <a href="https://github.com/ryantimpe/rspivot/tags">tags on this repository</a>.</p>
+<p>Once the first version is released, see the <a href="https://github.com/ryantimpe/rspivot/tags">tags on this repository</a>.</p>
 </div>
 <div id="authors" class="section level2">
 <h2 class="hasAnchor">
 <a href="#authors" class="anchor"></a>Authors</h2>
 <ul>
 <li>
-<strong>Ryan Timpe</strong> - <em>Initial work</em> - <a href="https://github.com/ryantimpe">ryantimpe</a>
+<strong>Ryan Timpe</strong> - <a href="https://github.com/ryantimpe">ryantimpe</a>
 </li>
 </ul>
 <p>See also the list of <a href="https://github.com/ryantimpe/rspivot/contributors">contributors</a> who participated in this project.</p>
@@ -107,7 +104,7 @@ devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocument
 <div id="license" class="section level2">
 <h2 class="hasAnchor">
 <a href="#license" class="anchor"></a>License</h2>
-<p>No license.</p>
+<p>GPL-3</p>
 </div>
 
   </div>
