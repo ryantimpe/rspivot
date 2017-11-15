@@ -14,7 +14,7 @@ Key features of `rspivot()` include:
 
 Although `rspivot()` provides some calculations, like the `View()` function, `rspivot()` should be used to examine and review the results of analysis. For this reason, the goal is to keep the functionality of the gadget to a minimum, encouraging the user to use [tidyverse](https://github.com/tidyverse/tidyverse) for the bulk of analysis.
 
-See my [GitHub](https://github.com/ryantimpe/rspivot) for the script and latest updates. 
+See my [GitHub](https://github.com/ryantimpe/rspivot) for the script and [GitHub.io](https://ryantimpe.github.io/rspivot/) for latest updates and examples. 
 
 ## Installation
 

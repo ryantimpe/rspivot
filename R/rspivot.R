@@ -225,8 +225,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
                  ),
           column(width = 3,
                  strong("Text"),
-                 numericInput("textTruncate", label = "Truncate long labels", value = 20,
-                               min = 5, max = 50, step = 5))
+                 numericInput("textTruncate", label = "Truncate long labels", value = 35,
+                               min = 5, max = 100, step = 5))
         )
       )
       )
