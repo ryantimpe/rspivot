@@ -39,6 +39,6 @@ See also the list of [contributors](https://github.com/ryantimpe/rspivot/contrib
 
 ## License
 
-No license.
+GPL-3
 
 
