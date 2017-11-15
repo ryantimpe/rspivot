@@ -2,10 +2,6 @@
 #'
 #' A dataset containing gross value added and other national statistics by industry for Eurostat countries.
 #'
-#' @docType data
-#'
-#' @usage data(GVAIndustry)
-#'
 #' @format A data frame with 136537 rows and 5 descriptive variables:
 #' \describe{
 #' \item{Country}{European country, 34 total}
@@ -15,7 +11,5 @@
 #' \item{Year}{year, 1996-2016, earlier & recent years may not be complete}
 #' }
 #' @source \url{http://ec.europa.eu/eurostat/data/database}
-#'
-#' @keywords datasets
 
 "GVAIndustry"

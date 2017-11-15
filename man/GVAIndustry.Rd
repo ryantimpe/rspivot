@@ -16,7 +16,7 @@
 \url{http://ec.europa.eu/eurostat/data/database}
 }
 \usage{
-data(GVAIndustry)
+GVAIndustry
 }
 \description{
 A dataset containing gross value added and other national statistics by industry for Eurostat countries.
