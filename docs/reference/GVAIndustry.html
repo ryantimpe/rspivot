@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Gross Value Added &amp; Employment by Industry — GVAIndustry â€¢ rspivot</title>
+<title>Eurostat Gross Value Added &amp; Other Series by Industry — GVAIndustry â€¢ rspivot</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -80,18 +80,28 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Gross Value Added &amp; Employment by Industry</h1>
+    <h1>Eurostat Gross Value Added &amp; Other Series by Industry</h1>
     </div>
 
     
-    <p>Gross Value Added &amp; Employment by Industry</p>
+    <p>A dataset containing gross value added and other national statistics by industry for Eurostat countries.</p>
     
 
     <pre class="usage"><span class='fu'>data</span>(<span class='no'>GVAIndustry</span>)</pre>
         
     <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
 
-    <p>An object of class <code>"data.frame"</code>.</p>
+    <p>A data frame with 136537 rows and 5 descriptive variables:</p><dl class='dl-horizontal'>
+<dt>Country</dt><dd><p>European country, 34 total</p></dd>
+<dt>Price</dt><dd><p>price metric, Real (base year 2010) or Nominal, should not be summed</p></dd>
+<dt>Series</dt><dd><p>national accounts series, 9 total, use caution when summing</p></dd>
+<dt>Industy</dt><dd><p>industry ISIC Rev.3.1, 21 top level industries</p></dd>
+<dt>Year</dt><dd><p>year, 1996-2016, earlier &amp; recent years may not be complete</p></dd>
+</dl>
+    
+    <h2 class="hasAnchor" id="source"><a class="anchor" href="#source"></a>Source</h2>
+
+    <p><a href='http://ec.europa.eu/eurostat/data/database'>http://ec.europa.eu/eurostat/data/database</a></p>
     
 
   </div>
@@ -100,6 +110,8 @@
     <ul class="nav nav-pills nav-stacked">
       
       <li><a href="#format">Format</a></li>
+
+      <li><a href="#source">Source</a></li>
           </ul>
 
   </div>
