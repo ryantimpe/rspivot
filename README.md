@@ -1,3 +1,5 @@
+[![Travis build status](https://travis-ci.org/ryantimpe/rspivot.svg?branch=master)](https://travis-ci.org/ryantimpe/rspivot)
+
 ## Introduction
 
 rspivot is a Shiny gadget for RStudio for viewing data frames.
