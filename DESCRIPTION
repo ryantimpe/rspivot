@@ -1,7 +1,7 @@
 Package: rspivot
 Type: Package
 Title: View data frames as Shiny pivot tables.
-Imports: 
+Depends: 
     dplyr (>= 0.7.4),
     tidyr (>= 0.7.2),
     tibble(>= 1.3.4),

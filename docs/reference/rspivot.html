@@ -139,9 +139,7 @@ Other options are <code>"mean"</code>, <code>"median"</code>, <code>"min"</code>
     <pre class="examples"><span class='co'># NOT RUN {</span>
 <span class='fu'>rspivot</span>(<span class='no'>GVAIndustry</span>)
 
-<span class='no'>GVAIndustry2</span> <span class='kw'>&lt;-</span> <span class='no'>GVAIndustry</span> <span class='kw'>%&gt;%</span>
-     <span class='fu'>spread</span>(<span class='no'>Econ</span>, <span class='no'>value</span>)
-<span class='fu'>rspivot</span>(<span class='no'>GVAIndustry2</span>, <span class='kw'>valueName</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"Employment"</span>, <span class='st'>"GDP"</span>))
+<span class='fu'>rspivot</span>(<span class='no'>iris</span>, <span class='kw'>valueName</span> <span class='kw'>=</span> <span class='fu'>names</span>(<span class='no'>iris</span>)[<span class='fl'>1</span>:<span class='fl'>4</span>])
 <span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

@@ -28,15 +28,6 @@ rspivot <- function(df=.Last.value, valueName = "value",
                     initFilters = list(), initPivotValues = "sum",
                     initMetric = list(metric = "Values", series = "")) {
 
-  library(shiny)
-  library(miniUI)
-  library(dplyr); library(tidyr);
-  library(tibble);
-  library(ggplot2);
-  library(lazyeval)
-  library(rhandsontable)
-  library(jsonlite)
-
   ################
   # Non-Reactive functions ----
   ################
