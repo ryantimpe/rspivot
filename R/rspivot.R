@@ -19,9 +19,7 @@
 #' \dontrun{
 #' rspivot(GVAIndustry)
 #'
-#' GVAIndustry2 <- GVAIndustry %>%
-#'      spread(Econ, value)
-#' rspivot(GVAIndustry2, valueName = c("Employment", "GDP"))
+#' rspivot(iris, valueName = names(iris)[1:4])
 #'}
 #' @export
 
