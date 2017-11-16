@@ -15,6 +15,11 @@
 #' @param initPivotValues Summary values to display in the pivot table. Default is \code{"sum"}, showing the total values of the underlying data.
 #' Other options are \code{"mean"}, \code{"median"}, \code{"min"}, \code{"max"}, and \code{"count"}. Can also accept customize, one-input summary functions.
 #' @param initMetric Optional list of the initial data metrics to display, after data is summarized using \code{initPivotValues}.
+#' 
+#' @import shiny
+#' 
+#' @importFrom magrittr %>%
+#' 
 #' @examples
 #' \dontrun{
 #' rspivot(GVAIndustry)
