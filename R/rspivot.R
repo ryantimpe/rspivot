@@ -85,13 +85,13 @@ rspivot <- function(df=.Last.value, valueName = "value",
   ################
   # UI ----
   ################
-  ui <- miniPage(
-    gadgetTitleBar("RS Pivot"),
-    miniTabstripPanel(
-      miniTabPanel(
+  ui <- miniUI::miniPage(
+    miniUI::gadgetTitleBar("RS Pivot"),
+    miniUI::miniTabstripPanel(
+      miniUI::miniTabPanel(
         title = "Pivot",
         icon = icon("table"),
-        miniContentPanel(
+        miniUI::miniContentPanel(
           scrollable = TRUE,
             fluidRow(
               column(width = 3,
@@ -163,7 +163,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
         )
       ), #End Pivot Tab
-      miniTabPanel(
+      miniUI::miniTabPanel(
         title = "Plot",
         icon = icon("bar-chart"),
         fluidRow(
@@ -179,7 +179,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                  )
         )
       ), #End plot
-      miniTabPanel(
+      miniUI::miniTabPanel(
         title = "Data Options",
         icon = icon("edit"),
         fluidRow(
@@ -388,16 +388,16 @@ rspivot <- function(df=.Last.value, valueName = "value",
         if(length(get_input) == 0 || all.elements %in% get_input){
           get_series <- as.tibble(dat[, dim_names[i]]) %>% distinct() %>% pull()
 
-          filter_criteria_T <- interp( ~ which_column %in% get_series, which_column = as.name(dim_names[i])) #If a Filter is selected....
+          filter_criteria_T <- lazyeval::interp( ~ which_column %in% get_series, which_column = as.name(dim_names[i])) #If a Filter is selected....
         }
         #For Numeric series
         else if(dim_names[i] %in% series.num){
           get_series <- as.numeric(get_input)
-          filter_criteria_T <- interp( ~ (which_column >= get_series[1]) & (which_column <= get_series[2]),
+          filter_criteria_T <- lazyeval::interp( ~ (which_column >= get_series[1]) & (which_column <= get_series[2]),
                                        which_column = as.name(dim_names[i])) #If a Filter is selected....
         } else {
           get_series <- as.character(get_input)
-          filter_criteria_T <- interp( ~ which_column %in% get_series, which_column = as.name(dim_names[i])) #If a Filter is selected....
+          filter_criteria_T <- lazyeval::interp( ~ which_column %in% get_series, which_column = as.name(dim_names[i])) #If a Filter is selected....
         }
 
         #.... Do this
@@ -639,7 +639,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       #Include row totals?
       if(sel_row != sel_col){
         if(!inc_row ){
-          filter_criteria <- interp( ~ which_column != "*Total*", which_column = as.name(sel_row))
+          filter_criteria <- lazyeval::interp( ~ which_column != "*Total*", which_column = as.name(sel_row))
           df <- df %>%
             filter_(filter_criteria)
         }
@@ -648,7 +648,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       #Include nest totals?
       if(!is.null(sel_nest) && sel_nest != sel_row && sel_nest != sel_col){
         if(!inc_nest){
-          filter_criteria <- interp( ~ which_column != "*Total*", which_column = as.name(sel_nest))
+          filter_criteria <- lazyeval::interp( ~ which_column != "*Total*", which_column = as.name(sel_nest))
           df <- df %>%
             filter_(filter_criteria)
         }
