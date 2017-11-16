@@ -139,7 +139,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                 # actionButton("edits_save", label = "Save Edits", icon = icon("floppy-o"),
                 #              style = "background-color:#FF4040; color:#ffffff;"),
                 # hr(),
-                rHandsontableOutput("hot"),
+                rhandsontable::rHandsontableOutput("hot"),
                 hr(),
                 strong("Save function call"),
                 helpText("Running this function next time will resume the pivot in its current state."),
@@ -661,7 +661,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
     # Show pivot ----
     ###
 
-    output$hot <- renderRHandsontable({
+    output$hot <- rhandsontable::renderRHandsontable({
 
       df <- hotData()
       names(df) <- trimws(names(df))
@@ -684,9 +684,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
         })
       }
 
-      rh <- rhandsontable(df, width = 1000, height = 500, readOnly = TRUE) %>%
-        hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
-        hot_cols(columnSorting = TRUE,
+      rh <- rhandsontable::rhandsontable(df, width = 1000, height = 500, readOnly = TRUE) %>%
+        rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
+        rhandsontable::hot_cols(columnSorting = TRUE,
                  fixedColumnsLeft = (if(input$PivRowNest == "None"){1}else{2}), #If nested, freeze two columns
                  manualColumnResize = TRUE,
                  renderer = "function (instance, td, row, col, prop, value, cellProperties) {
@@ -697,16 +697,16 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       if(input$dataMetric %in% c("Growth", "Shares") & input$PivRowNest != "Metric_calc"){
         rh <- rh %>%
-          hot_cols(format = paste0("0.", paste(rep("0", input$decMetric), collapse = ""), "%"))
+          rhandsontable::hot_cols(format = paste0("0.", paste(rep("0", input$decMetric), collapse = ""), "%"))
       } else {
         rh <- rh %>%
-          hot_cols(format = paste0("0.", paste(rep("0", input$decValues), collapse = "")))
+          rhandsontable::hot_cols(format = paste0("0.", paste(rep("0", input$decValues), collapse = "")))
       }
 
       #Sparklines
       if(input$PivCols_chart != "None"){
         rh <- rh %>%
-          hot_col("*Chart*", renderer = htmlwidgets::JS("renderSparkline"), width = 80)
+          rhandsontable::hot_col("*Chart*", renderer = htmlwidgets::JS("renderSparkline"), width = 80)
       }
 
       return(rh)

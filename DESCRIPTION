@@ -1,6 +1,6 @@
 Package: rspivot
 Type: Package
-Title: View data frames as Shiny pivot tables.
+Title: View data frames as Shiny pivot tables
 Depends: 
     dplyr (>= 0.7.4),
     tidyr (>= 0.7.2),
@@ -10,9 +10,10 @@ Depends:
     lazyeval,
     miniUI (>= 0.1.1),
     rstudioapi (>= 0.5),
-    rhandsontable (>= 0.3.4),
-    jsonlite (>= 1.5),
-    clipr(>= 0.4.0)
+    jsonlite (>= 1.5)
+Import:
+    clipr(>= 0.4.0),
+    rhandsontable (>= 0.3.4)
 Version: 0.0.0.9540
 Author: Ryan Timpe <ryan.timpe at gmail.com>
 Authors@R: c(
