@@ -40,10 +40,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
   if(length(valueName) > 1){
     df0 <- df %>%
       tidyr::gather(ValueNames, value, valueName) %>%
-      mutate_if(is.factor, as.character)
+      dplyr::mutate_if(is.factor, as.character)
   } else{
     df0 <- df %>%
-      mutate_if(is.factor, as.character)
+      dplyr::mutate_if(is.factor, as.character)
 
     names(df0)[names(df0) == valueName] <- "value"
   }
@@ -62,7 +62,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
   ##
   dim_indices <- lapply(names(df0a)[names(df0a) != "value"], function(x){
     dat <- tibble::tibble(series = c(as.character(unique(as.data.frame(df0a)[, x])), "*Total*")) %>%
-      mutate(index = 1:nrow(.))
+      dplyr::mutate(index = 1:nrow(.))
 
     names(dat) <- c(x, paste0(x, "_index"))
 
@@ -407,14 +407,14 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
         #.... Do this
         datF <- datF %>%
-          filter_(filter_criteria_T)
+          dplyr::filter_(filter_criteria_T)
 
       } #End for
 
       #After filtering, add leading space to each element...
       # This helps to push all calculated fields to the bottom
       datF2 <- datF %>%
-        mutate_at(vars(c(sel_row, sel_col, sel_nest)), funs(paste0(" ", .)))
+        dplyr::mutate_at(vars(c(sel_row, sel_col, sel_nest)), funs(paste0(" ", .)))
 
       return(as.data.frame(datF))
     })
@@ -467,7 +467,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                       group_by_(., .dots = as.list(c(sel_col, sel_row))) %>%
                         summarize(value = sum(value)) %>%
                         ungroup()) %>%
-              mutate_at(vars(sel_nest), funs(ifelse(is.na(.),"*Total*", .)))
+              dplyr::mutate_at(vars(sel_nest), funs(ifelse(is.na(.),"*Total*", .)))
           } else {.}
         ) %>%
         #Rows
@@ -476,7 +476,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                     group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_col, sel_nest)])) %>%
                       summarize(value = sum(value)) %>%
                       ungroup()) %>%
-            mutate_at(vars(sel_row), funs(ifelse(is.na(.),"*Total*", .)))
+            dplyr::mutate_at(vars(sel_row), funs(ifelse(is.na(.),"*Total*", .)))
           } else {.}
         ) %>%
         #Columns
@@ -485,7 +485,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                     group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_row, sel_nest)])) %>%
                       summarize(value = sum(value)) %>%
                       ungroup()) %>%
-            mutate_at(vars(sel_col), funs(ifelse(is.na(.),"*Total*", .)))
+            dplyr::mutate_at(vars(sel_col), funs(ifelse(is.na(.),"*Total*", .)))
         } else {.}
         )
 
@@ -499,7 +499,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
           dat3())
 
       dat <- dat3() %>%
-        mutate(value = value * as.numeric(input$oomValues))
+        dplyr::mutate(value = value * as.numeric(input$oomValues))
 
       sel_col <- input$PivCols
       sel_row <- input$PivRows
@@ -510,14 +510,14 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       if(input$dataMetric == "Values"){
         dat <- dat %>%
-          mutate(Metric_calc = "Values")
+          dplyr::mutate(Metric_calc = "Values")
       }
 
       if(input$dataMetric == "Growth"){
 
         dat <- dat %>%
           group_by_(.dots = names(.)[!(names(.) %in% c(sel_metric, "value"))]) %>%
-          mutate(Growth = (value / lag(value, 1) - 1) *
+          dplyr::mutate(Growth = (value / lag(value, 1) - 1) *
                    (if(!is.null(sel_nest) && sel_nest =="Metric_calc"){100}else{1})
                     ) %>%
           ungroup() %>%
@@ -530,7 +530,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
         dat <- dat %>%
           group_by_(.dots = names(.)[!(names(.) %in% c(sel_metric, "value"))]) %>%
-          mutate(Difference = (value - lag(value, 1))) %>%
+          dplyr::mutate(Difference = (value - lag(value, 1))) %>%
           ungroup() %>%
           rename(Values = value) %>%
           tidyr::gather(Metric_calc, value, Values, Difference)
@@ -541,7 +541,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
         dat <- dat %>%
           group_by_(.dots = as.list(names(.)[!(names(.) %in% c(sel_metric, "value"))])) %>%
-          mutate(Shares = (value / sum(value)) *
+          dplyr::mutate(Shares = (value / sum(value)) *
                    (if(sel_metric %in% c(sel_col, sel_row, sel_nest)){2}else{1}) * #*2 to account for Total... this is sloppy
                    (if(!is.null(sel_nest) && sel_nest =="Metric_calc"){100}else{1})
                  ) %>%
@@ -554,7 +554,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       datZ <- dat %>%
         do(
           if(!is.null(sel_nest) && sel_nest == "Metric_calc"){.}else{
-            filter(., Metric_calc == input$dataMetric) %>%
+            dplyr::filter(., Metric_calc == input$dataMetric) %>%
               select(-Metric_calc) %>%
               distinct()
           }
@@ -563,14 +563,14 @@ rspivot <- function(df=.Last.value, valueName = "value",
         group_by_(.dots = as.list(names(.)[names(.) %in% c(sel_col, sel_row, sel_nest)])) %>%
         summarize(value = sum(value)) %>%
         ungroup() %>%
-        mutate_at(vars(sel_row), as.character()) %>%
+        dplyr::mutate_at(vars(sel_row), as.character()) %>%
         do(
           if(!is.null(sel_nest) && sel_nest != "None"){
-            mutate_at(., vars(sel_nest), as.character())
+            dplyr::mutate_at(., vars(sel_nest), as.character())
           } else {.}
         ) %>%
-        mutate_at(vars(sel_col), as.character()) %>% #If its numeric, needs to be char before tidyr::spreading
-        mutate(value = ifelse(is.nan(value) | is.infinite(value), NA, value)) %>% #Replace NaN and Inf with NA
+        dplyr::mutate_at(vars(sel_col), as.character()) %>% #If its numeric, needs to be char before tidyr::spreading
+        dplyr::mutate(value = ifelse(is.nan(value) | is.infinite(value), NA, value)) %>% #Replace NaN and Inf with NA
         tidyr::spread(sel_col, value)
 
       ##
@@ -606,7 +606,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       ###
       dat_trunc <- dat_sorted %>%
         rowwise() %>%
-        mutate_if(is.character, funs(ifelse(nchar(.) > sel_truncate, substr(., 1, sel_truncate), .))) %>%
+        dplyr::mutate_if(is.character, funs(ifelse(nchar(.) > sel_truncate, substr(., 1, sel_truncate), .))) %>%
         ungroup() %>%
         as.data.frame()
 
@@ -646,7 +646,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
         if(!inc_row ){
           filter_criteria <- lazyeval::interp( ~ which_column != "*Total*", which_column = as.name(sel_row))
           df <- df %>%
-            filter_(filter_criteria)
+            dplyr::filter_(filter_criteria)
         }
       }
 
@@ -655,7 +655,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
         if(!inc_nest){
           filter_criteria <- lazyeval::interp( ~ which_column != "*Total*", which_column = as.name(sel_nest))
           df <- df %>%
-            filter_(filter_criteria)
+            dplyr::filter_(filter_criteria)
         }
       }
 
@@ -745,8 +745,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
       names(dat)[names(dat) == sel_row] <- "dim_y"
 
       dat <- dat %>%
-        filter(dim_y != "*Total*") %>%
-        filter(dim_x != "*Total")
+        dplyr::filter(dim_y != "*Total*") %>%
+        dplyr::filter(dim_x != "*Total")
 
       gg <- ggplot2::ggplot(data = dat, ggplot2::aes(x = dim_x, y = value, group = dim_y))
 
