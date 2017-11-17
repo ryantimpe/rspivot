@@ -61,7 +61,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
   #Create indices to preserve series ordering
   ##
   dim_indices <- lapply(names(df0a)[names(df0a) != "value"], function(x){
-    dat <- tibble(series = c(as.character(unique(as.data.frame(df0a)[, x])), "*Total*")) %>%
+    dat <- tibble::tibble(series = c(as.character(unique(as.data.frame(df0a)[, x])), "*Total*")) %>%
       mutate(index = 1:nrow(.))
 
     names(dat) <- c(x, paste0(x, "_index"))
@@ -84,7 +84,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
 
   data_metric_choices <- c("Values", "Growth", "Difference", "Shares")
-  dim_indices[["Metric_calc"]] <- tibble(Metric_calc = data_metric_choices,
+  dim_indices[["Metric_calc"]] <- tibble::tibble(Metric_calc = data_metric_choices,
                                          Metric_cal_index = 1:length(data_metric_choices))
 
   ################
@@ -391,7 +391,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
         #If no items are selected or the Select All is selected, show ALL items
         if(length(get_input) == 0 || all.elements %in% get_input){
-          get_series <- as.tibble(dat[, dim_names[i]]) %>% distinct() %>% pull()
+          get_series <- tibble::as.tibble(dat[, dim_names[i]]) %>% distinct() %>% pull()
 
           filter_criteria_T <- lazyeval::interp( ~ which_column %in% get_series, which_column = as.name(dim_names[i])) #If a Filter is selected....
         }
