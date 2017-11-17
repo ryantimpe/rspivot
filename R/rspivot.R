@@ -39,7 +39,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
   if(length(valueName) > 1){
     df0 <- df %>%
-      gather(ValueNames, value, valueName) %>%
+      tidyr::gather(ValueNames, value, valueName) %>%
       mutate_if(is.factor, as.character)
   } else{
     df0 <- df %>%
@@ -522,7 +522,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                     ) %>%
           ungroup() %>%
           rename(Values = value) %>%
-          gather(Metric_calc, value, Values, Growth)
+          tidyr::gather(Metric_calc, value, Values, Growth)
 
       }
 
@@ -533,7 +533,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
           mutate(Difference = (value - lag(value, 1))) %>%
           ungroup() %>%
           rename(Values = value) %>%
-          gather(Metric_calc, value, Values, Difference)
+          tidyr::gather(Metric_calc, value, Values, Difference)
 
       }
 
@@ -547,7 +547,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                  ) %>%
           ungroup() %>%
           rename(Values = value) %>%
-          gather(Metric_calc, value, Values, Shares)
+          tidyr::gather(Metric_calc, value, Values, Shares)
 
       }
 
@@ -569,9 +569,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
             mutate_at(., vars(sel_nest), as.character())
           } else {.}
         ) %>%
-        mutate_at(vars(sel_col), as.character()) %>% #If its numeric, needs to be char before spreading
+        mutate_at(vars(sel_col), as.character()) %>% #If its numeric, needs to be char before tidyr::spreading
         mutate(value = ifelse(is.nan(value) | is.infinite(value), NA, value)) %>% #Replace NaN and Inf with NA
-        spread(sel_col, value)
+        tidyr::spread(sel_col, value)
 
       ##
       #Sort data correctly
@@ -734,10 +734,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       if(sel_nest == "None"){
         dat <- as.data.frame(dat0) %>%
-          gather(dim_x, value, 2:ncol(.))
+          tidyr::gather(dim_x, value, 2:ncol(.))
       } else {
         dat <- as.data.frame(dat0) %>%
-          gather(dim_x, value, 3:ncol(.))
+          tidyr::gather(dim_x, value, 3:ncol(.))
 
         names(dat)[names(dat) == sel_nest] <- "dim_z"
       }
@@ -748,15 +748,15 @@ rspivot <- function(df=.Last.value, valueName = "value",
         filter(dim_y != "*Total*") %>%
         filter(dim_x != "*Total")
 
-      gg <- ggplot2::ggplot(data = dat, aes(x = dim_x, y = value, group = dim_y))
+      gg <- ggplot2::ggplot(data = dat, ggplot2::aes(x = dim_x, y = value, group = dim_y))
 
       #How to display data
       if(sel_type == "line"){
-        gg <- gg + ggplot2::geom_line(aes(color = dim_y), size = 1.1)
+        gg <- gg + ggplot2::geom_line(ggplot2::aes(color = dim_y), size = 1.1)
       } else if(sel_type == "stacked") {
-        gg <- gg + ggplot2::geom_col(aes(fill = dim_y), color = "black")
+        gg <- gg + ggplot2::geom_col(ggplot2::aes(fill = dim_y), color = "black")
       } else {
-        gg <- gg + ggplot2::geom_col(aes(fill = dim_y), color = "black", position = "dodge")
+        gg <- gg + ggplot2::geom_col(ggplot2::aes(fill = dim_y), color = "black", position = "dodge")
       }
 
       #Nested?
@@ -769,12 +769,12 @@ rspivot <- function(df=.Last.value, valueName = "value",
         ggplot2::xlab(sel_col) +
         ggplot2::theme_bw() +
         ggplot2::theme(
-          axis.text.x = element_text(size = 11, angle = 90, hjust = 1),
-          strip.background = element_rect(fill = "#00436b"),
-          strip.text = element_text(color = "white", face = "bold", size = 12),
-          plot.title = element_text(color = "#00436b", face = "bold", size = 16),
-          plot.subtitle = element_text(color = "#00436b", size = 14),
-          plot.caption = element_text(size = 11)
+          axis.text.x = ggplot2::element_text(size = 11, angle = 90, hjust = 1),
+          strip.background = ggplot2::element_rect(fill = "#00436b"),
+          strip.text = ggplot2::element_text(color = "white", face = "bold", size = 12),
+          plot.title = ggplot2::element_text(color = "#00436b", face = "bold", size = 16),
+          plot.subtitle = ggplot2::element_text(color = "#00436b", size = 14),
+          plot.caption = ggplot2::element_text(size = 11)
         )
       return(gg)
     })
