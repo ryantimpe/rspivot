@@ -55,7 +55,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
   #Move value to end
   df0a <- df0[, dim_names] %>%
-    bind_cols(data.frame(value = df0$value, stringsAsFactors = FALSE))
+    dplyr::bind_cols(data.frame(value = df0$value, stringsAsFactors = FALSE))
 
   ##
   #Create indices to preserve series ordering
@@ -391,7 +391,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
         #If no items are selected or the Select All is selected, show ALL items
         if(length(get_input) == 0 || all.elements %in% get_input){
-          get_series <- tibble::as.tibble(dat[, dim_names[i]]) %>% distinct() %>% pull()
+          get_series <- tibble::as.tibble(dat[, dim_names[i]]) %>% distinct() %>% dplyr::pull()
 
           filter_criteria_T <- lazyeval::interp( ~ which_column %in% get_series, which_column = as.name(dim_names[i])) #If a Filter is selected....
         }
@@ -440,17 +440,17 @@ rspivot <- function(df=.Last.value, valueName = "value",
       if(sel_pivValues %in% c("sum", "mean", "median", "min", "max")){
         dat <- dat0 %>%
           dplyr::group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
-          summarize_at(vars(value), sel_pivValues, na.rm=TRUE) %>%
+          dplyr::summarize_at(vars(value), sel_pivValues, na.rm=TRUE) %>%
           ungroup()
       } else if(sel_pivValues == "n") {
         dat <- dat0 %>%
           dplyr::group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
-          summarize(value = n()) %>%
+          dplyr::summarize(value = n()) %>%
           ungroup()
       } else {
         dat <- dat0 %>%
           dplyr::group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
-          summarize_at(vars(value), sel_pivValues) %>%
+          dplyr::summarize_at(vars(value), sel_pivValues) %>%
           ungroup()
       }
 
@@ -465,7 +465,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
           if(!is.null(sel_nest) && sel_nest != sel_row && sel_nest != sel_col){
             bind_rows(.,
                       dplyr::group_by_(., .dots = as.list(c(sel_col, sel_row))) %>%
-                        summarize(value = sum(value)) %>%
+                        dplyr::summarize(value = sum(value)) %>%
                         ungroup()) %>%
               dplyr::mutate_at(vars(sel_nest), funs(ifelse(is.na(.),"*Total*", .)))
           } else {.}
@@ -474,7 +474,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
         do(if(sel_row != sel_col){
           bind_rows(.,
                     dplyr::group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_col, sel_nest)])) %>%
-                      summarize(value = sum(value)) %>%
+                      dplyr::summarize(value = sum(value)) %>%
                       ungroup()) %>%
             dplyr::mutate_at(vars(sel_row), funs(ifelse(is.na(.),"*Total*", .)))
           } else {.}
@@ -483,7 +483,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
         do(if(sel_row != sel_col){
           bind_rows(.,
                     dplyr::group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_row, sel_nest)])) %>%
-                      summarize(value = sum(value)) %>%
+                      dplyr::summarize(value = sum(value)) %>%
                       ungroup()) %>%
             dplyr::mutate_at(vars(sel_col), funs(ifelse(is.na(.),"*Total*", .)))
         } else {.}
@@ -555,13 +555,13 @@ rspivot <- function(df=.Last.value, valueName = "value",
         do(
           if(!is.null(sel_nest) && sel_nest == "Metric_calc"){.}else{
             dplyr::filter(., Metric_calc == input$dataMetric) %>%
-              select(-Metric_calc) %>%
+              dplyr::select(-Metric_calc) %>%
               distinct()
           }
         ) %>%
         #This time, sum over the metric'd dimension
         dplyr::group_by_(.dots = as.list(names(.)[names(.) %in% c(sel_col, sel_row, sel_nest)])) %>%
-        summarize(value = sum(value)) %>%
+        dplyr::summarize(value = sum(value)) %>%
         ungroup() %>%
         dplyr::mutate_at(vars(sel_row), as.character()) %>%
         do(
@@ -580,18 +580,18 @@ rspivot <- function(df=.Last.value, valueName = "value",
       dat_sorted <- datZ
       if(!is.null(sel_nest) && sel_nest != sel_row && sel_nest != sel_col){
         dat_sorted <- dat_sorted %>%
-          left_join(dim_indices[[sel_nest]], by = c(sel_nest)) %>%
-          arrange(!!!rlang::syms(paste0(sel_nest, "_index")))
+          dplyr::left_join(dim_indices[[sel_nest]], by = c(sel_nest)) %>%
+          dplyr:: arrange(!!!rlang::syms(paste0(sel_nest, "_index")))
       }
 
       if(sel_row != sel_col){
         dat_sorted <- dat_sorted %>%
-          left_join(dim_indices[[sel_row]], by = c(sel_row)) %>%
-          arrange(!!!rlang::syms(paste0(sel_row, "_index")))
+          dplyr::left_join(dim_indices[[sel_row]], by = c(sel_row)) %>%
+          dplyr:: arrange(!!!rlang::syms(paste0(sel_row, "_index")))
       }
 
       dat_sorted <- dat_sorted %>%
-        select(-dplyr::contains("_index"))
+        dplyr::select(-dplyr::contains("_index"))
 
       #Columns.
       dat_sorted_col_order <- as.character(as.data.frame(dim_indices[[sel_col]])[, sel_col])
@@ -678,7 +678,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       #Sparklines
       if(input$PivCols_chart != "None"){
         df_spk <- df %>%
-          do(if(input$PivCols_tot == TRUE){select(., -`*Total*`)}else{.})
+          do(if(input$PivCols_tot == TRUE){dplyr::select(., -`*Total*`)}else{.})
 
         df$`*Chart*` <- sapply(1:nrow(df_spk), function(i){
           vals <- round(as.numeric(df_spk[i, cols_num[cols_num != "*Total*"]]), 5)
