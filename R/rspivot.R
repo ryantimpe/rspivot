@@ -15,11 +15,11 @@
 #' @param initPivotValues Summary values to display in the pivot table. Default is \code{"sum"}, showing the total values of the underlying data.
 #' Other options are \code{"mean"}, \code{"median"}, \code{"min"}, \code{"max"}, and \code{"count"}. Can also accept customize, one-input summary functions.
 #' @param initMetric Optional list of the initial data metrics to display, after data is summarized using \code{initPivotValues}.
-#' 
+#'
 #' @import shiny
-#' 
+#'
 #' @importFrom magrittr %>%
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' rspivot(GVAIndustry)
@@ -748,27 +748,27 @@ rspivot <- function(df=.Last.value, valueName = "value",
         filter(dim_y != "*Total*") %>%
         filter(dim_x != "*Total")
 
-      gg <- ggplot(data = dat, aes(x = dim_x, y = value, group = dim_y))
+      gg <- ggplot2::ggplot(data = dat, aes(x = dim_x, y = value, group = dim_y))
 
       #How to display data
       if(sel_type == "line"){
-        gg <- gg + geom_line(aes(color = dim_y), size = 1.1)
+        gg <- gg + ggplot2::geom_line(aes(color = dim_y), size = 1.1)
       } else if(sel_type == "stacked") {
-        gg <- gg + geom_col(aes(fill = dim_y), color = "black")
+        gg <- gg + ggplot2::geom_col(aes(fill = dim_y), color = "black")
       } else {
-        gg <- gg + geom_col(aes(fill = dim_y), color = "black", position = "dodge")
+        gg <- gg + ggplot2::geom_col(aes(fill = dim_y), color = "black", position = "dodge")
       }
 
       #Nested?
       if(sel_nest != "None"){
-        gg <- gg + facet_wrap(~dim_z, scales = "free")
+        gg <- gg + ggplot2::facet_wrap(~dim_z, scales = "free")
       }
 
       gg <- gg +
-        ggtitle(sel_row) +
-        xlab(sel_col) +
-        theme_bw() +
-        theme(
+        ggplot2::ggtitle(sel_row) +
+        ggplot2::xlab(sel_col) +
+        ggplot2::theme_bw() +
+        ggplot2::theme(
           axis.text.x = element_text(size = 11, angle = 90, hjust = 1),
           strip.background = element_rect(fill = "#00436b"),
           strip.text = element_text(color = "white", face = "bold", size = 12),
