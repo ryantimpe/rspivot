@@ -445,7 +445,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       } else if(sel_pivValues == "n") {
         dat <- dat0 %>%
           dplyr::group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
-          dplyr::summarize(value = n()) %>%
+          dplyr::summarize(value = dplyr::n()) %>%
           ungroup()
       } else {
         dat <- dat0 %>%
@@ -461,7 +461,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       #Nest
       dat_tot <- dat %>%
         #Nested
-        do(
+        dplyr::do(
           if(!is.null(sel_nest) && sel_nest != sel_row && sel_nest != sel_col){
             bind_rows(.,
                       dplyr::group_by_(., .dots = as.list(c(sel_col, sel_row))) %>%
@@ -471,7 +471,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
           } else {.}
         ) %>%
         #Rows
-        do(if(sel_row != sel_col){
+        dplyr::do(if(sel_row != sel_col){
           bind_rows(.,
                     dplyr::group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_col, sel_nest)])) %>%
                       dplyr::summarize(value = sum(value)) %>%
@@ -480,7 +480,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
           } else {.}
         ) %>%
         #Columns
-        do(if(sel_row != sel_col){
+        dplyr::do(if(sel_row != sel_col){
           bind_rows(.,
                     dplyr::group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_row, sel_nest)])) %>%
                       dplyr::summarize(value = sum(value)) %>%
@@ -517,11 +517,11 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
         dat <- dat %>%
           dplyr::group_by_(.dots = names(.)[!(names(.) %in% c(sel_metric, "value"))]) %>%
-          dplyr::mutate(Growth = (value / lag(value, 1) - 1) *
+          dplyr::mutate(Growth = (value / dplyr::lag(value, 1) - 1) *
                    (if(!is.null(sel_nest) && sel_nest =="Metric_calc"){100}else{1})
                     ) %>%
           ungroup() %>%
-          rename(Values = value) %>%
+          dplyr::rename(Values = value) %>%
           tidyr::gather(Metric_calc, value, Values, Growth)
 
       }
@@ -530,9 +530,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
         dat <- dat %>%
           dplyr::group_by_(.dots = names(.)[!(names(.) %in% c(sel_metric, "value"))]) %>%
-          dplyr::mutate(Difference = (value - lag(value, 1))) %>%
+          dplyr::mutate(Difference = (value - dplyr::lag(value, 1))) %>%
           ungroup() %>%
-          rename(Values = value) %>%
+          dplyr::rename(Values = value) %>%
           tidyr::gather(Metric_calc, value, Values, Difference)
 
       }
@@ -546,13 +546,13 @@ rspivot <- function(df=.Last.value, valueName = "value",
                    (if(!is.null(sel_nest) && sel_nest =="Metric_calc"){100}else{1})
                  ) %>%
           ungroup() %>%
-          rename(Values = value) %>%
+          dplyr::rename(Values = value) %>%
           tidyr::gather(Metric_calc, value, Values, Shares)
 
       }
 
       datZ <- dat %>%
-        do(
+        dplyr::do(
           if(!is.null(sel_nest) && sel_nest == "Metric_calc"){.}else{
             dplyr::filter(., Metric_calc == input$dataMetric) %>%
               dplyr::select(-Metric_calc) %>%
@@ -564,7 +564,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
         dplyr::summarize(value = sum(value)) %>%
         ungroup() %>%
         dplyr::mutate_at(vars(sel_row), as.character()) %>%
-        do(
+        dplyr::do(
           if(!is.null(sel_nest) && sel_nest != "None"){
             dplyr::mutate_at(., vars(sel_nest), as.character())
           } else {.}
@@ -605,7 +605,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       # Truncate text
       ###
       dat_trunc <- dat_sorted %>%
-        rowwise() %>%
+        dplyr::rowwise() %>%
         dplyr::mutate_if(is.character, funs(ifelse(nchar(.) > sel_truncate, substr(., 1, sel_truncate), .))) %>%
         ungroup() %>%
         as.data.frame()
@@ -678,7 +678,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       #Sparklines
       if(input$PivCols_chart != "None"){
         df_spk <- df %>%
-          do(if(input$PivCols_tot == TRUE){dplyr::select(., -`*Total*`)}else{.})
+          dplyr::do(if(input$PivCols_tot == TRUE){dplyr::select(., -`*Total*`)}else{.})
 
         df$`*Chart*` <- sapply(1:nrow(df_spk), function(i){
           vals <- round(as.numeric(df_spk[i, cols_num[cols_num != "*Total*"]]), 5)
