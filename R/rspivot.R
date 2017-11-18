@@ -391,7 +391,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
         #If no items are selected or the Select All is selected, show ALL items
         if(length(get_input) == 0 || all.elements %in% get_input){
-          get_series <- tibble::as.tibble(dat[, dim_names[i]]) %>% distinct() %>% dplyr::pull()
+          get_series <- tibble::as.tibble(dat[, dim_names[i]]) %>% dplyr::distinct() %>% dplyr::pull()
 
           filter_criteria_T <- lazyeval::interp( ~ which_column %in% get_series, which_column = as.name(dim_names[i])) #If a Filter is selected....
         }
@@ -414,7 +414,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       #After filtering, add leading space to each element...
       # This helps to push all calculated fields to the bottom
       datF2 <- datF %>%
-        dplyr::mutate_at(vars(c(sel_row, sel_col, sel_nest)), funs(paste0(" ", .)))
+        dplyr::mutate_at(vars(c(sel_row, sel_col, sel_nest)), dplyr::funs(paste0(" ", .)))
 
       return(as.data.frame(datF))
     })
@@ -441,17 +441,17 @@ rspivot <- function(df=.Last.value, valueName = "value",
         dat <- dat0 %>%
           dplyr::group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
           dplyr::summarize_at(vars(value), sel_pivValues, na.rm=TRUE) %>%
-          ungroup()
+          dplyr::ungroup()
       } else if(sel_pivValues == "n") {
         dat <- dat0 %>%
           dplyr::group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
           dplyr::summarize(value = dplyr::n()) %>%
-          ungroup()
+          dplyr::ungroup()
       } else {
         dat <- dat0 %>%
           dplyr::group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
           dplyr::summarize_at(vars(value), sel_pivValues) %>%
-          ungroup()
+          dplyr::ungroup()
       }
 
       ##
@@ -463,29 +463,29 @@ rspivot <- function(df=.Last.value, valueName = "value",
         #Nested
         dplyr::do(
           if(!is.null(sel_nest) && sel_nest != sel_row && sel_nest != sel_col){
-            bind_rows(.,
+            dplyr::bind_rows(.,
                       dplyr::group_by_(., .dots = as.list(c(sel_col, sel_row))) %>%
                         dplyr::summarize(value = sum(value)) %>%
-                        ungroup()) %>%
-              dplyr::mutate_at(vars(sel_nest), funs(ifelse(is.na(.),"*Total*", .)))
+                        dplyr::ungroup()) %>%
+              dplyr::mutate_at(vars(sel_nest), dplyr::funs(ifelse(is.na(.),"*Total*", .)))
           } else {.}
         ) %>%
         #Rows
         dplyr::do(if(sel_row != sel_col){
-          bind_rows(.,
+          dplyr::bind_rows(.,
                     dplyr::group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_col, sel_nest)])) %>%
                       dplyr::summarize(value = sum(value)) %>%
-                      ungroup()) %>%
-            dplyr::mutate_at(vars(sel_row), funs(ifelse(is.na(.),"*Total*", .)))
+                      dplyr::ungroup()) %>%
+            dplyr::mutate_at(vars(sel_row), dplyr::funs(ifelse(is.na(.),"*Total*", .)))
           } else {.}
         ) %>%
         #Columns
         dplyr::do(if(sel_row != sel_col){
-          bind_rows(.,
+          dplyr::bind_rows(.,
                     dplyr::group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_row, sel_nest)])) %>%
                       dplyr::summarize(value = sum(value)) %>%
-                      ungroup()) %>%
-            dplyr::mutate_at(vars(sel_col), funs(ifelse(is.na(.),"*Total*", .)))
+                      dplyr::ungroup()) %>%
+            dplyr::mutate_at(vars(sel_col), dplyr::funs(ifelse(is.na(.),"*Total*", .)))
         } else {.}
         )
 
@@ -520,7 +520,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
           dplyr::mutate(Growth = (value / dplyr::lag(value, 1) - 1) *
                    (if(!is.null(sel_nest) && sel_nest =="Metric_calc"){100}else{1})
                     ) %>%
-          ungroup() %>%
+          dplyr::ungroup() %>%
           dplyr::rename(Values = value) %>%
           tidyr::gather(Metric_calc, value, Values, Growth)
 
@@ -531,7 +531,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
         dat <- dat %>%
           dplyr::group_by_(.dots = names(.)[!(names(.) %in% c(sel_metric, "value"))]) %>%
           dplyr::mutate(Difference = (value - dplyr::lag(value, 1))) %>%
-          ungroup() %>%
+          dplyr::ungroup() %>%
           dplyr::rename(Values = value) %>%
           tidyr::gather(Metric_calc, value, Values, Difference)
 
@@ -545,7 +545,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                    (if(sel_metric %in% c(sel_col, sel_row, sel_nest)){2}else{1}) * #*2 to account for Total... this is sloppy
                    (if(!is.null(sel_nest) && sel_nest =="Metric_calc"){100}else{1})
                  ) %>%
-          ungroup() %>%
+          dplyr::ungroup() %>%
           dplyr::rename(Values = value) %>%
           tidyr::gather(Metric_calc, value, Values, Shares)
 
@@ -556,13 +556,13 @@ rspivot <- function(df=.Last.value, valueName = "value",
           if(!is.null(sel_nest) && sel_nest == "Metric_calc"){.}else{
             dplyr::filter(., Metric_calc == input$dataMetric) %>%
               dplyr::select(-Metric_calc) %>%
-              distinct()
+              dplyr::distinct()
           }
         ) %>%
         #This time, sum over the metric'd dimension
         dplyr::group_by_(.dots = as.list(names(.)[names(.) %in% c(sel_col, sel_row, sel_nest)])) %>%
         dplyr::summarize(value = sum(value)) %>%
-        ungroup() %>%
+        dplyr::ungroup() %>%
         dplyr::mutate_at(vars(sel_row), as.character()) %>%
         dplyr::do(
           if(!is.null(sel_nest) && sel_nest != "None"){
@@ -606,8 +606,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
       ###
       dat_trunc <- dat_sorted %>%
         dplyr::rowwise() %>%
-        dplyr::mutate_if(is.character, funs(ifelse(nchar(.) > sel_truncate, substr(., 1, sel_truncate), .))) %>%
-        ungroup() %>%
+        dplyr::mutate_if(is.character, dplyr::funs(ifelse(nchar(.) > sel_truncate, substr(., 1, sel_truncate), .))) %>%
+        dplyr::ungroup() %>%
         as.data.frame()
 
       return(dat_trunc)
