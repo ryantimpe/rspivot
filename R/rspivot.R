@@ -414,7 +414,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       #After filtering, add leading space to each element...
       # This helps to push all calculated fields to the bottom
       datF2 <- datF %>%
-        dplyr::mutate_at(vars(c(sel_row, sel_col, sel_nest)), dplyr::funs(paste0(" ", .)))
+        dplyr::mutate_at(dplyr::vars(c(sel_row, sel_col, sel_nest)), dplyr::funs(paste0(" ", .)))
 
       return(as.data.frame(datF))
     })
@@ -440,7 +440,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       if(sel_pivValues %in% c("sum", "mean", "median", "min", "max")){
         dat <- dat0 %>%
           dplyr::group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
-          dplyr::summarize_at(vars(value), sel_pivValues, na.rm=TRUE) %>%
+          dplyr::summarize_at(dplyr::vars(value), sel_pivValues, na.rm=TRUE) %>%
           dplyr::ungroup()
       } else if(sel_pivValues == "n") {
         dat <- dat0 %>%
@@ -450,7 +450,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       } else {
         dat <- dat0 %>%
           dplyr::group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
-          dplyr::summarize_at(vars(value), sel_pivValues) %>%
+          dplyr::summarize_at(dplyr::vars(value), sel_pivValues) %>%
           dplyr::ungroup()
       }
 
@@ -467,7 +467,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                       dplyr::group_by_(., .dots = as.list(c(sel_col, sel_row))) %>%
                         dplyr::summarize(value = sum(value)) %>%
                         dplyr::ungroup()) %>%
-              dplyr::mutate_at(vars(sel_nest), dplyr::funs(ifelse(is.na(.),"*Total*", .)))
+              dplyr::mutate_at(dplyr::vars(sel_nest), dplyr::funs(ifelse(is.na(.),"*Total*", .)))
           } else {.}
         ) %>%
         #Rows
@@ -476,7 +476,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                     dplyr::group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_col, sel_nest)])) %>%
                       dplyr::summarize(value = sum(value)) %>%
                       dplyr::ungroup()) %>%
-            dplyr::mutate_at(vars(sel_row), dplyr::funs(ifelse(is.na(.),"*Total*", .)))
+            dplyr::mutate_at(dplyr::vars(sel_row), dplyr::funs(ifelse(is.na(.),"*Total*", .)))
           } else {.}
         ) %>%
         #Columns
@@ -485,7 +485,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                     dplyr::group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_row, sel_nest)])) %>%
                       dplyr::summarize(value = sum(value)) %>%
                       dplyr::ungroup()) %>%
-            dplyr::mutate_at(vars(sel_col), dplyr::funs(ifelse(is.na(.),"*Total*", .)))
+            dplyr::mutate_at(dplyr::vars(sel_col), dplyr::funs(ifelse(is.na(.),"*Total*", .)))
         } else {.}
         )
 
@@ -563,13 +563,13 @@ rspivot <- function(df=.Last.value, valueName = "value",
         dplyr::group_by_(.dots = as.list(names(.)[names(.) %in% c(sel_col, sel_row, sel_nest)])) %>%
         dplyr::summarize(value = sum(value)) %>%
         dplyr::ungroup() %>%
-        dplyr::mutate_at(vars(sel_row), as.character()) %>%
+        dplyr::mutate_at(dplyr::vars(sel_row), as.character()) %>%
         dplyr::do(
           if(!is.null(sel_nest) && sel_nest != "None"){
-            dplyr::mutate_at(., vars(sel_nest), as.character())
+            dplyr::mutate_at(., dplyr::vars(sel_nest), as.character())
           } else {.}
         ) %>%
-        dplyr::mutate_at(vars(sel_col), as.character()) %>% #If its numeric, needs to be char before tidyr::spreading
+        dplyr::mutate_at(dplyr::vars(sel_col), as.character()) %>% #If its numeric, needs to be char before tidyr::spreading
         dplyr::mutate(value = ifelse(is.nan(value) | is.infinite(value), NA, value)) %>% #Replace NaN and Inf with NA
         tidyr::spread(sel_col, value)
 

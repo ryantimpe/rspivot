@@ -3,9 +3,9 @@ Type: Package
 Title: View data frames as Shiny pivot tables
 Depends: 
     R (>= 3.1.2),
-    dplyr (>= 0.7.4),
     shiny (>= 0.13)
-Import:
+Imports:
+    dplyr (>= 0.7.4),
     tidyr (>= 0.7.2),
     clipr(>= 0.4.0),
     ggplot2 (>= 2.2.1),
@@ -14,7 +14,9 @@ Import:
     lazyeval,
     miniUI (>= 0.1.1),
     rstudioapi (>= 0.5),
-    jsonlite (>= 1.5)
+    jsonlite (>= 1.5),
+    rlang,
+    htmlwidgets
 Version: 0.0.0.9540
 Author: Ryan Timpe <ryan.timpe at gmail.com>
 Authors@R: c(

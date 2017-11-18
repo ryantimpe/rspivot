@@ -2,4 +2,4 @@
 
 export(rspivot)
 import(shiny)
-importFrom(magrittr,"%>%")
+importFrom(dplyr,"%>%")
