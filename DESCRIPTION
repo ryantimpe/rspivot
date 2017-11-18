@@ -4,8 +4,7 @@ Title: View data frames as Shiny pivot tables
 Depends: 
     R (>= 3.1.2),
     dplyr (>= 0.7.4),
-    shiny (>= 0.13),
-    magrittr
+    shiny (>= 0.13)
 Import:
     tidyr (>= 0.7.2),
     clipr(>= 0.4.0),

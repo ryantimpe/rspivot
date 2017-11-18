@@ -18,7 +18,7 @@
 #'
 #' @import shiny
 #'
-#' @importFrom magrittr %>%
+#' @importFrom dplyr %>%
 #'
 #' @examples
 #' \dontrun{
@@ -261,12 +261,12 @@ rspivot <- function(df=.Last.value, valueName = "value",
     #Col/Row selection
     updateSelectInput(session, "PivCols",
                       choices = dim_names,
-                      selected = (if(initCols == ""){tail(dim_names, 1)[1]}else{make.names(initCols)})
+                      selected = (if(initCols == ""){utils::tail(dim_names, 1)[1]}else{make.names(initCols)})
                       )
 
     updateSelectInput(session, "PivRows",
                       choices = dim_names,
-                      selected = (if(initRows == ""){tail(dim_names, 2)[1]}else{make.names(initRows)})
+                      selected = (if(initRows == ""){utils::tail(dim_names, 2)[1]}else{make.names(initRows)})
                       )
 
     updateSelectInput(session, "PivRowNest",
