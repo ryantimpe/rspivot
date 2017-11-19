@@ -1,4 +1,4 @@
-#' \code{rspivot} package
+#' \code{rspivot} specifications to clean up R CMD Check. No need to use otherwise.
 #'
 #' @docType package
 #' @name rspivot_highlevel
