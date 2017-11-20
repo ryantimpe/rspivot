@@ -4,7 +4,7 @@
 \name{rspivot_highlevel}
 \alias{rspivot_highlevel}
 \alias{rspivot_highlevel-package}
-\title{\code{rspivot} package}
+\title{\code{rspivot} specifications to clean up R CMD Check. No need to use otherwise.}
 \description{
-\code{rspivot} package
+\code{rspivot} specifications to clean up R CMD Check. No need to use otherwise.
 }

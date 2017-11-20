@@ -1,5 +1,6 @@
 urls:
   reference: http://ryantimpe.github.io/rspivot/reference
   article: http://ryantimpe.github.io/rspivot/articles
-articles: {}
+articles:
+  rspivot: rspivot.html
 
