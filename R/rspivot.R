@@ -85,7 +85,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
   data_metric_choices <- c("Values", "Growth", "Difference", "Shares")
   dim_indices[["Metric_calc"]] <- tibble::tibble(Metric_calc = data_metric_choices,
-                                         Metric_cal_index = 1:length(data_metric_choices))
+                                         Metric_calc_index = 1:length(data_metric_choices))
 
   ################
   # UI ----
@@ -503,7 +503,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       sel_col <- input$PivCols
       sel_row <- input$PivRows
-      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc") || input$PivRowNest == sel_row ){NULL}else{input$PivRowNest}
+      sel_nest <- if(input$PivRowNest %in% c("None") || input$PivRowNest == sel_row ){NULL}else{input$PivRowNest}
       sel_metric <- input$dataMetricSeries
 
       sel_truncate <- input$textTruncate
@@ -628,7 +628,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
     hotData <- reactive({
       sel_col <- input$PivCols
       sel_row <- input$PivRows
-      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc") || input$PivRowNest == sel_row ){NULL}else{input$PivRowNest}
+      sel_nest <- if(input$PivRowNest %in% c("None") || input$PivRowNest == sel_row ){NULL}else{input$PivRowNest}
 
       inc_col <- input$PivCols_tot
       inc_row <- input$PivRows_tot
