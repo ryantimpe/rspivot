@@ -63,7 +63,7 @@
       <h1>Introduction to rspivot</h1>
                         <h4 class="author">Ryan Timpe</h4>
             
-            <h4 class="date">2017-11-20</h4>
+            <h4 class="date">2017-11-22</h4>
           </div>
 
     
@@ -78,30 +78,31 @@
 <p>Alternatively, you can pass any data frame to the function. The easiest option is to use a data frame with a single column of values, labeled <code>value</code>. Passing <code>GVAIndustry</code>, a data frame of macroeconomic series from Eurostat included in the package, results in the window below.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/rspivot.html">rspivot</a></span>(GVAIndustry)</code></pre></div>
 <p><img src="rspivot_img/1_launch.JPG" width="650px"></p>
-<div id="table" class="section level3">
-<h3 class="hasAnchor">
-<a href="#table" class="anchor"></a>Table</h3>
+</div>
+<div id="table" class="section level2">
+<h2 class="hasAnchor">
+<a href="#table" class="anchor"></a>Table</h2>
 <p>By default, the table of values displays the sum of all data values in the table, split by the series shown in the rows and columns. The rows and columns are sorted to match the same order of the elements in the data frame. To sort in ascending or descending order, click the column names in the table.</p>
 </div>
-<div id="rows-nested-rows-and-columns" class="section level3">
-<h3 class="hasAnchor">
-<a href="#rows-nested-rows-and-columns" class="anchor"></a>Rows, Nested Rows, and Columns</h3>
+<div id="rows-nested-rows-and-columns" class="section level2">
+<h2 class="hasAnchor">
+<a href="#rows-nested-rows-and-columns" class="anchor"></a>Rows, Nested Rows, and Columns</h2>
 <p>The top three menus list each of the series in the data frame to use as the rows and columns in the pivot table. Additionally, you can choose to nest row values to show the combination of two series.</p>
 <p>For each series displayed in the table, the checkbox below the select menus toggles the marginal totals. The row and nested row totals are added as the last element in the series. The column total is appended as a column on the righthand side of the table.</p>
 <p>An additional option for columns is to show sparkline or bar charts, displaying the values of every column in each row.</p>
 </div>
-<div id="filters" class="section level3">
-<h3 class="hasAnchor">
-<a href="#filters" class="anchor"></a>Filters</h3>
+<div id="filters" class="section level2">
+<h2 class="hasAnchor">
+<a href="#filters" class="anchor"></a>Filters</h2>
 <p>For each series in the data frame, excluding the values, there will be a filter on the lefthand side of the rspivot window. For most series, these will be a dropdown box, allowing the user to choose one or many options.</p>
 <p>These select menus filter the data frame to only include the rows of data that contain those elements.</p>
 <p>Each menu defaults to only one item, “Show All”. This item provides a shortcut to include all elements in a series, without overcrowding the menu windows. Including this option in a filter selection, even with other specific elements, will always include all elements and therefore will not filter the data frame over that series.</p>
 <p>If a series is strictly numeric (e.g. Year), then the filter menu will be a slider input, specifying the minimum and maximum values to filter.</p>
 <p>The data frame will not be filtered until pressing the blue “Refresh Data” button on the top right. This will ensure the gadget runs smoothly for large data frames.</p>
 </div>
-<div id="resuming-table-state" class="section level3">
-<h3 class="hasAnchor">
-<a href="#resuming-table-state" class="anchor"></a>Resuming table state</h3>
+<div id="resuming-table-state" class="section level2">
+<h2 class="hasAnchor">
+<a href="#resuming-table-state" class="anchor"></a>Resuming table state</h2>
 <p>The default state of an <code>rspivot</code> window to include all elements in each series, using the right-most series in the data frame as the columns and the second right-most series as the rows. These defaults can be changed in the function call.</p>
 <p>The easiest way to change the defaults is to initially run the <code><a href="../reference/rspivot.html">rspivot()</a></code> function without changing any inputs. Use the menus to select the desired filters, rows, and columns. Below the table, <code>rspivot</code> prints out the function call that can be used in the future to resume the state of the table, even if the data changes.</p>
 <p><img src="rspivot_img/1_savestate.JPG" width="650px"></p>
@@ -111,37 +112,67 @@
                               <span class="dt">Price =</span> <span class="kw">c</span>(<span class="st">"Nominal"</span>), 
                               <span class="dt">Series =</span> <span class="kw">c</span>(<span class="st">"Gross Value Added"</span>), <span class="dt">Year =</span> <span class="kw">c</span>(<span class="dv">2004</span>, <span class="dv">2014</span>)))</code></pre></div>
 </div>
-</div>
+<div id="additional-features" class="section level1">
+<h1 class="hasAnchor">
+<a href="#additional-features" class="anchor"></a>Additional Features</h1>
 <div id="graphical-view" class="section level2">
 <h2 class="hasAnchor">
 <a href="#graphical-view" class="anchor"></a>Graphical view</h2>
+<p>The plot tab provides the option to view the table as a chart. This can be displayed as a line chart, grouped bars, or stacked bars.</p>
+<p>Columns in the pivot table are used as the x-axis, while the selected rows are each represented as a data group. If the pivot table has nested rows, each of those nests is separated into <a href="http://ggplot2.tidyverse.org/reference/facet_grid.html">facets</a>.</p>
+<p>This feature is in development.</p>
 </div>
 <div id="data-options" class="section level2">
 <h2 class="hasAnchor">
 <a href="#data-options" class="anchor"></a>Data options</h2>
-<div id="pivot-table-values" class="section level3">
+<p>The data table options tab provides options for summarizing and modifying the values shown in the pivot table. From left to right, the options listed follow the same flow as the calculations to display the data table.</p>
+</div>
+<div id="pivot-table-values" class="section level2">
+<h2 class="hasAnchor">
+<a href="#pivot-table-values" class="anchor"></a>Pivot table values</h2>
+<p>Pivot table values determine what is shown in the data tables. This tells the pivot tables how to combine every value in the data frame that belong to a particular row and column.</p>
+<p>The functions are passed to <code><a href="http://dplyr.tidyverse.org/reference/summarise.html">dplyr::summarize()</a></code>.</p>
+<p>The pivot table value function can be set on the initial function call using the <code>initPivotValues</code> input.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/rspivot.html">rspivot</a></span>(GVAIndustry, <span class="dt">initPivotValues =</span> <span class="st">"mean"</span>)</code></pre></div>
+<div id="sum" class="section level3">
 <h3 class="hasAnchor">
-<a href="#pivot-table-values" class="anchor"></a>Pivot table values</h3>
-<div id="sum" class="section level4">
-<h4 class="hasAnchor">
-<a href="#sum" class="anchor"></a>Sum</h4>
+<a href="#sum" class="anchor"></a>Sum</h3>
+<p>The default pivot table value is <code>sum(., na.rm=TRUE)</code>. Every data point that belongs to a particular row and column will be added together, ignoring <code>NA</code> values.</p>
 </div>
-<div id="mean-median-min-max" class="section level4">
-<h4 class="hasAnchor">
-<a href="#mean-median-min-max" class="anchor"></a>Mean, Median, Min, Max</h4>
-</div>
-<div id="custom-functions" class="section level4">
-<h4 class="hasAnchor">
-<a href="#custom-functions" class="anchor"></a>Custom functions</h4>
-</div>
-</div>
-<div id="data-modes" class="section level3">
+<div id="mean-median-min-max" class="section level3">
 <h3 class="hasAnchor">
-<a href="#data-modes" class="anchor"></a>Data Modes</h3>
+<a href="#mean-median-min-max" class="anchor"></a>Mean, Median, Min, Max</h3>
+<p>The pivot table values menu contains a selection of default functions that can be used to <code>summarize</code> the data frame. The options for <code>mean</code>, <code>median</code>, <code>min</code>, and <code>max</code> all default to <code>na.rm=TRUE</code>.</p>
 </div>
-<div id="other-value-options" class="section level3">
+<div id="count" class="section level3">
 <h3 class="hasAnchor">
-<a href="#other-value-options" class="anchor"></a>Other value options</h3>
+<a href="#count" class="anchor"></a>Count</h3>
+<p>The <code>count</code> option provides a count of the number of data values that contribute to each row and column. This uses the function<code><a href="http://dplyr.tidyverse.org/reference/n.html">dplyr::n()</a></code>.</p>
+</div>
+<div id="custom-functions" class="section level3">
+<h3 class="hasAnchor">
+<a href="#custom-functions" class="anchor"></a>Custom functions</h3>
+<p>In addition to the defaults, any single input named function that summarizes data and returns a single value can be passed to the <code><a href="../reference/rspivot.html">rspivot()</a></code> function call. This function will be added to the list of options in the Pivot Table Values menu for toggling during the session.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sd_narm &lt;-<span class="st"> </span><span class="cf">function</span>(x){
+  <span class="kw">return</span>(<span class="kw">sd</span>(x, <span class="dt">na.rm=</span><span class="ot">TRUE</span>))
+}
+
+<span class="kw"><a href="../reference/rspivot.html">rspivot</a></span>(GVAIndustry, <span class="dt">initPivotValues =</span> <span class="kw">c</span>(<span class="st">"StDev"</span> =<span class="st"> "sd_narm"</span>))</code></pre></div>
+</div>
+</div>
+<div id="data-modes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#data-modes" class="anchor"></a>Data Modes</h2>
+<p>Data modes are applied to the pivot table after the values are calculated. The default is to display the values unaltered.</p>
+<p>Data modes are valuable for reviewing data, as the data can be viewed as differences, % Growth rates, or % shares of the total. If any of these alternate modes are selected, another select menu appears with a list of each of the series in the data frame. This determines over which series the metrics are calculated.</p>
+<p>For example, <code><a href="../reference/rspivot.html">rspivot(GVAIndustry, initRows = "Country", initMetric = list(metric = "Shares", series = "Country"))</a></code> will transform the data into country shares, where the sum of all countries will equal 100%, while <code><a href="../reference/rspivot.html">rspivot(GVAIndustry, initRows = "Industry", initMetric = list(metric = "Shares", series = "Industry"))</a></code> will ensure the sum of all industries will equal 100%.</p>
+<p>It is recommended that the Data Mode series is viewed as a row or column in the pivot table.</p>
+<p>When viewing the data values as a mode, set the Nested Rows series to <code>*Metric*</code> to view both the values and the data mode at the same time. This option can be set at the <code><a href="../reference/rspivot.html">rspivot()</a></code> function call as well with <code>initNest = "Metric_calc"</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/rspivot.html">rspivot</a></span>(GVAIndustry, <span class="dt">initCols =</span> <span class="st">"Year"</span>, <span class="dt">initRows =</span> <span class="st">"Industry"</span>, <span class="dt">initNest =</span> <span class="st">"Metric_calc"</span>,                         <span class="dt">initMetric =</span> <span class="kw">list</span>(<span class="dt">metric =</span> <span class="st">"Growth"</span>, <span class="dt">series =</span> <span class="st">"Year"</span>))</code></pre></div>
+</div>
+<div id="other-value-options" class="section level2">
+<h2 class="hasAnchor">
+<a href="#other-value-options" class="anchor"></a>Other value options</h2>
 </div>
 </div>
 </div>
@@ -153,8 +184,19 @@
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#the-rspivot-window">The rspivot Window</a></li>
-      <li><a href="#graphical-view">Graphical view</a></li>
+      <li><a href="#table">Table</a></li>
+      <li><a href="#rows-nested-rows-and-columns">Rows, Nested Rows, and Columns</a></li>
+      <li><a href="#filters">Filters</a></li>
+      <li><a href="#resuming-table-state">Resuming table state</a></li>
+      <li>
+<a href="#additional-features">Additional Features</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#graphical-view">Graphical view</a></li>
       <li><a href="#data-options">Data options</a></li>
+      <li><a href="#pivot-table-values">Pivot table values</a></li>
+      <li><a href="#data-modes">Data Modes</a></li>
+      <li><a href="#other-value-options">Other value options</a></li>
+      </ul>
+</li>
       </ul>
 </div>
       </div>

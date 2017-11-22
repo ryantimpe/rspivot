@@ -32,11 +32,11 @@ rspivot(GVAIndustry)
 knitr::include_graphics("rspivot_img/1_launch.JPG")
 ```
 
-### Table
+## Table
 
 By default, the table of values displays the sum of all data values in the table, split by the series shown in the rows and columns. The rows and columns are sorted to match the same order of the elements in the data frame. To sort in ascending or descending order, click the column names in the table.
 
-### Rows, Nested Rows, and Columns
+## Rows, Nested Rows, and Columns
 
 The top three menus list each of the series in the data frame to use as the rows and columns in the pivot table. Additionally, you can choose to nest row values to show the combination of two series.
 
@@ -44,7 +44,7 @@ For each series displayed in the table, the checkbox below the select menus togg
 
 An additional option for columns is to show sparkline or bar charts, displaying the values of every column in each row.
 
-### Filters
+## Filters
 
 For each series in the data frame, excluding the values, there will be a filter on the lefthand side of the rspivot window. For most series, these will be a dropdown box, allowing the user to choose one or many options.
 
@@ -56,7 +56,7 @@ If a series is strictly numeric (e.g. Year), then the filter menu will be a slid
 
 The data frame will not be filtered until pressing the blue "Refresh Data" button on the top right. This will ensure the gadget runs smoothly for large data frames.
 
-### Resuming table state
+## Resuming table state
 
 The default state of an `rspivot` window to include all elements in each series, using the right-most series in the data frame as the columns and the second right-most series as the rows. These defaults can be changed in the function call.
 
@@ -76,18 +76,71 @@ rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "",
                               Series = c("Gross Value Added"), Year = c(2004, 2014)))
 ```
 
+# Additional Features
+
 ## Graphical view
+
+The plot tab provides the option to view the table as a chart. This can be displayed as a line chart, grouped bars, or stacked bars.
+
+Columns in the pivot table are used as the x-axis, while the selected rows are each represented as a data group. If the pivot table has nested rows, each of those nests is separated into [facets](http://ggplot2.tidyverse.org/reference/facet_grid.html).
+
+This feature is in development.
 
 ## Data options
 
-### Pivot table values
+The data table options tab provides options for summarizing and modifying the values shown in the pivot table. From left to right, the options listed follow the same flow as the calculations to display the data table.
 
-#### Sum
+## Pivot table values
 
-#### Mean, Median, Min, Max
+Pivot table values determine what is shown in the data tables. This tells the pivot tables how to combine every value in the data frame that belong to a particular row and column.
 
-#### Custom functions
+The functions are passed to `dplyr::summarize()`.
 
-### Data Modes
+The pivot table value function can be set on the initial function call using the `initPivotValues` input.
 
-### Other value options
+```r
+rspivot(GVAIndustry, initPivotValues = "mean")
+```
+
+### Sum
+
+The default pivot table value is `sum(., na.rm=TRUE)`. Every data point that belongs to a particular row and column will be added together, ignoring `NA` values.
+
+### Mean, Median, Min, Max
+
+The pivot table values menu contains a selection of default functions that can be used to `summarize` the data frame. The options for `mean`, `median`, `min`, and `max` all default to `na.rm=TRUE`.
+
+### Count
+
+The `count` option provides a count of the number of data values that contribute to each row and column. This uses the function`dplyr::n()`.
+
+### Custom functions
+
+In addition to the defaults, any single input named function that summarizes data and returns a single value can be passed to the `rspivot()` function call. This function will be added to the list of options in the Pivot Table Values menu for toggling during the session.
+
+```r
+sd_narm <- function(x){
+  return(sd(x, na.rm=TRUE))
+}
+
+rspivot(GVAIndustry, initPivotValues = c("StDev" = "sd_narm"))
+
+```
+
+## Data Modes
+
+Data modes are applied to the pivot table after the values are calculated. The default is to display the values unaltered.
+
+Data modes are valuable for reviewing data, as the data can be viewed as differences, % Growth rates, or % shares of the total. If any of these alternate modes are selected, another select menu appears with a list of each of the series in the data frame. This determines over which series the metrics are calculated.
+
+For example, `rspivot(GVAIndustry, initRows = "Country", initMetric = list(metric = "Shares", series = "Country"))` will transform the data into country shares, where the sum of all countries will equal 100%, while `rspivot(GVAIndustry, initRows = "Industry", initMetric = list(metric = "Shares", series = "Industry"))` will ensure the sum of all industries will equal 100%.
+
+It is recommended that the Data Mode series is viewed as a row or column in the pivot table.
+
+When viewing the data values as a mode, set the Nested Rows series to `*Metric*` to view both the values and the data mode at the same time. This option can be set at the `rspivot()` function call as well with `initNest = "Metric_calc"`.
+
+```r
+rspivot(GVAIndustry, initCols = "Year", initRows = "Industry", initNest = "Metric_calc",                         initMetric = list(metric = "Growth", series = "Year"))
+```
+
+## Other value options
