@@ -787,7 +787,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       sel_col <- input$PivCols
       sel_row <- input$PivRows
-      sel_nest <- if(input$PivRowNest %in% c("None", "Metric_calc") || input$PivRowNest == sel_row ){NULL}else{input$PivRowNest}
+      sel_nest <- if(input$PivRowNest %in% c("None") || input$PivRowNest == sel_row ){NULL}else{input$PivRowNest}
 
       dat <- dat0()
 
