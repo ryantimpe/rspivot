@@ -63,7 +63,7 @@
       <h1>Introduction to rspivot</h1>
                         <h4 class="author">Ryan Timpe</h4>
             
-            <h4 class="date">2017-11-22</h4>
+            <h4 class="date">2017-11-25</h4>
           </div>
 
     
@@ -170,9 +170,24 @@
 <p>When viewing the data values as a mode, set the Nested Rows series to <code>*Metric*</code> to view both the values and the data mode at the same time. This option can be set at the <code><a href="../reference/rspivot.html">rspivot()</a></code> function call as well with <code>initNest = "Metric_calc"</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/rspivot.html">rspivot</a></span>(GVAIndustry, <span class="dt">initCols =</span> <span class="st">"Year"</span>, <span class="dt">initRows =</span> <span class="st">"Industry"</span>, <span class="dt">initNest =</span> <span class="st">"Metric_calc"</span>,                         <span class="dt">initMetric =</span> <span class="kw">list</span>(<span class="dt">metric =</span> <span class="st">"Growth"</span>, <span class="dt">series =</span> <span class="st">"Year"</span>))</code></pre></div>
 </div>
-<div id="other-value-options" class="section level2">
+<div id="other-options" class="section level2">
 <h2 class="hasAnchor">
-<a href="#other-value-options" class="anchor"></a>Other value options</h2>
+<a href="#other-options" class="anchor"></a>Other options</h2>
+<div id="decimal-digits" class="section level3">
+<h3 class="hasAnchor">
+<a href="#decimal-digits" class="anchor"></a>Decimal digits</h3>
+<p>For each the data values and the data metric values, specify the number of digit to include in each value.</p>
+</div>
+<div id="units" class="section level3">
+<h3 class="hasAnchor">
+<a href="#units" class="anchor"></a>Units</h3>
+<p>View data as thousands, millions, or billions.</p>
+</div>
+<div id="truncate-strings" class="section level3">
+<h3 class="hasAnchor">
+<a href="#truncate-strings" class="anchor"></a>Truncate strings</h3>
+<p>For long strings, limit the number of displayed characters. The default value is 30.</p>
+</div>
 </div>
 </div>
 </div>
@@ -194,7 +209,7 @@
       <li><a href="#data-options">Data options</a></li>
       <li><a href="#pivot-table-values">Pivot table values</a></li>
       <li><a href="#data-modes">Data Modes</a></li>
-      <li><a href="#other-value-options">Other value options</a></li>
+      <li><a href="#other-options">Other options</a></li>
       </ul>
 </li>
       </ul>

@@ -143,4 +143,17 @@ When viewing the data values as a mode, set the Nested Rows series to `*Metric*`
 rspivot(GVAIndustry, initCols = "Year", initRows = "Industry", initNest = "Metric_calc",                         initMetric = list(metric = "Growth", series = "Year"))
 ```
 
-## Other value options
+## Other options
+
+### Decimal digits
+
+For each the data values and the data metric values, specify the number of digit to include in each value.
+
+### Units
+
+View data as thousands, millions, or billions.
+
+### Truncate strings
+
+For long strings, limit the number of displayed characters. The default value is 30.
+
