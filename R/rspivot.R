@@ -865,7 +865,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       #Combine
       ##
 
-      state_all <- paste0("rspivot(", df.name, ", ",
+      state_all <- paste0("rspivot::rspivot(", df.name, ", ",
                           state_valueName,
                           state_rowcol, ", ",
                           state_filter,
