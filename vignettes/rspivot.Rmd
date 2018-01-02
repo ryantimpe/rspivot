@@ -18,23 +18,34 @@ knitr::opts_chunk$set(
 
 rspivot is a Shiny gadget for RStudio for viewing data frames.
 
-The `View()` function in RStudio displays data frames and tibbles as they are stored in the R environment: flat files of many rows and columns. Though `View()` provides the ability to filter series using a single parameter or value range, it lacks many tools necessary for properly examing output. `rspivot` provides an alternative to `View()` by viewing data frames and tibbles as interactive pivot tables.
+The `View()` function in RStudio displays data frames and tibbles as they are stored in the R environment: flat files of many rows and columns. Though `View()` provides the ability to filter series using a single parameter or value range, it lacks many tools necessary for properly examing data output over many metrics. `rspivot` provides an alternative to `View()` by viewing data frames and tibbles as interactive pivot tables.
 
-## The rspivot Window
+As with `View()`, the key assumption of `rspivot()` is that all major analysis and calculations are performed in R or Tidyverse script before passing the object to `rspivot`. However, `rspivot` has the ability to perform simple calculations on the data (growth rates, shares, min, max, etc) before displaying the results in a pivot table.
 
-Running `rspivot()` will cause [Shiny gadget](https://shiny.rstudio.com/articles/gadgets.html) window to open in RStudio. By default, the gadget will use the last created object in the enviroment using the `.Last.value` object in R. This object must be a data frame or a tibble.
+## The rspivot window
 
-Alternatively, you can pass any data frame to the function. The easiest option is to use a data frame with a single column of values, labeled `value`. Passing `GVAIndustry`, a data frame of macroeconomic series from Eurostat included in the package, results in the window below.
+Running `rspivot()` will open a [Shiny gadget](https://shiny.rstudio.com/articles/gadgets.html) window in RStudio. The gagdet can also be opened using the Addins menu in RStudio.
+
+By default, the gadget will use the last created object in the enviroment using the `.Last.value` object in R. This object must be a data frame or a tibble.
+
+Alternatively, you can pass any data frame to the function. The easiest option is to use a data frame with a single column of values, labeled `value`. Passing `GVAIndustry`, a data frame of macroeconomic series from Eurostat (included in the package), results in the window below.
 ``` r
+library(rspivot)
 rspivot(GVAIndustry)
 ```
 ```{r, out.width = "650px", echo=FALSE}
 knitr::include_graphics("rspivot_img/1_launch.JPG")
 ```
 
+If the data frame or tibble has more than one column of values, these columns must be explicitly listed in order for rspivot to distinguish values from descriptive columns using the `valueName` input. This input can take a single string (if the single value column is not labeled `value`) or an array of names.
+
+```r
+rspivot(iris, valueName = c("Petal.Length", "Petal.Width"))
+```
+
 ## Table
 
-By default, the table of values displays the sum of all data values in the table, split by the series shown in the rows and columns. The rows and columns are sorted to match the same order of the elements in the data frame. To sort in ascending or descending order, click the column names in the table.
+The default table displays values as the sum of all data values, segmented by the series shown in the rows and columns. The rows and columns are sorted to match the same order of the elements in the data frame. To sort in ascending or descending order, click the column names in the table.
 
 ## Rows, Nested Rows, and Columns
 
@@ -42,11 +53,11 @@ The top three menus list each of the series in the data frame to use as the rows
 
 For each series displayed in the table, the checkbox below the select menus toggles the marginal totals. The row and nested row totals are added as the last element in the series. The column total is appended as a column on the righthand side of the table.
 
-An additional option for columns is to show sparkline or bar charts, displaying the values of every column in each row.
+An additional option for columns is to show sparkline or bar charts, displaying the values of every column in each row. This provides a quick glance of the data trends in each row.
 
 ## Filters
 
-For each series in the data frame, excluding the values, there will be a filter on the lefthand side of the rspivot window. For most series, these will be a dropdown box, allowing the user to choose one or many options.
+For each series in the data frame, excluding the values, there is a filter on the lefthand side of the rspivot window. For most series, these will be a dropdown box, allowing the user to choose one or many options.
 
 These select menus filter the data frame to only include the rows of data that contain those elements. 
 
@@ -54,7 +65,7 @@ Each menu defaults to only one item, "Show All". This item provides a shortcut t
 
 If a series is strictly numeric (e.g. Year), then the filter menu will be a slider input, specifying the minimum and maximum values to filter.
 
-The data frame will not be filtered until pressing the blue "Refresh Data" button on the top right. This will ensure the gadget runs smoothly for large data frames.
+The data frame will not be filtered until pressing the blue "Refresh Data" button on the top right. This will ensure the gadget runs smoothly and quickly for large data frames.
 
 ## Resuming table state
 
@@ -68,15 +79,18 @@ knitr::include_graphics("rspivot_img/1_savestate.JPG")
 
 This area includes the option to copy the function call onto the clipboard, which can be pasted in the console or R script. Alternatively, you can select the option to automatically print the final function call into your console or script (wherever the curser is active) after clicking the "Done" button.
 
-
 ```r
-rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "", 
+rspivot::rspivot(GVAIndustry, initCols = "Year", initRows = "Country", initNest = "", 
            initFilters = list(Country = c("Greece", "Spain", "Portugal", "Italy"),
                               Price = c("Nominal"), 
                               Series = c("Gross Value Added"), Year = c(2004, 2014)))
 ```
 
-# Additional Features
+Once in the console or script editor, this function call can be manually changed by adding and removing elements. Series in the data frame that are not specified in the function call will default to "Show All".
+
+In addition to filters and row/column initial values, value functions, `initPivotValues`, and data metrics, `initMetric`, (see below) can also be passed in the function call.
+
+# Additional features
 
 ## Graphical view
 
@@ -92,9 +106,9 @@ The data table options tab provides options for summarizing and modifying the va
 
 ## Pivot table values
 
-Pivot table values determine what is shown in the data tables. This tells the pivot tables how to combine every value in the data frame that belong to a particular row and column.
+Pivot table values determine what is shown in the data tables. This tells the pivot tables how to combine every value in the data frame that belongs to a particular row and column.
 
-The functions are passed to `dplyr::summarize()`.
+If you are familiar with the `dplyr` package, these are the functions that are passed to `dplyr::summarize()`. Any function that summarizes groups of data into a single value can be used. Most common ones are provided as defaults in the menu.
 
 The pivot table value function can be set on the initial function call using the `initPivotValues` input.
 
@@ -116,7 +130,7 @@ The `count` option provides a count of the number of data values that contribute
 
 ### Custom functions
 
-In addition to the defaults, any single input named function that summarizes data and returns a single value can be passed to the `rspivot()` function call. This function will be added to the list of options in the Pivot Table Values menu for toggling during the session.
+In addition to the defaults, any single input named function that summarizes data groups and returns a single value can be passed to the `rspivot()` function call. This function will be added to the list of options in the Pivot Table Values menu for toggling during the session. Wrapping the name of the function in `c()` allows you to provide a human-readable name for the function.
 
 ```r
 sd_narm <- function(x){
@@ -127,11 +141,11 @@ rspivot(GVAIndustry, initPivotValues = c("StDev" = "sd_narm"))
 
 ```
 
-## Data Modes
+## Data modes
 
 Data modes are applied to the pivot table after the values are calculated. The default is to display the values unaltered.
 
-Data modes are valuable for reviewing data, as the data can be viewed as differences, % Growth rates, or % shares of the total. If any of these alternate modes are selected, another select menu appears with a list of each of the series in the data frame. This determines over which series the metrics are calculated.
+Data modes are valuable for reviewing data, as the data can be viewed as differences, % growth rates, or % shares of the total. If any of these alternate modes are selected, another select menu appears with a list of each of the series in the data frame. This determines over which series the metrics are calculated.
 
 For example, `rspivot(GVAIndustry, initRows = "Country", initMetric = list(metric = "Shares", series = "Country"))` will transform the data into country shares, where the sum of all countries will equal 100%, while `rspivot(GVAIndustry, initRows = "Industry", initMetric = list(metric = "Shares", series = "Industry"))` will ensure the sum of all industries will equal 100%.
 
@@ -155,5 +169,5 @@ View data as thousands, millions, or billions.
 
 ### Truncate strings
 
-For long strings, limit the number of displayed characters. The default value is 30.
+For long strings, limit the number of displayed characters. The default value is 30. This does not affect the strings in the filter and row/column menus.
 

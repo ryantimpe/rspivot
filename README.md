@@ -22,7 +22,7 @@ See my [GitHub](https://github.com/ryantimpe/rspivot) for the script and [GitHub
 
 This package requires RStudio and is built using the [tidyverse](https://github.com/tidyverse/tidyverse) and [shiny](http://shiny.rstudio.com/articles/gadgets.html) packages. 
 
-rspivot is not yet on CRAN, but you can install the latest development version from GitHub. It is recommended that you reinstall it at least every week until the first stable release.
+rspivot is not yet on CRAN, but you can install the latest development version from GitHub.
 
 ``` r
 #install.packages(devtools)
@@ -35,7 +35,9 @@ rspivot uses [Shiny](http://shiny.rstudio.com/articles/gadgets.html) to control 
 
 ## Versioning
 
-Once the first version is released, see the [tags on this repository](https://github.com/ryantimpe/rspivot/tags). 
+Version 0.1.0 is the initial public release of this package. Only available on GitHub.
+
+See the [tags on this repository](https://github.com/ryantimpe/rspivot/tags). 
 
 ## Authors
 
