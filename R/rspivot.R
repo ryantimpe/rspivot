@@ -33,6 +33,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
                     initFilters = list(), initPivotValues = "sum",
                     initMetric = list(metric = "Values", series = "")) {
 
+  if(!is.data.frame(df)) {
+    stop("rspivot only accepts data frames.")
+  }
+
   ################
   # Non-Reactive functions ----
   ################
