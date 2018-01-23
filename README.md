@@ -28,6 +28,11 @@ rspivot is not yet on CRAN, but you can install the latest development version f
 #install.packages(devtools)
 devtools::install_github("ryantimpe/rspivot")
 ```
+rspivot uses [rhandsontable](https://github.com/jrowen/rhandsontable) to view data. Version 0.3.5 of rhandsontable has a [bug](https://github.com/jrowen/rhandsontable/issues/212) and the table will not render. Please install the development version from GitHub if there are any issues.
+
+```r
+devtools::install_github("jrowen/rhandsontable")
+```
 
 ## Built With
 
