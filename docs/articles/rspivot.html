@@ -63,7 +63,7 @@
       <h1>Introduction to rspivot</h1>
                         <h4 class="author">Ryan Timpe</h4>
             
-            <h4 class="date">2018-01-02</h4>
+            <h4 class="date">2018-01-25</h4>
           </div>
 
     
@@ -83,6 +83,7 @@
 <p><img src="rspivot_img/1_launch.JPG" width="650px"></p>
 <p>If the data frame or tibble has more than one column of values, these columns must be explicitly listed in order for rspivot to distinguish values from descriptive columns using the <code>valueName</code> input. This input can take a single string (if the single value column is not labeled <code>value</code>) or an array of names.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/rspivot.html">rspivot</a></span>(iris, <span class="dt">valueName =</span> <span class="kw">c</span>(<span class="st">"Petal.Length"</span>, <span class="st">"Petal.Width"</span>))</code></pre></div>
+<p>For larger windows, use <code>launch.browser = TRUE</code> in the function call.</p>
 </div>
 <div id="table" class="section level2">
 <h2 class="hasAnchor">

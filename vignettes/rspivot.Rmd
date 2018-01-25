@@ -43,6 +43,8 @@ If the data frame or tibble has more than one column of values, these columns mu
 rspivot(iris, valueName = c("Petal.Length", "Petal.Width"))
 ```
 
+For larger windows, use `launch.browser = TRUE` in the function call.
+
 ## Table
 
 The default table displays values as the sum of all data values, segmented by the series shown in the rows and columns. The rows and columns are sorted to match the same order of the elements in the data frame. To sort in ascending or descending order, click the column names in the table.

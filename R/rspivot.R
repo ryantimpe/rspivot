@@ -15,7 +15,7 @@
 #' @param initPivotValues Summary values to display in the pivot table. Default is \code{"sum"}, showing the total values of the underlying data.
 #' Other options are \code{"mean"}, \code{"median"}, \code{"min"}, \code{"max"}, and \code{"count"}. Can also accept customize, one-input summary functions.
 #' @param initMetric Optional list of the initial data metrics to display, after data is summarized using \code{initPivotValues}.
-#'
+#' @param launch.browser If \code{TRUE}, the system's default web browser will be launched automatically after the app is started.
 #' @import shiny
 #'
 #' @importFrom dplyr %>%
@@ -31,7 +31,8 @@
 rspivot <- function(df=.Last.value, valueName = "value",
                     initCols = "", initRows = "", initNest = "",
                     initFilters = list(), initPivotValues = "sum",
-                    initMetric = list(metric = "Values", series = "")) {
+                    initMetric = list(metric = "Values", series = ""),
+                    launch.browser = FALSE) {
 
   if(!is.data.frame(df)) {
     stop("rspivot only accepts data frames.")
@@ -864,6 +865,14 @@ rspivot <- function(df=.Last.value, valueName = "value",
       } else {
         state_pivvalues <- paste0(', initPivotValues = "', input$dataPivValues, '"')
       }
+      ###
+      # Browser
+      ###
+      if(!launch.browser){
+        state_browser <- NULL
+      }else {
+        state_browser <- paste0(', launch.browser = TRUE')
+      }
 
       ##
       #Combine
@@ -875,6 +884,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                           state_filter,
                           state_pivvalues,
                           state_metric,
+                          state_browser,
                           ")")
 
       # writeClipboard(state_all)
@@ -898,13 +908,22 @@ rspivot <- function(df=.Last.value, valueName = "value",
       stopApp()
     })
 
+    session$onSessionEnded(function() {
+      stopApp()
+    })
+
   } #End Server
 
   ####
   # Addin settings ----
   ####
 
-  viewer <- dialogViewer(paste("RSPivot -", deparse(substitute(df))), width = 1400, height= 2000)
+  if(launch.browser){
+    viewer <- browserViewer()
+  } else {
+    viewer <- dialogViewer(paste("RSPivot -", deparse(substitute(df))), width = 1400, height= 2000)
+  }
+
   runGadget(ui, server, viewer = viewer)
 
 }

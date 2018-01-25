@@ -94,7 +94,7 @@ Additional options include sparklines and charts and multiple data metrics.</p>
     <pre class="usage"><span class='fu'>rspivot</span>(<span class='kw'>df</span> <span class='kw'>=</span> <span class='no'>.Last.value</span>, <span class='kw'>valueName</span> <span class='kw'>=</span> <span class='st'>"value"</span>, <span class='kw'>initCols</span> <span class='kw'>=</span> <span class='st'>""</span>,
   <span class='kw'>initRows</span> <span class='kw'>=</span> <span class='st'>""</span>, <span class='kw'>initNest</span> <span class='kw'>=</span> <span class='st'>""</span>, <span class='kw'>initFilters</span> <span class='kw'>=</span> <span class='fu'>list</span>(),
   <span class='kw'>initPivotValues</span> <span class='kw'>=</span> <span class='st'>"sum"</span>, <span class='kw'>initMetric</span> <span class='kw'>=</span> <span class='fu'>list</span>(<span class='kw'>metric</span> <span class='kw'>=</span> <span class='st'>"Values"</span>, <span class='kw'>series</span> <span class='kw'>=</span>
-  <span class='st'>""</span>))</pre>
+  <span class='st'>""</span>), <span class='kw'>launch.browser</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -134,6 +134,10 @@ Other options are <code>"mean"</code>, <code>"median"</code>, <code>"min"</code>
     <tr>
       <th>initMetric</th>
       <td><p>Optional list of the initial data metrics to display, after data is summarized using <code>initPivotValues</code>.</p></td>
+    </tr>
+    <tr>
+      <th>launch.browser</th>
+      <td><p>If <code>TRUE</code>, the system's default web browser will be launched automatically after the app is started.</p></td>
     </tr>
     </table>
     

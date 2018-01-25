@@ -81,9 +81,11 @@
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
 <p>This package requires RStudio and is built using the <a href="https://github.com/tidyverse/tidyverse">tidyverse</a> and <a href="http://shiny.rstudio.com/articles/gadgets.html">shiny</a> packages.</p>
-<p>rspivot is not yet on CRAN, but you can install the latest development version from GitHub. It is recommended that you reinstall it at least every week until the first stable release.</p>
+<p>rspivot is not yet on CRAN, but you can install the latest development version from GitHub.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#install.packages(devtools)</span>
 devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"ryantimpe/rspivot"</span>)</code></pre></div>
+<p>rspivot uses <a href="https://github.com/jrowen/rhandsontable">rhandsontable</a> to view data. Version 0.3.5 of rhandsontable has a <a href="https://github.com/jrowen/rhandsontable/issues/212">bug</a> and the table will not render. Please install the development version from GitHub if there are any issues.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"jrowen/rhandsontable"</span>)</code></pre></div>
 </div>
 <div id="built-with" class="section level2">
 <h2 class="hasAnchor">
@@ -93,7 +95,8 @@ devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocument
 <div id="versioning" class="section level2">
 <h2 class="hasAnchor">
 <a href="#versioning" class="anchor"></a>Versioning</h2>
-<p>Once the first version is released, see the <a href="https://github.com/ryantimpe/rspivot/tags">tags on this repository</a>.</p>
+<p>Version 0.1.0 is the initial public release of this package. Only available on GitHub.</p>
+<p>See the <a href="https://github.com/ryantimpe/rspivot/tags">tags on this repository</a>.</p>
 </div>
 <div id="authors" class="section level2">
 <h2 class="hasAnchor">

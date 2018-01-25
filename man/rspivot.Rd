@@ -7,7 +7,7 @@
 rspivot(df = .Last.value, valueName = "value", initCols = "",
   initRows = "", initNest = "", initFilters = list(),
   initPivotValues = "sum", initMetric = list(metric = "Values", series =
-  ""))
+  ""), launch.browser = FALSE)
 }
 \arguments{
 \item{df}{A data frame flat file to be converted to pivot format. Data should be in "long" format, with a single column of values named \code{value}.
@@ -29,6 +29,8 @@ Alternatively, leave this blank on the intiial run, and use the Save Function fe
 Other options are \code{"mean"}, \code{"median"}, \code{"min"}, \code{"max"}, and \code{"count"}. Can also accept customize, one-input summary functions.}
 
 \item{initMetric}{Optional list of the initial data metrics to display, after data is summarized using \code{initPivotValues}.}
+
+\item{launch.browser}{If \code{TRUE}, the system's default web browser will be launched automatically after the app is started.}
 }
 \description{
 View data frames as Shiny pivot tables. This is an alternative to \code{View()} to view data frames as summarized data.
