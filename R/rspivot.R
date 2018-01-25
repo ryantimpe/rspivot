@@ -694,7 +694,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
         })
       }
 
-      rh <- rhandsontable::rhandsontable(df, width = 1000, height = 500, readOnly = TRUE) %>%
+      rh <- rhandsontable::rhandsontable(df, #width = 1000, height = 500,
+                                         readOnly = TRUE) %>%
         rhandsontable::hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
         rhandsontable::hot_cols(columnSorting = TRUE,
                  fixedColumnsLeft = (if(input$PivRowNest == "None"){1}else{2}), #If nested, freeze two columns
