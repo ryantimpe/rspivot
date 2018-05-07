@@ -643,18 +643,16 @@ rspivot <- function(df=.Last.value, valueName = "value",
       #Include row totals?
       if(sel_row != sel_col){
         if(!inc_row ){
-          filter_criteria <- lazyeval::interp( ~ which_column != "*Total*", which_column = as.name(sel_row))
           df <- df %>%
-            dplyr::filter_(filter_criteria)
+            dplyr::filter(!!rlang::sym(as.name(sel_row)) != "*Total*")
         }
       }
 
       #Include nest totals?
       if(!is.null(sel_nest) && sel_nest != sel_row && sel_nest != sel_col){
         if(!inc_nest){
-          filter_criteria <- lazyeval::interp( ~ which_column != "*Total*", which_column = as.name(sel_nest))
           df <- df %>%
-            dplyr::filter_(filter_criteria)
+            dplyr::filter(!!rlang::sym(as.name(sel_nest)) != "*Total*")
         }
       }
 
