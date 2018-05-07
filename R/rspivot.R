@@ -462,7 +462,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
         dplyr::do(
           if(!is.null(sel_nest) && sel_nest != sel_row && sel_nest != sel_col){
             dplyr::bind_rows(.,
-                      dplyr::group_by_(., .dots = as.list(c(sel_col, sel_row))) %>%
+                      dplyr::group_by(., !!!rlang::syms(c(sel_col, sel_row))) %>%
                         dplyr::summarize(value = sum(value)) %>%
                         dplyr::ungroup()) %>%
               dplyr::mutate_at(dplyr::vars(sel_nest), dplyr::funs(ifelse(is.na(.),"*Total*", .)))
@@ -471,7 +471,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
         #Rows
         dplyr::do(if(sel_row != sel_col){
           dplyr::bind_rows(.,
-                    dplyr::group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_col, sel_nest)])) %>%
+                    dplyr::group_by(., !!!rlang::syms(names(.)[names(.) %in% c(sel_col, sel_nest)])) %>%
                       dplyr::summarize(value = sum(value)) %>%
                       dplyr::ungroup()) %>%
             dplyr::mutate_at(dplyr::vars(sel_row), dplyr::funs(ifelse(is.na(.),"*Total*", .)))
@@ -480,7 +480,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
         #Columns
         dplyr::do(if(sel_row != sel_col){
           dplyr::bind_rows(.,
-                    dplyr::group_by_(., .dots = as.list(names(.)[names(.) %in% c(sel_row, sel_nest)])) %>%
+                    dplyr::group_by(., !!!rlang::syms(names(.)[names(.) %in% c(sel_row, sel_nest)])) %>%
                       dplyr::summarize(value = sum(value)) %>%
                       dplyr::ungroup()) %>%
             dplyr::mutate_at(dplyr::vars(sel_col), dplyr::funs(ifelse(is.na(.),"*Total*", .)))
