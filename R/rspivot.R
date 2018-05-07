@@ -438,17 +438,16 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       if(sel_pivValues %in% c("sum", "mean", "median", "min", "max")){
         dat <- dat0 %>%
-          dplyr::group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
+          dplyr::group_by(!!!rlang::syms(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
           dplyr::summarize_at(dplyr::vars(value), sel_pivValues, na.rm=TRUE) %>%
           dplyr::ungroup()
       } else if(sel_pivValues == "n") {
         dat <- dat0 %>%
-          dplyr::group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
-          dplyr::summarize(value = dplyr::n()) %>%
-          dplyr::ungroup()
+          dplyr::count(!!!rlang::syms(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
+          rename(value = n)
       } else {
         dat <- dat0 %>%
-          dplyr::group_by_(.dots = as.list(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
+          dplyr::group_by(!!!rlang::syms(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
           dplyr::summarize_at(dplyr::vars(value), sel_pivValues) %>%
           dplyr::ungroup()
       }
