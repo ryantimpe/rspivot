@@ -17,7 +17,7 @@ Imports:
     jsonlite (>= 1.5),
     rlang,
     htmlwidgets
-Version: 0.1.0.9002
+Version: 0.1.0.9003
 Author: Ryan Timpe <ryan.timpe at gmail.com>
 Authors@R: c(
     person("Ryan", "Timpe", email = "ryan.timpe@gmail.com", role = c("aut", "cre"))

@@ -396,24 +396,18 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
         #If no items are selected or the Select All is selected, show ALL items
         if(length(get_input) == 0 || all.elements %in% get_input){
-          get_series <- tibble::as.tibble(dat[, dim_names[i]]) %>% dplyr::distinct() %>% dplyr::pull()
-
-          filter_criteria_T <- lazyeval::interp( ~ which_column %in% get_series, which_column = as.name(dim_names[i])) #If a Filter is selected....
+          datF <- datF
         }
         #For Numeric series
         else if(dim_names[i] %in% series.num){
           get_series <- as.numeric(get_input)
-          filter_criteria_T <- lazyeval::interp( ~ (which_column >= get_series[1]) & (which_column <= get_series[2]),
-                                       which_column = as.name(dim_names[i])) #If a Filter is selected....
+          datF <- datF %>%
+            dplyr::filter(!!rlang::sym(dim_names[i]) >= get_series[1] & !!rlang::sym(dim_names[i]) <= get_series[2])
         } else {
           get_series <- as.character(get_input)
-          filter_criteria_T <- lazyeval::interp( ~ which_column %in% get_series, which_column = as.name(dim_names[i])) #If a Filter is selected....
+          datF <- datF %>%
+            dplyr::filter(!!rlang::sym(dim_names[i]) %in% get_series)
         }
-
-        #.... Do this
-        datF <- datF %>%
-          dplyr::filter_(filter_criteria_T)
-
       } #End for
 
       #After filtering, add leading space to each element...
