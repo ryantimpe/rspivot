@@ -514,7 +514,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       if(input$dataMetric == "Growth"){
 
         dat <- dat %>%
-          dplyr::group_by_(.dots = names(.)[!(names(.) %in% c(sel_metric, "value"))]) %>%
+          dplyr::group_by(!!!rlang::syms(names(.)[!(names(.) %in% c(sel_metric, "value"))])) %>%
           dplyr::mutate(Growth = (value / dplyr::lag(value, 1) - 1) *
                    (if(!is.null(sel_nest) && sel_nest =="Metric_calc"){100}else{1})
                     ) %>%
@@ -527,7 +527,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       if(input$dataMetric == "Difference"){
 
         dat <- dat %>%
-          dplyr::group_by_(.dots = names(.)[!(names(.) %in% c(sel_metric, "value"))]) %>%
+          dplyr::group_by(!!!rlang::syms(names(.)[!(names(.) %in% c(sel_metric, "value"))])) %>%
           dplyr::mutate(Difference = (value - dplyr::lag(value, 1))) %>%
           dplyr::ungroup() %>%
           dplyr::rename(Values = value) %>%
@@ -538,7 +538,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       if(input$dataMetric == "Shares"){
 
         dat <- dat %>%
-          dplyr::group_by_(.dots = as.list(names(.)[!(names(.) %in% c(sel_metric, "value"))])) %>%
+          dplyr::group_by(!!!rlang::syms(names(.)[!(names(.) %in% c(sel_metric, "value"))])) %>%
           dplyr::mutate(Shares = (value / sum(value)) *
                    (if(sel_metric %in% c(sel_col, sel_row, sel_nest)){2}else{1}) * #*2 to account for Total... this is sloppy
                    (if(!is.null(sel_nest) && sel_nest =="Metric_calc"){100}else{1})
@@ -558,7 +558,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
           }
         ) %>%
         #This time, sum over the metric'd dimension
-        dplyr::group_by_(.dots = as.list(names(.)[names(.) %in% c(sel_col, sel_row, sel_nest)])) %>%
+        dplyr::group_by(!!!rlang::syms(names(.)[names(.) %in% c(sel_col, sel_row, sel_nest)])) %>%
         dplyr::summarize(value = sum(value)) %>%
         dplyr::ungroup() %>%
         dplyr::mutate_at(dplyr::vars(sel_row), as.character()) %>%
