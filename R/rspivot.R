@@ -212,6 +212,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                  helpText("Data metrics further transform the pivot table values, as defined above.")
                  ),
           column(width = 3,
+                 strong("Z-scores"),
                  checkboxInput("dataZscore", label = "Normalize values with Z-scores"),
                  helpText("Z-scores help you find outliers in the data.
                           The mean is subtracted from each data value, as defined to the left, and then divided by the standard deviation.
@@ -364,6 +365,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
     observe({
       req(input$PivCols)
       updateSelectInput(session, "dataMetricSeries",
+                        choices = dim_names, selected = input$PivCols)
+
+      updateCheckboxGroupInput(session, "dataZscoreSeries",
                         choices = dim_names, selected = input$PivCols)
 
       if(initMetric$metric != "Values"){
