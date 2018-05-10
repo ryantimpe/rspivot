@@ -212,6 +212,18 @@ rspivot <- function(df=.Last.value, valueName = "value",
                  helpText("Data metrics further transform the pivot table values, as defined above.")
                  ),
           column(width = 3,
+                 checkboxInput("dataZscore", label = "Normalize values with Z-scores"),
+                 helpText("Z-scores help you find outliers in the data.
+                          The mean is subtracted from each data value, as defined to the left, and then divided by the standard deviation.
+                          The resulting Z-score is centered at 0, which each value representing the number of standard deviations from the mean.
+                          Large positive and negative values may be outliers."),
+                 hr(),
+                 checkboxGroupInput("dataZscoreSeries", label = "Separate Z-score analysis over:",
+                                    choices = NULL, selected = NULL),
+                 helpText("By selecting series below, the Z-score will be calculated independently for each element in those dimensions.
+                          This changes the means and standard deviations used in the analysis, enabling you to look for more specific outliers.")
+                 ),
+          column(width = 3,
                  strong("Decimals"),
                  numericInput("decValues", label = "Value metric", value = 0,
                               min = 0, max = 5, step = 1),
