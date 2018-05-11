@@ -98,6 +98,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
   ui <- miniUI::miniPage(
     miniUI::gadgetTitleBar("RS Pivot"),
     miniUI::miniTabstripPanel(
+
+      #Pivot tab ----
       miniUI::miniTabPanel(
         title = "Pivot",
         icon = icon("table"),
@@ -173,6 +175,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
         )
       ), #End Pivot Tab
+
+      #Plot tab ----
       miniUI::miniTabPanel(
         title = "Plot",
         icon = icon("bar-chart"),
@@ -189,6 +193,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
                  )
         )
       ), #End plot
+
+      #Data options ----
       miniUI::miniTabPanel(
         title = "Data Options",
         icon = icon("edit"),
@@ -368,7 +374,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                         choices = dim_names, selected = input$PivCols)
 
       updateCheckboxGroupInput(session, "dataZscoreSeries",
-                        choices = dim_names, selected = input$PivCols)
+                        choices = dim_names, selected = NULL)
 
       if(initMetric$metric != "Values"){
         updateSelectInput(session, "dataMetric",
@@ -563,6 +569,14 @@ rspivot <- function(df=.Last.value, valueName = "value",
           dplyr::rename(Values = value) %>%
           tidyr::gather(Metric_calc, value, Values, Shares)
 
+      }
+
+      #Z-score ----
+      if(input$dataZscore){
+        dat <- dat %>%
+          dplyr::group_by(!!!rlang::syms(input$dataZscoreSeries)) %>%
+          dplyr::mutate( value = (value - mean(value, na.rm=TRUE))/sd(value, na.rm=TRUE)) %>%
+          ungroup()
       }
 
       datZ <- dat %>%
