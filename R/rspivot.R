@@ -571,12 +571,14 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       }
 
-      #Z-score ----
+      # Z-score ----
       if(input$dataZscore){
         dat <- dat %>%
           dplyr::group_by(!!!rlang::syms(input$dataZscoreSeries)) %>%
           dplyr::mutate( value = (value - mean(value, na.rm=TRUE))/sd(value, na.rm=TRUE)) %>%
-          ungroup()
+          dplyr::ungroup() %>%
+          #Also remove totals
+          dplyr::filter_all(dplyr::all_vars(. != "*Total*"))
       }
 
       datZ <- dat %>%
@@ -704,7 +706,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       #Sparklines
       if(input$PivCols_chart != "None"){
         df_spk <- df %>%
-          dplyr::do(if(input$PivCols_tot == TRUE){dplyr::select(., -`*Total*`)}else{.})
+          dplyr::select(-dplyr::contains("*Total*"))
 
         df$`*Chart*` <- sapply(1:nrow(df_spk), function(i){
           vals <- round(as.numeric(df_spk[i, cols_num[cols_num != "*Total*"]]), 5)
