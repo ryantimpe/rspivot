@@ -217,19 +217,19 @@ rspivot <- function(df=.Last.value, valueName = "value",
                  ),
                  helpText("Data metrics further transform the pivot table values, as defined above.")
                  ),
-          column(width = 3,
-                 strong("Z-scores"),
-                 checkboxInput("dataZscore", label = "Normalize values with Z-scores"),
-                 helpText("Z-scores help you find outliers in the data.
-                          The mean is subtracted from each data value, as defined to the left, and then divided by the standard deviation.
-                          The resulting Z-score is centered at 0, which each value representing the number of standard deviations from the mean.
-                          Large positive and negative values may be outliers."),
-                 hr(),
-                 checkboxGroupInput("dataZscoreSeries", label = "Separate Z-score analysis over:",
-                                    choices = NULL, selected = NULL),
-                 helpText("By selecting series below, the Z-score will be calculated independently for each element in those dimensions.
-                          This changes the means and standard deviations used in the analysis, enabling you to look for more specific outliers.")
-                 ),
+          # column(width = 3,
+          #        strong("Z-scores"),
+          #        checkboxInput("dataZscore", label = "Normalize values with Z-scores"),
+          #        helpText("Z-scores help you find outliers in the data.
+          #                 The mean is subtracted from each data value, as defined to the left, and then divided by the standard deviation.
+          #                 The resulting Z-score is centered at 0, which each value representing the number of standard deviations from the mean.
+          #                 Large positive and negative values may be outliers."),
+          #        hr(),
+          #        checkboxGroupInput("dataZscoreSeries", label = "Separate Z-score analysis over:",
+          #                           choices = c("Rows"="r", "Nested Rows"="n", "Columns"="c"), selected = NULL),
+          #        helpText("By selecting series below, the Z-score will be calculated independently for each element in those dimensions.
+          #                 This changes the means and standard deviations used in the analysis, enabling you to look for more specific outliers.")
+          #        ),
           column(width = 3,
                  strong("Decimals"),
                  numericInput("decValues", label = "Value metric", value = 0,
@@ -372,9 +372,6 @@ rspivot <- function(df=.Last.value, valueName = "value",
       req(input$PivCols)
       updateSelectInput(session, "dataMetricSeries",
                         choices = dim_names, selected = input$PivCols)
-
-      updateCheckboxGroupInput(session, "dataZscoreSeries",
-                        choices = dim_names, selected = NULL)
 
       if(initMetric$metric != "Values"){
         updateSelectInput(session, "dataMetric",
@@ -571,15 +568,21 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       }
 
-      # Z-score ----
-      if(input$dataZscore){
-        dat <- dat %>%
-          dplyr::group_by(!!!rlang::syms(input$dataZscoreSeries)) %>%
-          dplyr::mutate( value = (value - mean(value, na.rm=TRUE))/sd(value, na.rm=TRUE)) %>%
-          dplyr::ungroup() %>%
-          #Also remove totals
-          dplyr::filter_all(dplyr::all_vars(. != "*Total*"))
-      }
+      # # Z-score ----
+      # if(input$dataZscore){
+      #   sel_zscore <- input$dataZscoreSeries
+      #   zscore_groups <- c()
+      #   if("r" %in% sel_zscore){zscore_groups <- c(zscore_groups, sel_row)}
+      #   if("n" %in% sel_zscore){zscore_groups <- c(zscore_groups, sel_nest)}
+      #   if("c" %in% sel_zscore){zscore_groups <- c(zscore_groups, sel_col)}
+      #
+      #   dat <- dat %>%
+      #     dplyr::group_by(!!!rlang::syms(zscore_groups)) %>%
+      #     dplyr::mutate( value = (value - mean(value, na.rm=TRUE))/sd(value, na.rm=TRUE)) %>%
+      #     dplyr::ungroup() %>%
+      #     #Also remove totals
+      #     dplyr::filter_all(dplyr::all_vars(. != "*Total*"))
+      # }
 
       datZ <- dat %>%
         dplyr::do(
