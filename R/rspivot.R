@@ -784,14 +784,14 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       #How to display data
       if(sel_type == "line"){
-        gg <- gg + ggplot2::geom_line(ggplot2::aes(color = dim_y), size = 1.1)
+        gg <- gg + ggplot2::geom_line(ggplot2::aes(color = dim_y), size = 1.1, na.rm=TRUE)
       } else if(sel_type == "stacked") {
-        gg <- gg + ggplot2::geom_col(ggplot2::aes(fill = dim_y), color = "black")
+        gg <- gg + ggplot2::geom_col(ggplot2::aes(fill = dim_y), color = "black", na.rm=TRUE)
       } else {
-        gg <- gg + ggplot2::geom_col(ggplot2::aes(fill = dim_y), color = "black", position = "dodge")
+        gg <- gg + ggplot2::geom_col(ggplot2::aes(fill = dim_y), color = "black", position = "dodge", na.rm=TRUE)
       }
 
-      #Nested?
+     #Nested?
       if(sel_nest != "None"){
         gg <- gg + ggplot2::facet_wrap(~dim_z, scales = "free")
       }
@@ -808,6 +808,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
           plot.subtitle = ggplot2::element_text(color = "#00436b", size = 14),
           plot.caption = ggplot2::element_text(size = 11)
         )
+
       return(gg)
     })
 
