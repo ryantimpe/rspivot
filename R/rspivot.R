@@ -96,7 +96,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
   # UI ----
   ################
   ui <- miniUI::miniPage(
-    miniUI::gadgetTitleBar("RS Pivot"),
+    miniUI::gadgetTitleBar("rspivot - Shiny pivot addin for RStudio"),
     miniUI::miniTabstripPanel(
 
       #Pivot tab ----
@@ -111,30 +111,50 @@ rspivot <- function(df=.Last.value, valueName = "value",
                      helpText("Select filters and then click the button to update the table.")
                      ),
               column(width = 3,
-                selectInput("PivRows", label = "Rows",
+                selectInput("PivRows", label = "Rows (Group)",
                           choices = NULL , selected = NULL),
-                checkboxInput("PivRows_tot", label = "Totals", value=TRUE)
-                ),
+                selectInput("PivRowNest", label = NULL,
+                            choices = NULL , selected = NULL),
+                fluidRow(
+                  column(width = 6, checkboxInput("PivRows_tot", label = "Row Totals", value=TRUE)),
+                  column(width = 6, checkboxInput("PivRowNest_tot", label = "Nest Totals", value=TRUE))
+                )
+              ),
               column(width = 3,
-                selectInput("PivRowNest", label = "Nested Rows",
-                          choices = NULL , selected = NULL),
-                checkboxInput("PivRowNest_tot", label = "Nest Totals", value=FALSE)
-                ),
-              column(width = 3,
-                selectInput("PivCols", label = "Columns",
+                selectInput("PivCols", label = "Columns (x-axis)",
                           choices = NULL , selected = NULL),
                 fluidRow(
                   column(width = 3,
-                         checkboxInput("PivCols_tot", label = "Totals", value=FALSE)
+                         checkboxInput("PivCols_tot", label = " Column Totals", value=FALSE)
                          ),
-                  column(width = 9,
-                         radioButtons("PivCols_chart", label = "Column Charts",
-                                      choices = c("None" = "None", "Bars" = "bar", "Spark" = "line"),
-                                      selected = "line",
-                                      inline = TRUE)
+                  column(width = 9
                          )
                 )
-                )
+                ),
+              column(width = 3,
+                     div(
+                     radioButtons("DisplayMode", label = "Display Mode",
+                                  choiceValues = list("Table", "Chart"),
+                                  choiceNames = list(list(icon("table"), "Table"), list(icon("bar-chart"), "Chart")),
+                                  inline = TRUE),
+                     conditionalPanel(
+                       condition = "input.DisplayMode == 'Table'",
+                       radioButtons("PivCols_chart", label = "Column Charts",
+                                    choices = c("None" = "None", "Bars" = "bar", "Spark" = "line"),
+                                    selected = "line",
+                                    inline = TRUE)
+
+                     ),
+                     conditionalPanel(
+                       condition = "input.DisplayMode == 'Chart'",
+                       radioButtons("PlotToggle", label = "Chart Type",
+                                    choices = c("Line" = "line", "Stacked Column" = "stacked", "Grouped Column" = "grouped"),
+                                    selected = "line", inline = TRUE)
+
+                     ),
+                     style = "background-color: #efefef; padding: 5px; margins: 5px"
+                     )#End div
+              )
           ),
           fluidRow(
             column(
@@ -151,7 +171,21 @@ rspivot <- function(df=.Last.value, valueName = "value",
                 # actionButton("edits_save", label = "Save Edits", icon = icon("floppy-o"),
                 #              style = "background-color:#FF4040; color:#ffffff;"),
                 # hr(),
-                rhandsontable::rHandsontableOutput("hot"),
+                #TABLE VIEW
+                conditionalPanel(
+                  condition = "input.DisplayMode == 'Table'",
+                  rhandsontable::rHandsontableOutput("hot")
+                ),
+                #CHART VIEW
+                conditionalPanel(
+                  condition = "input.DisplayMode == 'Chart'",
+                  fluidRow(
+                    column(width = 12,
+                           plotOutput("df_plot")
+                    )
+                  )
+                ),
+                #Resume common view
                 hr(),
                 strong("Save function call"),
                 helpText("Running this function next time will resume the pivot in its current state."),
@@ -175,24 +209,6 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
         )
       ), #End Pivot Tab
-
-      #Plot tab ----
-      miniUI::miniTabPanel(
-        title = "Plot",
-        icon = icon("bar-chart"),
-        fluidRow(
-          column(width = 3,
-                 radioButtons("PlotToggle", label = "Chart Type",
-                              choices = c("Line" = "line", "Stacked Column" = "stacked", "Grouped Column" = "grouped"),
-                              selected = "line", inline = TRUE)
-                 )
-        ),
-        fluidRow(
-          column(width = 12,
-                 plotOutput("df_plot")
-                 )
-        )
-      ), #End plot
 
       #Data options ----
       miniUI::miniTabPanel(
