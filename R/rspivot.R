@@ -183,7 +183,13 @@ rspivot <- function(df=.Last.value, valueName = "value",
                     column(width = 12,
                            plotOutput("df_plot")
                     )
-                  )
+                  ),
+                  fluidRow(
+                    column(width = 10),
+                    column(width = 2,
+                           checkboxInput("PlotLegend", label = "Show Legend",
+                                value = TRUE))
+                    )
                 ),
                 #Resume common view
                 hr(),
@@ -820,17 +826,22 @@ rspivot <- function(df=.Last.value, valueName = "value",
       }
 
       gg <- gg +
-        ggplot2::ggtitle(sel_row) +
-        ggplot2::xlab(sel_col) +
+        ggplot2::labs(title = sel_row, x = sel_col) +
         ggplot2::theme_minimal() +
         ggplot2::theme(
           axis.text.x = ggplot2::element_text(size = 11, angle = 90, hjust = 1),
+          axis.title = ggplot2::element_text(size = 13, face = "bold"),
           strip.background = ggplot2::element_rect(fill = "#00436b"),
           strip.text = ggplot2::element_text(color = "white", face = "bold", size = 12),
           plot.title = ggplot2::element_text(color = "#00436b", face = "bold", size = 16),
           plot.subtitle = ggplot2::element_text(color = "#00436b", size = 14),
           plot.caption = ggplot2::element_text(size = 11)
         )
+
+      if(!input$PlotLegend){
+        gg <- gg +
+          ggplot2::theme(legend.position = "none")
+      }
 
       return(gg)
     })
