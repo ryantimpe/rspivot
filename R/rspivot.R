@@ -780,7 +780,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       dat0 <- hotData()
 
-      if(sel_nest == "None"){
+      if(sel_nest == "None" | sel_nest == sel_row){
         dat <- as.data.frame(dat0) %>%
           tidyr::gather(dim_x, value, 2:ncol(.))
       } else {
@@ -815,7 +815,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       }
 
      #Nested?
-      if(sel_nest != "None"){
+      if(!(sel_nest %in% c("None", sel_row))){
         gg <- gg + ggplot2::facet_wrap(~dim_z, scales = "free")
       }
 
