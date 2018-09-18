@@ -784,11 +784,18 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       #How to display data
       if(sel_type == "line"){
-        gg <- gg + ggplot2::geom_line(ggplot2::aes(color = dim_y), size = 1.1, na.rm=TRUE)
+        gg <- gg +
+          ggplot2::geom_line(ggplot2::aes(color = dim_y), alpha = 0.75,
+                             size = 1.1, na.rm=TRUE) +
+          ggplot2::scale_color_discrete( c=75, name = sel_row)
       } else if(sel_type == "stacked") {
-        gg <- gg + ggplot2::geom_col(ggplot2::aes(fill = dim_y), color = "black", na.rm=TRUE)
+        gg <- gg +
+          ggplot2::geom_col(ggplot2::aes(fill = dim_y), color = "black", na.rm=TRUE) +
+          ggplot2::scale_fill_discrete( c=75, name = sel_row)
       } else {
-        gg <- gg + ggplot2::geom_col(ggplot2::aes(fill = dim_y), color = "black", position = "dodge", na.rm=TRUE)
+        gg <- gg +
+          ggplot2::geom_col(ggplot2::aes(fill = dim_y), color = "black", position = "dodge", na.rm=TRUE) +
+          ggplot2::scale_fill_discrete( c=75, name = sel_row)
       }
 
      #Nested?
@@ -799,7 +806,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       gg <- gg +
         ggplot2::ggtitle(sel_row) +
         ggplot2::xlab(sel_col) +
-        ggplot2::theme_bw() +
+        ggplot2::theme_minimal() +
         ggplot2::theme(
           axis.text.x = ggplot2::element_text(size = 11, angle = 90, hjust = 1),
           strip.background = ggplot2::element_rect(fill = "#00436b"),
