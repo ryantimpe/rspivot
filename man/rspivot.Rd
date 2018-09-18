@@ -6,8 +6,8 @@
 \usage{
 rspivot(df = .Last.value, valueName = "value", initCols = "",
   initRows = "", initNest = "", initFilters = list(),
-  initPivotValues = "sum", initMetric = list(metric = "Values", series =
-  ""), launch.browser = FALSE)
+  initPivotValues = "sum", initMetric = list(metric = "Values", series
+  = ""), launch.browser = FALSE)
 }
 \arguments{
 \item{df}{A data frame flat file to be converted to pivot format. Data should be in "long" format, with a single column of values named \code{value}.
