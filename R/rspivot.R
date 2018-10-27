@@ -850,8 +850,6 @@ rspivot <- function(df=.Last.value, valueName = "value",
     # Also save each filter state ----
     ####
     stateSave_Text <- reactive({
-      # req(dat0())
-
       sel_col <- input$PivCols
       sel_row <- input$PivRows
       sel_nest <- if(input$PivRowNest %in% c("None") || input$PivRowNest == sel_row ){NULL}else{input$PivRowNest}
@@ -955,7 +953,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
     })
     output$stateSave <- renderText(stateSave_Text())
     observeEvent(input$stateClipboard, {
-      clipr::write_clip(stateSave_Text())
+      if(Sys.info()["sysname"] != "Linux"){
+        clipr::write_clip(stateSave_Text())
+      }
     })
 
     # Listen for 'done' events. When we're finished, we'll
