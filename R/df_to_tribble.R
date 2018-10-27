@@ -49,7 +49,7 @@ df_to_tribble <- function(.data, .name = NULL){
   op_trib <- paste("tibble::tribble(",
                    paste0(op_names, ","),
                    op_rows,
-                   ")",
+                   ")\n\n",
                    sep = "\n"
                    )
 
