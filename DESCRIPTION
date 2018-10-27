@@ -17,12 +17,12 @@ Imports:
     jsonlite (>= 1.5),
     rlang,
     htmlwidgets
-Version: 0.1.0.9201
+Version: 0.1.1.9001
 Author: Ryan Timpe <ryan.timpe at gmail.com>
 Authors@R: c(
     person("Ryan", "Timpe", email = "ryan.timpe@gmail.com", role = c("aut", "cre"))
     )
-Description: RStudio add-in to review dataframe objects as pivot tables.
+Description: RStudio add-in to review dataframe objects as pivot tables. Can export "snapshots" of those tables as tribbles. Also includes quicktibble() Addin to manually create data frames.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
