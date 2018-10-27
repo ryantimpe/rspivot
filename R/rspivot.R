@@ -905,7 +905,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       } #End for
 
-      state_filter <- paste0("initFilters = list(", paste(filterList, collapse = ", "), ")")
+      state_filter <- paste0("initFilters = list(", paste(filterList, collapse = ",\n\t\t"), ")")
 
       ##
       # Metric
@@ -913,7 +913,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       if(input$dataMetric == "Values"){
         state_metric <- NULL
       } else {
-        state_metric <- paste0(', initMetric = list(',
+        state_metric <- paste0(',\ninitMetric = list(',
                                'metric = "', input$dataMetric, '", ',
                                'series = "', input$dataMetricSeries, '")')
       }
@@ -923,7 +923,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       if(input$dataPivValues == "sum"){
         state_pivvalues <- NULL
       } else {
-        state_pivvalues <- paste0(', initPivotValues = "', input$dataPivValues, '"')
+        state_pivvalues <- paste0(',\ninitPivotValues = "', input$dataPivValues, '"')
       }
       ###
       # Browser
@@ -931,16 +931,16 @@ rspivot <- function(df=.Last.value, valueName = "value",
       if(!launch.browser){
         state_browser <- NULL
       }else {
-        state_browser <- paste0(', launch.browser = TRUE')
+        state_browser <- paste0(',\nlaunch.browser = TRUE')
       }
 
       ##
       #Combine
       ##
 
-      state_all <- paste0("rspivot::rspivot(", df.name, ", ",
+      state_all <- paste0("rspivot::rspivot(", df.name, ",\n\t\t",
                           state_valueName,
-                          state_rowcol, ", ",
+                          state_rowcol, ",\n\t",
                           state_filter,
                           state_pivvalues,
                           state_metric,
