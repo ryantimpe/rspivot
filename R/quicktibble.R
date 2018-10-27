@@ -275,7 +275,7 @@ quicktibble <- function(.data = NULL){
     observeEvent(input$done, {
       hot = isolate(input$hot)
       if (!is.null(hot)) {
-        rstudioapi::insertText(Inf, codePreview())
+        rstudioapi::insertText(codePreview())
       }
       stopApp()
     })
