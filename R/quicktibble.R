@@ -29,22 +29,6 @@ quicktibble <- function(.data = NULL){
     "#selInputData   ~ .selectize-control.single .selectize-dropdown [data-value='Provided Array'] { color: blue }
      #selInputColumn ~ .selectize-control.single .selectize-dropdown [data-value=`Provided Array'] { color: blue }"
 
-  collapse_col2 <- function(index, data){
-    #Check to see if its a numeric column...
-    check.num <- suppressWarnings(sum(is.na(as.numeric(as.character(data[, index][!is.na(data[, index])])))) > 0)
-
-    if(!check.num){
-      op <- paste0(names(data)[index], " = c( ", paste0(data[, index], collapse = ", "), ")")
-    } else {
-      op <- paste0(names(data)[index], " = c( '", paste0(data[, index], collapse = "', '"), "')")
-    }
-
-    #Replace 'NA'
-    op <- gsub("'NA'", "NA", op)
-
-    return(op)
-  }
-
   ################
   # UI ----
   ################
