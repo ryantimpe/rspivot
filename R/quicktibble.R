@@ -72,7 +72,8 @@ quicktibble <- function(.data = NULL){
                  checkboxInput("setWeight", "Weight column?", value = FALSE),
                  checkboxInput("setUnique", "Unique values", value = TRUE),
                  hr(),
-                 actionButton("selInputBuild", label = "Create")
+                 actionButton("selInputBuild", label = "Create", icon = shiny::icon("table"),
+                              style = "background-color:#4040FF; color:#ffffff;")
           )
         )
       )
@@ -94,6 +95,8 @@ quicktibble <- function(.data = NULL){
     ),
     miniUI::miniContentPanel(
       rhandsontable::rHandsontableOutput("hot"),
+      strong("Output preview"),
+      helpText("When finished, click 'Done' to paste in editor."),
       verbatimTextOutput("opPreview")
     )
 
