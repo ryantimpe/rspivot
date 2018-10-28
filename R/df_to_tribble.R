@@ -17,15 +17,15 @@ df_to_tribble <- function(.data, .name = NULL){
 
   #Width of each column
   op_widths <- 1:ncol(dat) %>%
-    purrr::map_int(function(i){
-      max(max(nchar(dat[, i])), nchar(names(dat)[i]))
+    purrr::map_dbl(function(i){
+      max(max(nchar(dat[, i])), nchar(names(dat)[i])+2)
     })
 
   #Header
   op_names <- 1:ncol(dat) %>%
     purrr::map_chr(function(i){
       leading_spaces <- strrep(" ", op_widths[i] - nchar(names(dat)[i]) + 1)
-      paste0(leading_spaces, "~", names(dat)[i])
+      paste0(leading_spaces, "~`", names(dat)[i], "`")
     }) %>%
     paste(collapse = ",")
 
@@ -37,7 +37,7 @@ df_to_tribble <- function(.data, .name = NULL){
 
       1:ncol(dat.row) %>%
         purrr::map_chr(function(i){
-          leading_spaces <- strrep(" ", op_widths[i] - nchar(dat.row[i]) + 2)
+          leading_spaces <- strrep(" ", op_widths[i] - nchar(dat.row[i]) + 4)
           paste0(leading_spaces, dat.row[i])
         }) %>%
         paste(collapse = ",") %>%
