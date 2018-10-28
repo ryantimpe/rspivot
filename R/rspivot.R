@@ -847,7 +847,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
         dplyr::filter(dim_y != "*Total*") %>%
         dplyr::filter(dim_x != "*Total")
 
-      gg <- ggplot2::ggplot(data = dat, ggplot2::aes(x = dim_x, y = value, group = dim_y))
+      gg <- ggplot2::ggplot(data = dat, ggplot2::aes(x = dim_x, y = value, group = dim_y)) +
+        scale_x_discrete(expand = c(0,0))
 
       #How to display data
       if(sel_type == "line"){
