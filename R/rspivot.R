@@ -38,9 +38,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
     stop("rspivot only accepts data frames.")
   }
 
-  ################
+  ###
   # Non-Reactive functions ----
-  ################
+  ###
 
   if(length(valueName) > 1){
     df0 <- df %>%
@@ -95,8 +95,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
   dim_indices[["Metric_calc"]] <- tibble::tibble(Metric_calc = data_metric_choices,
                                          Metric_calc_index = 1:length(data_metric_choices))
 
-  ################
+  ###
   # UI ----
+  ###
   ui <- miniUI::miniPage(
     miniUI::gadgetTitleBar("rspivot - Shiny pivot addin for RStudio"),
     miniUI::miniTabstripPanel(
@@ -193,6 +194,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                                         value = 5, min = 0, max = 10, step = 1)
                     ),
                     column(width = 3,
+                           br(),
                            actionButton("tableSaveGo", label = "Save to Editor", icon = shiny::icon("pen"),
                                         style = "background-color:#4040FF; color:#ffffff;")
                     )
@@ -297,9 +299,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
   )
 
 
-  ################
+  ###
   # Server ----
-  ################
+  ###
 
   server <- function(input, output, session) {
 
