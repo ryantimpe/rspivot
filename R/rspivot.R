@@ -94,7 +94,6 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
   ################
   # UI ----
-  ################
   ui <- miniUI::miniPage(
     miniUI::gadgetTitleBar("rspivot - Shiny pivot addin for RStudio"),
     miniUI::miniTabstripPanel(
@@ -174,7 +173,27 @@ rspivot <- function(df=.Last.value, valueName = "value",
                 #TABLE VIEW
                 conditionalPanel(
                   condition = "input.DisplayMode == 'Table'",
-                  rhandsontable::rHandsontableOutput("hot")
+                  rhandsontable::rHandsontableOutput("hot"),
+                  hr(),
+                  #Save TABLE values as tribble
+                  fluidRow(
+                    column(width = 3,
+                           strong("Save this table"),
+                           helpText("Print this table to your editor to use as a data frame in analysis.")
+                    ),
+                    column(width = 3,
+                           textInput("tableSaveName", label = "Object name",
+                                     value = "RSsave1", placeholder = "e.g. DescriptiveName1")
+                    ),
+                    column(width = 2,
+                           numericInput("tableSaveRound", label = "Round output",
+                                        value = 5, min = 0, max = 10, step = 1)
+                    ),
+                    column(width = 3,
+                           actionButton("tableSaveGo", label = "Save to Editor", icon = shiny::icon("pen"),
+                                        style = "background-color:#4040FF; color:#ffffff;")
+                    )
+                  )
                 ),
                 #CHART VIEW
                 conditionalPanel(
@@ -200,12 +219,14 @@ rspivot <- function(df=.Last.value, valueName = "value",
                   column(width = 3,
                          actionButton("stateClipboard", label = "Copy to Clipboard", icon = icon("clipboard"))
                          ),
-                  column(width = 9,
+                  column(width = 3,
                          radioButtons("stateWrite", label = strong("When 'Done', write function"),
                                       choices = c("Nowhere" = 0,
                                                   "At curser position" = 1,
                                                   "At end of document" = 2),
-                                      selected = 0))
+                                      selected = 0)),
+                  column(width = 3),
+                  column(width = 3)
                 ),
                 br()
               )
@@ -770,6 +791,27 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       return(rh)
 
+    })
+
+    ###
+    # Print table to editor ----
+    ###
+
+    observeEvent(input$tableSaveGo, {
+      all_na <- function(x) !all(is.na(x))
+
+      saveName <- gsub("[^[:alnum:] ]", "", input$tableSaveName)
+
+      dat <- hotData() %>%
+        dplyr::select_if(all_na) %>%
+        dplyr::mutate_if(is.numeric, dplyr::funs(round(., input$tableSaveRound)))
+
+      rstudioapi::insertText(df_to_tribble(dat, saveName) %>% stringr::str_replace_all("  ,", "NA,"))
+
+      #Increment suggest table name as a courtesy
+      saveName <- gsub("\\d+$", "", saveName)
+      updateTextInput(session, "tableSaveName",
+                        value = paste0(saveName, input$tableSaveGo + 1))
     })
 
     ###
