@@ -511,7 +511,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
       } else if(sel_pivValues == "n") {
         dat <- dat0 %>%
           dplyr::count(!!!rlang::syms(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
-          rename(value = n)
+          dplyr::rename(value = n)
       } else {
         dat <- dat0 %>%
           dplyr::group_by(!!!rlang::syms(c(sel_col, sel_row, sel_nest, sel_metric))) %>%
@@ -850,7 +850,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
         dplyr::filter(dim_x != "*Total")
 
       gg <- ggplot2::ggplot(data = dat, ggplot2::aes(x = dim_x, y = value, group = dim_y)) +
-        scale_x_discrete(expand = c(0,0))
+        ggplot2::scale_x_discrete(expand = c(0,0))
 
       #How to display data
       if(sel_type == "line"){

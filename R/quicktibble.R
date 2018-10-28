@@ -4,7 +4,6 @@
 #' Useful with dplyr::left_join().
 #'
 #' @param .data Optional data to initialize the new table. If a data frame, then the selection will default to this data frame. If an array, then the input will be the array.
-#' @param .name Optional name for tribble output
 #' @return Text sting that can be read as a tribble in R
 #' @export
 

@@ -8,8 +8,6 @@ quicktibble(.data = NULL)
 }
 \arguments{
 \item{.data}{Optional data to initialize the new table. If a data frame, then the selection will default to this data frame. If an array, then the input will be the array.}
-
-\item{.name}{Optional name for tribble output}
 }
 \value{
 Text sting that can be read as a tribble in R

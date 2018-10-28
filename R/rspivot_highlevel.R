@@ -9,7 +9,11 @@ NULL
 ## quiets concerns of R CMD check re: the .'s that appear in pipelines
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
-utils::globalVariables(c("ValueNames", "value", 
+utils::globalVariables(c("ValueNames", "value",
                          "Metric_calc", "Values", "Growth", "Difference", "Shares",
                          "*Total*",
-                         "dim_x", "dim_y"))
+                         "dim_x", "dim_y",
+                         "n",
+                         #quicktibble
+                         ".Weight"
+                          ))
