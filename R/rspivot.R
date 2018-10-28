@@ -58,6 +58,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
   all.elements <- "Show All"
   df.name <- deparse(substitute(df))
 
+  #For select_if()
+  all_na <- function(x) !all(is.na(x))
+
   #Move value to end
   df0a <- df0[, dim_names] %>%
     dplyr::bind_cols(data.frame(value = df0$value, stringsAsFactors = FALSE))
@@ -123,10 +126,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
                 selectInput("PivCols", label = "Columns (x-axis)",
                           choices = NULL , selected = NULL),
                 fluidRow(
-                  column(width = 3,
+                  column(width = 9,
                          checkboxInput("PivCols_tot", label = " Column Totals", value=FALSE)
                          ),
-                  column(width = 9
+                  column(width = 3
                          )
                 )
                 ),
@@ -710,7 +713,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
       inc_row <- input$PivRows_tot
       inc_nest <- input$PivRowNest_tot
 
-      df <- dat4()
+      df <- dat4() %>%
+        #Drop NA columns
+        dplyr::select_if(all_na)
 
       #Include column totals?
       if(!inc_col){
@@ -743,10 +748,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
     output$hot <- rhandsontable::renderRHandsontable({
 
       df <- hotData()
+
       names(df) <- trimws(names(df))
 
-      #Drop columns that are all NAs --- mostly YY growths
-      df <-  df[, colSums(is.na(df)) < nrow(df)]
       cols_num <- names(df)[names(df) %in% cols_numeric()]
 
       #Sparklines
@@ -803,7 +807,6 @@ rspivot <- function(df=.Last.value, valueName = "value",
       saveName <- gsub("[^[:alnum:] ]", "", input$tableSaveName)
 
       dat <- hotData() %>%
-        dplyr::select_if(all_na) %>%
         dplyr::mutate_if(is.numeric, dplyr::funs(round(., input$tableSaveRound)))
 
       rstudioapi::insertText(df_to_tribble(dat, saveName) %>% stringr::str_replace_all("  ,", "NA,"))
