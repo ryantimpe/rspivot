@@ -113,27 +113,22 @@ rspivot <- function(df=.Last.value, valueName = "value",
                      uiOutput("ui_update_data"),
                      helpText("Select filters and then click the button to update the table.")
                      ),
-              column(width = 3,
-                selectInput("PivRows", label = "Rows (Group)",
-                          choices = NULL , selected = NULL),
-                selectInput("PivRowNest", label = NULL,
-                            choices = NULL , selected = NULL),
-                fluidRow(
-                  column(width = 6, checkboxInput("PivRows_tot", label = "Row Totals", value=TRUE)),
-                  column(width = 6, checkboxInput("PivRowNest_tot", label = "Nest Totals", value=TRUE))
-                )
+              column(width = 2,
+                     selectInput("PivRows", label = "Rows",
+                                 choices = NULL , selected = NULL),
+                     checkboxInput("PivRows_tot", label = "Row Totals", value=TRUE)
               ),
-              column(width = 3,
-                selectInput("PivCols", label = "Columns (x-axis)",
-                          choices = NULL , selected = NULL),
-                fluidRow(
-                  column(width = 9,
-                         checkboxInput("PivCols_tot", label = " Column Totals", value=FALSE)
-                         ),
-                  column(width = 3
-                         )
-                )
-                ),
+              column(width = 2,
+                     selectInput("PivRowNest", label = "Nest Rows",
+                                 choices = NULL , selected = NULL),
+                     checkboxInput("PivRowNest_tot", label = "Nest Totals", value=TRUE)
+              ),
+              column(width = 2,
+                     selectInput("PivCols", label = "Columns",
+                                 choices = NULL , selected = NULL),
+                     checkboxInput("PivCols_tot", label = " Column Totals", value=FALSE)
+
+              ),
               column(width = 3,
                      div(
                      radioButtons("DisplayMode", label = "Display Mode",
