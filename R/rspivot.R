@@ -677,16 +677,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
                                 dat_sorted_col_order)
       dat_sorted <- dat_sorted[, dat_sorted_col_order]
 
-      ###
-      # Truncate text
-      ###
-      dat_trunc <- dat_sorted %>%
-        dplyr::rowwise() %>%
-        dplyr::mutate_if(is.character, dplyr::funs(ifelse(nchar(.) > sel_truncate, substr(., 1, sel_truncate), .))) %>%
-        dplyr::ungroup() %>%
-        as.data.frame()
-
-      return(dat_trunc)
+      return(dat_sorted)
     })
 
     ###
@@ -744,7 +735,14 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
     output$hot <- rhandsontable::renderRHandsontable({
 
-      df <- hotData()
+      #Truncate text for table
+      sel_truncate <- input$textTruncate
+
+      df <- hotData()# %>%
+        # dplyr::rowwise() %>%
+        # dplyr::mutate_if(is.character, dplyr::funs(ifelse(nchar(.) > sel_truncate, substr(., 1, sel_truncate), .))) %>%
+        # dplyr::ungroup() %>%
+        # as.data.frame()
 
       names(df) <- trimws(names(df))
 
@@ -776,6 +774,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
                        }"
                  )
 
+      # #Heat map
+      # rh <- rh %>%
+      #   rhandsontable::hot_heatmap(cols = 2:ncol(df))
+
       if(input$dataMetric %in% c("Growth", "Shares") & input$PivRowNest != "Metric_calc"){
         rh <- rh %>%
           rhandsontable::hot_cols(format = paste0("0.", paste(rep("0", input$decMetric), collapse = ""), "%"))
@@ -783,6 +785,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
         rh <- rh %>%
           rhandsontable::hot_cols(format = paste0("0.", paste(rep("0", input$decValues), collapse = "")))
       }
+
 
       #Sparklines
       if(input$PivCols_chart != "None"){
@@ -804,7 +807,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
       saveName <- gsub("[^[:alnum:] ]", "", input$tableSaveName)
 
       dat <- hotData() %>%
-        dplyr::mutate_if(is.numeric, dplyr::funs(round(., input$tableSaveRound)))
+        dplyr::mutate_if(is.numeric, dplyr::funs(round(., input$tableSaveRound))) %>%
+        as.data.frame()
 
       rstudioapi::insertText(df_to_tribble(dat, saveName) %>% stringr::str_replace_all("  ,", "NA,"))
 
