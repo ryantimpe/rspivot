@@ -251,14 +251,24 @@ rspivot <- function(df=.Last.value, valueName = "value",
                           'Mean' is useful for values that cannot be summed, such as ratios.
                           'Count' is useful for data validation."),
                  hr(),
-                 selectInput("dataMetric", label = "Data Metric",
+                 strong("Data Metric"),
+                 helpText("Data metrics further transform the pivot table values, as defined above."),
+                 selectInput("dataMetric", label = "Metric",
                              choices = data_metric_choices, selected = "Values"),
                  conditionalPanel(
                    condition = "input.dataMetric != 'Values'",
                    selectInput("dataMetricSeries", label = "Metric over",
                                choices = NULL , selected = NULL)
                  ),
-                 helpText("Data metrics further transform the pivot table values, as defined above.")
+                 conditionalPanel(
+                   condition = "input.dataMetric = 'Growth'",
+                   numericInput("dataMetricLag", label = "Number of element lags",
+                                min = 1, max = Inf, step = 1, value = 1),
+                   helpText("Use this selection to choose how many elements to lag over when calculating growth.
+                            e.g. 1 means growth is calculated from the preceeding value"),
+                   checkboxInput("dataMetricCompounded", label = "Compound growth?"),
+                   helpText("Compound growth shows the 'average' growth over the N period selected. Leave unchecked to show total growth.")
+                 )
                  ),
           # column(width = 3,
           #        strong("Z-scores"),
@@ -421,6 +431,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
                           selected = initMetric$metric)
         updateSelectInput(session, "dataMetricSeries",
                           selected = initMetric$series)
+        updateNumericInput(session, "dataMetricLag",
+                          value = initMetric$lag)
+        updateCheckboxInput(session, "dataMetricCompounded",
+                            value = initMetric$compound)
       }
     })
 
@@ -574,10 +588,16 @@ rspivot <- function(df=.Last.value, valueName = "value",
       }
 
       if(input$dataMetric == "Growth"){
+        #Growth lag
+        sel_lag <- input$dataMetricLag
+        if(!is.numeric(sel_lag) | sel_lag < 1){sel_lag <- 1}
+
+        #Compounded growth
+        sel_compound <- if(input$dataMetricCompounded){1/sel_lag}else{1}
 
         dat <- dat %>%
           dplyr::group_by(!!!rlang::syms(names(.)[!(names(.) %in% c(sel_metric, "value"))])) %>%
-          dplyr::mutate(Growth = (value / dplyr::lag(value, 1) - 1) *
+          dplyr::mutate(Growth = ((value / dplyr::lag(value, sel_lag))^sel_compound - 1) *
                    (if(!is.null(sel_nest) && sel_nest =="Metric_calc"){100}else{1})
                     ) %>%
           dplyr::ungroup() %>%
@@ -962,7 +982,9 @@ rspivot <- function(df=.Last.value, valueName = "value",
       } else {
         state_metric <- paste0(',\ninitMetric = list(',
                                'metric = "', input$dataMetric, '", ',
-                               'series = "', input$dataMetricSeries, '")')
+                               'series = "', input$dataMetricSeries, '", ',
+                               'lag = ',     input$dataMetricLag, ', ',
+                               'compound = ', input$dataMetricCompounded, ')')
       }
       ###
       # Pivot Values
