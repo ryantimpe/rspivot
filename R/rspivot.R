@@ -985,9 +985,14 @@ rspivot <- function(df=.Last.value, valueName = "value",
       } else {
         state_metric <- paste0(',\ninitMetric = list(',
                                'metric = "', input$dataMetric, '", ',
-                               'series = "', input$dataMetricSeries, '", ',
-                               'lag = ',     input$dataMetricLag, ', ',
-                               'compound = ', input$dataMetricCompounded, ')')
+                               'series = "', input$dataMetricSeries, '"',
+                               if(input$dataMetric %in% c("Growth", "Difference") & input$dataMetricLag > 1){
+                                 paste0(
+                                  ', lag = ',     input$dataMetricLag, ', ',
+                                  'compound = ', input$dataMetricCompounded
+                                 )
+                               } else {''},
+                               ')')
       }
       ###
       # Pivot Values
