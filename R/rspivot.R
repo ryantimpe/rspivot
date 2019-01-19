@@ -10,6 +10,7 @@
 #' @param initCols Specify the series to be displayed as columns. If blank, defaults to the right-most series in the data frame.
 #' @param initRows Specify the series to be displayed as rows. If blank, defaults to the 2nd right-most series in the data frame.
 #' @param initNest Specify the series to be displayed as nested rows. If blank, no nested rows are displayed.
+#' @param initTotals c("rows", "row_nests", "columns") to toggle row, nested row, or column totals.
 #' @param initFilters Optional list of initial filter selections. Leave a series blank or use "Show All" to select all. Pass series names to \code{make.names()} to ensure correct use.
 #' Alternatively, leave this blank on the intiial run, and use the Save Function feature after manually selecting filters.
 #' @param initPivotValues Summary values to display in the pivot table. Default is \code{"sum"}, showing the total values of the underlying data.
@@ -30,8 +31,9 @@
 
 rspivot <- function(df=.Last.value, valueName = "value",
                     initCols = "", initRows = "", initNest = "",
+                    initTotals = c(),
                     initFilters = list(), initPivotValues = "sum",
-                    initMetric = list(metric = "Values", series = ""),
+                    initMetric = list(metric = "Values"),
                     launch.browser = FALSE) {
 
   if(!is.data.frame(df)) {
@@ -353,6 +355,12 @@ rspivot <- function(df=.Last.value, valueName = "value",
                       choices = c("None", "*Metric*" = "Metric_calc", dim_names),
                       selected = (if(initNest == ""){"None"}else{make.names(initNest)})
                       )
+
+    # Totals to include
+    #Rows default to TRUE, others to FALSE
+    updateCheckboxInput(session, "PivRows_tot", value = ("rows" %in% initTotals | length(initTotals) == 0))
+    updateCheckboxInput(session, "PivRowNest_tot", value = "row_nests" %in% initTotals)
+    updateCheckboxInput(session, "PivCols_tot", value = "columns" %in% initTotals)
 
     #Series filtering
     output$selects <- renderUI({

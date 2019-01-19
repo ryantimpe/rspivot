@@ -5,9 +5,9 @@
 \title{View data frames as Shiny pivot tables}
 \usage{
 rspivot(df = .Last.value, valueName = "value", initCols = "",
-  initRows = "", initNest = "", initFilters = list(),
-  initPivotValues = "sum", initMetric = list(metric = "Values", series
-  = ""), launch.browser = FALSE)
+  initRows = "", initNest = "", initTotals = c(),
+  initFilters = list(), initPivotValues = "sum",
+  initMetric = list(metric = "Values"), launch.browser = FALSE)
 }
 \arguments{
 \item{df}{A data frame flat file to be converted to pivot format. Data should be in "long" format, with a single column of values named \code{value}.
@@ -21,6 +21,8 @@ Can also accept an array of strings containing the names of multiple value colum
 \item{initRows}{Specify the series to be displayed as rows. If blank, defaults to the 2nd right-most series in the data frame.}
 
 \item{initNest}{Specify the series to be displayed as nested rows. If blank, no nested rows are displayed.}
+
+\item{initTotals}{c("rows", "row_nests", "columns") to toggle row, nested row, or column totals.}
 
 \item{initFilters}{Optional list of initial filter selections. Leave a series blank or use "Show All" to select all. Pass series names to \code{make.names()} to ensure correct use.
 Alternatively, leave this blank on the intiial run, and use the Save Function feature after manually selecting filters.}
