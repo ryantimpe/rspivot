@@ -121,7 +121,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
               column(width = 2,
                      selectInput("PivRowNest", label = "Nest Rows",
                                  choices = NULL , selected = NULL),
-                     checkboxInput("PivRowNest_tot", label = "Nest Totals", value=TRUE)
+                     checkboxInput("PivRowNest_tot", label = "Nest Totals", value=FALSE)
               ),
               column(width = 2,
                      selectInput("PivCols", label = "Columns",
@@ -943,6 +943,19 @@ rspivot <- function(df=.Last.value, valueName = "value",
                             sep = ', ')
 
       ##
+      # Totals
+      ##
+      state_total <- if(input$PivRows_tot & !input$PivRowNest_tot & !input$PivCols_tot){
+        NULL
+      } else {
+        paste0(',\n\tinitTotals = c(',
+              paste(c('"rows"', '"row_nests"', '"columns"')[c(input$PivRows_tot, input$PivRowNest_tot, input$PivCols_tot)],
+                    collapse = ', '),
+              ")"
+              )
+      }
+
+      ##
       # Filters
       ##
       filterList <- c()
@@ -975,7 +988,7 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       } #End for
 
-      state_filter <- paste0("initFilters = list(", paste(filterList, collapse = ",\n\t\t"), ")")
+      state_filter <- paste0(",\n\tinitFilters = list(", paste(filterList, collapse = ",\n\t\t"), ")")
 
       ##
       # Metric
@@ -1017,7 +1030,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
 
       state_all <- paste0("rspivot::rspivot(", df.name, ",\n\t\t",
                           state_valueName,
-                          state_rowcol, ",\n\t",
+                          state_rowcol,
+                          state_total,
                           state_filter,
                           state_pivvalues,
                           state_metric,
