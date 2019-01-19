@@ -261,13 +261,16 @@ rspivot <- function(df=.Last.value, valueName = "value",
                                choices = NULL , selected = NULL)
                  ),
                  conditionalPanel(
-                   condition = "input.dataMetric = 'Growth'",
+                   condition = "input.dataMetric == 'Growth' || input.dataMetric == 'Difference'",
                    numericInput("dataMetricLag", label = "Number of element lags",
                                 min = 1, max = Inf, step = 1, value = 1),
-                   helpText("Use this selection to choose how many elements to lag over when calculating growth.
-                            e.g. 1 means growth is calculated from the preceeding value"),
-                   checkboxInput("dataMetricCompounded", label = "Compound growth?"),
-                   helpText("Compound growth shows the 'average' growth over the N period selected. Leave unchecked to show total growth.")
+                   helpText("Use this selection to choose how many elements to lag over when calculating the metric.\n
+                            e.g. 1 means growth is calculated from the preceding value"),
+                   conditionalPanel(
+                     condition = "input.dataMetric == 'Growth'",
+                     checkboxInput("dataMetricCompounded", label = "Compound growth?"),
+                     helpText("Compound growth shows the 'average' growth over the N period selected. Leave unchecked to show total growth.")
+                   )
                  )
                  ),
           # column(width = 3,
