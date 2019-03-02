@@ -368,6 +368,8 @@ rspivot <- function(df=.Last.value, valueName = "value",
       #Loop through each dimension to build a filter
       lapply(seq_along(dim_names), function(i){
         dat <- dat0()
+        
+        if(nrow(unique(dat0()[, dim_names[i]])) <= 1){return(NULL)}
 
         #Treat all series the same... time, nonagg, etc...
         choice.list <- c(all.elements, unique(dat0()[, dim_names[i]]))
@@ -403,10 +405,10 @@ rspivot <- function(df=.Last.value, valueName = "value",
           }
         }
 
+
         # Build the Menu for each dimension
         list(
-           #Filter for numeric dimension
-           if(dim_names[i] %in% series.num){
+            if(dim_names[i] %in% series.num){ #Filter for numeric dimension
              sliderInput(
                inputId = paste0("Sel", i),
                label = paste0(dim_names[i]),
